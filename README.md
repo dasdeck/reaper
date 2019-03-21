@@ -1,7 +1,7 @@
 # D3CK reaper tools
 
-to install and use in reaper simply clone to reapers Scripts directory
-`Script/D3CK`
+to install and use in reaper simply clone this repo to reaper's `Scripts` directory
+eg `Scripts/D3CK`
 
 then choose one of the scripts from the app directory
 
