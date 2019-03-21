@@ -1,10 +1,13 @@
 local Menu = require 'Menu'
 local _ = require '_'
 local rea = require 'Reaper'
-
+local File = require 'File'
 local Directory = class()
 
 function Directory:create(dir, filter)
+
+    assert(type(dir) == 'string')
+
     local self = {}
     setmetatable(self, Directory)
 
@@ -17,6 +20,10 @@ end
 function Directory:mkdir()
     reaper.RecursiveCreateDirectory(self.dir, 0)
     return self
+end
+
+function Directory:file(path)
+    return File:create(self.dir .. '/' .. path)
 end
 
 function Directory:listAsMenu(selected)

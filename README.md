@@ -10,8 +10,11 @@ eg `Scripts/D3CK`
 Theses scripts assume to reside in the path mentioned above and will also write to reaper's
 `Effects\D3CK` direcory to ensure supporting 'jsfx' are installed
 
+to run, choose one of the scripts from the app directory
+this is a very early alpha version, so expect things not to break
 
-## DrumRack / ZoneMan
+
+## DrumRack / ZoneMan (apps/drumRack.lua)
 
 a drum rack for reaper.
 this script offers a convenient UI for managing instrument tracks and trigger them with
@@ -32,6 +35,9 @@ with midi notes
 + save/load kits (handled as regular track templates)
 + managed fx bus and fx per pad
 + context actions (right click on pads and layers)
++ fx/pad/layer locking (not very useful yet)
++ split mode, use key-ranges instead of a pad grid
++ follow pad selection by midi input
 
 + no internal state is kept, e.g. the drum rack is completely driven by the track structure underneath and a "hub" plugin distributing the midi data to the pads and layers, which themselves are just plain tracks.
 
@@ -44,12 +50,7 @@ with midi notes
 + better split mode
 + more pads/zones (128)
 + sequencer integration
++ reapack integration
 
 
-
-then choose one of the scripts from the app directory
-
-this is a very early alpha version, so expect things not to work
-
-Cheers!
-
+license: MIT

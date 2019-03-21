@@ -9,18 +9,16 @@ local Watcher = require 'Watcher'
 local DrumRackSelector = require 'DrumRackSelector'
 local Window = require 'Window'
 
+local paths = require 'paths'
 
-local Plugin = require 'Plugin'
+local DrumRackJSFX = paths.effectsDir:file('DrumRack')
 
-if not Plugin.exists('DrumRack') then
-
-  reaper.MB("this script need the drumrack jsfx to be installed", "install plugin", 0)
-
-
+if not DrumRackJSFX:exists() then
+  DrumRackJSFX:setContent(paths.scriptDir:file('jsfx/DrumRack'):getContent())
+  reaper.MB('plugin installed, restart script', 'restart', 0)
 else
 
-
-  Window.openComponent(DrumRackSelector:create(), {
+Window.openComponent(DrumRackSelector:create(), {
     name = 'drumrack',
     w = 600,
     h = 300,
