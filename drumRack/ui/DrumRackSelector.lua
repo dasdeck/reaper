@@ -1,4 +1,5 @@
 local Component = require 'Component'
+local TextButton = require 'TextButton'
 local DrumRack = require 'DrumRack'
 local DrumRackUI = require 'DrumRackUI'
 local Track = require 'Track'
@@ -9,6 +10,15 @@ local DrumRackSelector = class(Component)
 function DrumRackSelector:create()
     local self = Component:create()
     self.followSelection = true
+
+    self.button = self:addChildComponent(TextButton:create('+DrumRack'))
+    self.button.isVisible = function()
+        return not self.drumrack
+    end
+
+    self.button.onButtonClick = function(s, mouse)
+        DrumRackUI.drumRackButton(mouse)
+    end
 
     Track.watch.tracks:onChange(function()
         if self.drumrack then
@@ -39,7 +49,6 @@ function DrumRackSelector:create()
 end
 
 function DrumRackSelector:setDrumRack(rack)
-    -- rea.log('deleted')
     if self.drumrack then self.drumrack:delete() end
     self.drumrack = rack and self:addChildComponent(DrumRackUI:create(rack)) or nil
 end
@@ -47,9 +56,12 @@ end
 function DrumRackSelector:resized()
 
     if self.drumrack then
-        self.drumrack.w = self.w
-        self.drumrack.h = self.h
+        self.drumrack:setSize(self.w, self.h)
+    else
+        self.button:setSize(self.w, self.h)
     end
+
+
 
 end
 

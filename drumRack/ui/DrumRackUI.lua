@@ -4,6 +4,9 @@ local PadEditor = require 'PadEditor'
 local ButtonList = require 'ButtonList'
 local Split = require 'Split'
 local DrumRackOptions = require 'DrumRackOptions'
+local DrumRack = require 'DrumRack'
+local Menu = require 'Menu'
+local Track = require 'Track'
 
 local colors = require 'colors'
 local _ = require '_'
@@ -13,6 +16,47 @@ local rea = require 'Reaper'
 
 local DrumRackUI = class(Component)
 
+function DrumRackUI.drumRackButton(mouse)
+    local addRack = function()
+        local name = rea.prompt('name')
+        if name then
+            local track = Track.insert()
+            track:setName(name:len() and name or 'drumrack')
+            return DrumRack.init(track):getTrack():choose()
+        end
+    end
+
+    if mouse:wasRightButtonDown() then
+        local menu = Menu:create()
+        menu:addItem('new drumrack', addRack, 'add drum rack')
+        menu:addItem('from selected tracks (layers)', function()
+            local tracks = Track.getSelectedTracks()
+            local rack = addRack()
+            if rack then
+                _.forEach(tracks, function(track)
+                    rack.pads[1]:addTrack(track)
+                end)
+            end
+        end, 'add drum rack')
+        menu:addItem('from selected tracks (pads)', function()
+            local tracks = Track.getSelectedTracks()
+            local rack = addRack()
+            if rack then
+                local i = 1
+                _.forEach(tracks, function(track)
+                    if rack.pads[i] then
+                        rack.pads[i]:addTrack(track)
+                    end
+
+                    i = i + 1
+                end)
+            end
+        end, 'add drum rack')
+        menu:show()
+    else
+        rea.transaction('add drum rack',addRack)
+    end
+end
 
 -- methods
 
