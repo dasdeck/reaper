@@ -1,0 +1,12 @@
+TrackTool:
+    ☐ lazy initialization
+    ☐ switch global transpose
+    ☐ octave flipper
+    ☐ seperate single utils
+        ☐ transpose
+            ☐ filter range (map?)
+        ☐ delay
+
+
+
+Bugs:

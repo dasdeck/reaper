@@ -1,0 +1,13 @@
+Ideas:
+    ☐ sync midiSlaveTracks
+        ☐ name
+        ☐ icons
+        keep sync while name begins with ->
+    ☐ instrument rack
+        show all tracks that have neither tcp nor mcp
+        add midi track
+        add multiouts
+        edit
+        higlight when midi track is selected
+Bugx:
+    ☐ random sound if db file is missing

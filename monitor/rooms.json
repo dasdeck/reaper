@@ -1,0 +1,52 @@
+[
+    {
+        "args": "--",
+        "params": {
+            "Room dif": 0,
+            "Room T60": 0.3499998152256,
+            "Room siz": 0.6625000834465,
+            "Room sim": 0,
+            "Room ER": 0.33750000596046
+        }
+    },
+    {
+        "args": "studio I",
+        "params": {
+            "Room dif": 0,
+            "Room T60": 0.3499998152256,
+            "Room siz": 0.6625000834465,
+            "Room sim": 1,
+            "Room ER": 0.33750000596046
+        }
+    },
+    {
+        "params": {
+            "Room ER": 0.37000000476837,
+            "Room sim": 1,
+            "Room dif": 0,
+            "Room siz": 0.23500008881092,
+            "Room T60": 0
+        },
+        "args": "dry I"
+    },
+    {
+        "args": "bassy",
+        "params": {
+            "Room ER": 0.48250004649162,
+            "Room siz": 0.14750015735626,
+            "Room T60": 0.22749999165535,
+            "Room sim": 1,
+            "Room dif": 0
+        }
+    },
+    {
+        "params": {
+            "Room ER": 0,
+            "Room T60": 0,
+            "Room siz": 0.70000004768372,
+            "Room dif": 0,
+            "Room sim": 1
+        },
+        "args": "dead"
+    }
+]

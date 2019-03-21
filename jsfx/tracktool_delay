@@ -1,0 +1,151 @@
+desc:Time Adjustment Delay
+desc:Time Adjustment Delay or Negative Delay
+//tags: delay time PDC
+//author: D3CK
+
+options:gmem=tracktool
+
+
+slider1:0<-1000,1000,1>Delay Amount (ms)
+slider2:0<0,2,{midi,audio,both}>mode
+slider3:0<-128,128,1>transpose
+
+@init
+
+  pdc_midi = 1.0;
+
+  max_ram = __memtop();
+  headerLength = 3; // position, length (incl header), bus
+
+  bpos = 0;
+  samplepos = 0;
+  buf_l=0;
+  buf_r=0;
+
+  statNoteOn = $x90;
+  statNoteOff = $x80;
+
+  function midisendBuf(off, pos, len)
+  (
+
+    isShortEvent = len == 3;
+
+    isShortEvent ? (
+      msg1 = pos[0];
+      msg2 = pos[1];
+      msg3 = pos[2];
+
+      status = msg1 & $xF0;
+      channel = msg1 & $x0F;
+
+      isNoteOn = status == statNoteOn;
+      isNoteOff = status == statNoteOff;
+      isNote = isNoteOn || isNoteOff;
+
+      isNote ? pos[1] += transpose;
+      note = msg2;
+      velo = msg3;
+    );
+
+
+    midisend_buf(off, pos, len);
+  );
+
+  function clearMidiDelay()
+  (
+    buf_l = bufsize;
+    buf_r = bufsize;
+  );
+
+  function allNotesOff()
+  (
+    midisend(0, 0xB0, 123);
+    clearMidiDelay();
+  );
+
+  function delayAudio(len)
+  (
+    chan = 0;
+    loop(num_ch,
+      bpos[] = spl(chan);
+      rdpos = bpos - len;
+      rdpos < 0 ? rdpos += bufsize;
+      spl(chan) = rdpos[];
+      chan += 1;
+      bpos += 1;
+      bpos >= bufsize ? bpos = 0;
+    );
+  );
+
+  function delayMidi(len)
+  (
+
+    // process incoming events
+    while((l = midirecv_buf(offs, buf_r + headerLength, max_ram - buf_r - headerLength)) > 0)
+    (
+        buf_r[0] = samplepos + len + offs;
+        buf_r[1] = headerLength + l;
+        buf_r[2] = midi_bus;
+        buf_r += headerLength + l;
+        do += 1;
+        does = l;
+
+    );
+
+    // process outgoing events
+    // rd = buf_l;
+    offs = (buf_l[0] - samplepos);
+    while ((buf_l < buf_r) && (offs = (buf_l[0] - samplepos)) < samplesblock)
+    (
+        midi_bus = buf_l[2];
+        l = buf_l[1];
+        midisendBuf(offs, buf_l + headerLength, l - headerLength);
+        buf_l += l;
+        DONE = 10
+    );
+
+    // compact buf if needed
+    buf_l >= buf_r ? (
+      buf_l = buf_r = bufsize;
+    ) : (
+      buf_l > (max(1024, buf_r * .5) + bufsize) ? (
+        (buf_r -= buf_l) > 0 ? memcpy(bufsize, buf_l, buf_r) : buf_r = bufsize;
+        buf_l = bufsize;
+      );
+    );
+
+    samplepos += samplesblock
+  );
+
+@slider
+
+  delaylen = (slider1 * srate / 1000) | 0;
+  delaylen < 0 ? (
+    pdc_delay = -delaylen;
+    delaylen = 0;
+  ) : (
+    delaylen += pdc_delay;
+  );
+
+@block
+
+  nextTranspose = slider3;// + gmem[0];
+
+  transpose != nextTranspose ? (
+    allNotesOff();
+    transpose = nextTranspose;
+  );
+
+
+  bufsize = srate * num_ch;
+
+  buf_l == 0 ? buf_l = bufsize;
+  buf_r == 0 ? buf_r = bufsize;
+
+
+  (slider2 == 0 || slider2 == 2) ? delayMidi(delaylen);
+
+@sample
+
+  (slider2 == 1 || slider2 == 2) && delaylen > 0 ? delayAudio(delaylen);
+

@@ -1,0 +1,37 @@
+[
+    {
+        "size": 1,
+        "preset": "bypass",
+        "args": "1cm"
+    },
+    {
+        "size": 1.8,
+        "preset":"bypass",
+        "args":"Genelec"
+    },
+    {
+        "size": 2.5,
+        "preset":"bypass",
+        "args":"1\""
+    },
+    {
+        "size": 2.7,
+        "preset":"bypass",
+        "args":"2.7"
+    },
+    {
+        "size": 3.4,
+        "preset":"bypass",
+        "args":"ATC"
+    },
+    {
+        "size": 2.5,
+        "preset":"NS10",
+        "args":"NS10"
+    },
+    {
+        "size": 10,
+        "preset":"Auratone",
+        "args":"Auratone"
+    }
+]

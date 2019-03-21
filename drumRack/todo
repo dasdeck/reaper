@@ -1,0 +1,48 @@
+DrumRack:
+    ☐ move note filter logic to single tracks to hav 128
+        ☐ id "zone" with custom midi event data
+        ☐ optimize mit routing layer tracks?
+        ☐ only connect vie symbolic sends
+        ☐ 128 pads/zones
+        ☐ index = bus * channel
+        ☐ also add fx to pad track?
+        ☐ differnt jsfx for different types?
+        ☐ types only by meta data?
+
+    ☐ add/move tools to rack
+        ☐ show when no rack selected
+
+    ✔ separate model and UI @done(19-03-19 06:48)
+    ☐ auto sort tracks in mixer
+    ✔ split mode @done(19-03-18 18:24)
+    ☐ flip through presets
+    ✘ remove track content (on load) @cancelled(19-03-21 10:46)
+    ☐ virtual trackstate handler
+
+    ✔ connect pad fx via (muted) midi connections @done(19-03-18 10:00)
+
+    meta
+    ☐ clean up wised track meta info @meta
+    ☐ save track meta in preset (remove on load) @meta
+        look
+        do when project is not dirty and no undo states
+
+    ✔ range in pad/split editor @done(19-03-21 10:49)
+    ✔ target key in pad mode ? (60) @done(19-03-21 10:49)
+
+    ✔ remove "to" note from drum rack @done(19-03-18 18:24)
+    ☐ if pad fx -> layers have fx icon to show/hide in mixer
+        ☐ right click to choose extra routing options
+        off by default
+    ☐ slicer
+        ☐ audio items from own track
+            mute items
+            refresh pads on change
+            remove slices on finish
+        ☐ learn and edit single pad
+        ☐ apply take fx
+
+    ☐ more zones
+        ☐ try to use 16 x 16 pads (for keyzones / slices)
+Bugs:
+    ✔ delete pad/rack fx @done(19-03-19 11:16)

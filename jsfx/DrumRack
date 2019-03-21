@@ -1,0 +1,213 @@
+desc:drum rack key mapper
+
+options:gmem=drumrack
+
+in_pin:none
+out_pin:none
+
+slider1:0<1,16,1>pad
+slider2:0<0,127,1>from key
+slider3:0<0,127,1>to key
+slider4:0<0,1,1>learn from key
+slider5:0<0,1,1>learn to key
+slider6:0<0,127,1>velo
+slider7:followMidi=0<0,1,1>follow midi
+slider8:instance=0<0,99999,1>instance
+slider9:0<0,2,1{manual,fixed time,hold}>hold mode
+slider10:0<0,100>hold time (%/1s)
+slider11:0<0,16,1>choke
+slider12:splitMode=0<0,1,{pads,splits}>mode
+
+
+@init
+
+numPads = 16;
+ext_midi_bus = 1.0;
+
+i = 0;
+loop(128,
+  gmem[i] = 0;
+  i += 1
+);
+
+from = 0;
+to = numPads;
+velos = to + numPads;
+holdModes = velos + numPads;
+holdTimes = holdMode + numPads;
+holdTimers = holdTimes + numPads;
+chokeGroups = holdTimers + numPads;
+
+usedMemeory = chokeGroups + numPads;
+
+statNoteOn = $x90;
+statNoteOff = $x80;
+
+function loadPad(pad) (
+  slider2 = from[pad];
+  slider3 = to[pad];
+  slider9 = holdModes[pad];
+  slider10 = holdTimes[pad];
+  slider11 = chokeGroups[pad];
+);
+
+function storePad(pad) (
+  //pad = slider1 - 1
+  from[pad] = slider2;
+  to[pad] = slider3;
+  holdModes[pad] = slider9;
+  holdTimes[pad] = slider10;
+  chokeGroups[pad] = slider11;
+);
+
+function setVelo(i, velo) (
+  velos[i] = velo;
+  slider8 ? gmem[i] = velo;
+  (i+1) == slider1 ? (
+    slider6 = velo;
+  );
+);
+
+function learn(note) (
+  slider4 ? (
+    slider4 = 0;
+    from[pad] = note;
+    loadPad(pad);
+  );
+
+  slider5 ? (
+    slider5 = 0;
+    to[pad] = note;
+    loadPad(pad);
+  );
+);
+
+function passEvent(offset, msg1, msg23) (
+  i = 0;
+  loop(numPads,
+    midi_bus = i;
+    i = i + 1;
+    midisend(offset, msg1, msg23); // Not a note, pass thru
+  );
+);
+
+function sendPadNote(pad, velo, note) (
+  setVelo(pad, velo);
+  midi_bus = pad;
+  note = splitMode ? note : 60;//to[pad];
+  midisend(0, $x90, note, velo);
+);
+
+function onNoteOn(pad, velo, note) (
+  group = chokeGroups[pad];
+
+  group ? (
+    j = 0;
+    loop(numPads,
+      (pad != j && group == chokeGroups[j]) ? sendPadNote(j, 0, note);
+      j = j + 1;
+    );
+  );
+
+  holdMode = splitMode ? 0 : holdModes[pad];
+  holdMode > 0 ? sendPadNote(pad, 0, note);
+  holdMode == 1 ? holdTimers[pad] = floor(holdTimes[pad] / 100 * srate) : holdTimers[pad] = -1;
+  sendPadNote(pad, velo, note);
+);
+
+function onNoteOff(pad, note) (
+  holdModes[pad] == 0 ? sendPadNote(pad, 0, note);
+);
+
+function proccessNoteEvent(offset, msg1, msg23) (
+
+  status = msg1 & $xF0;
+  channel = msg1 & $x0F;
+  isNoteOn = status == statNoteOn;
+  isNoteOff = status == statNoteOff;
+  isNote = isNoteOn || isNoteOff;
+
+  isNote ?
+  (
+    note = msg23 & $x7F;
+
+    learn(note);
+
+    i = 0;
+    loop(numPads,
+      splitMode ? (
+
+        note >= from[i] && note <= to[i] ? (
+
+          followMidi ? slider1 = i+1;
+
+          isNoteOn ? onNoteOn(i, (msg23/256)|0, note);
+
+          isNoteOff ? onNoteOff(i, note);
+
+        );
+      ) : (
+
+        from[i] == note ? (
+
+          followMidi ? slider1 = i+1;
+
+          isNoteOn ? onNoteOn(i, (msg23/256)|0, note);
+
+          isNoteOff ? onNoteOff(i, note);
+
+        );
+      );
+
+      i = i + 1;
+    );
+  );
+
+  isNote;
+
+);
+
+function injectNotes() (
+  i = 0;
+  loop(numPads,
+
+    index = numPads + i;
+    velo = gmem[index];
+    note = splitMode ? gmem[index + numPads] : 60;
+    //note = to[i];
+    velo != 0 ? (
+      velo == -1 ? onNoteOff(i, note) : onNoteOn(i, velo, note);
+      gmem[index] = 0;
+    );
+
+    holdTime = holdTimers[i];
+    holdTime == 0 ? sendPadNote(i, 0, note);
+    holdTimers[i] = holdTime -1;
+
+    i = i + 1;
+  );
+);
+
+@slider
+
+nextPad = slider1 - 1;
+pad != nextPad ? loadPad(nextPad) : storePad(nextPad);
+pad = nextPad;
+
+@serialize
+
+file_mem(0, 0, usedMemeory)
+
+
+@sample
+
+injectNotes();
+
+while
+(
+  midirecv(offset, msg1, msg23) ?
+  (
+    !proccessNoteEvent(offset, msg1, msg23) ? passEvent(offset, msg1, msg23);
+  );
+);
+
