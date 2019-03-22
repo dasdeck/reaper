@@ -14,7 +14,7 @@ function TrackList:create()
     setmetatable(self, TrackList)
 
     Project.watch.project:onChange(function(tracks)
-        rea.log('update')
+        -- rea.log('update')
         self:updateList()
     end)
 
