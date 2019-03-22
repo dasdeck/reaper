@@ -22,11 +22,11 @@ State.global = {
         if multi then
             _.forEach(multi, function(subkey)
                 local k = key .. '_' .. subkey
-                default[subkey] = State.global.get(k)
+                default[subkey] = State.global.get(k, default[subkey])
             end)
             return default
         else
-            return reaper.HasExtState(cat, key) and reaper.GetExtState(cat, key)
+            return reaper.HasExtState(cat, key) and reaper.GetExtState(cat, key) or default
         end
     end
 }

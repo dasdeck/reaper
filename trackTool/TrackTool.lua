@@ -12,10 +12,15 @@ function TrackTool:create()
     local self = Component:create()
 
     self.track = Track.getFocusedTrack()
-    Track.watch.focusedTrack:onChange(function(track)
+
+    local change = function(track)
+        -- rea.log('change')
         self.track = track
         self:repaint()
-    end)
+    end
+
+    Track.watch.focusedTrack:onChange(change)
+    -- Track.watch.tracks:onChange(change)
 
     self.controlls = self:addChildComponent(TrackToolControlls:create())
     self.controlls.isVisible = function()
@@ -27,7 +32,9 @@ function TrackTool:create()
         return self.track and not self.track:getTrackTool()
     end
     self.activator.onButtonClick = function()
-        self.track:getTrackTool(true)
+        rea.transaction('init tracktool', function()
+            self.track:getTrackTool(true)
+        end)
     end
 
     setmetatable(self, TrackTool)

@@ -82,6 +82,7 @@ function PadUI:create(pad)
         if not s:isVisible() then return end
 
         if mouse:isRightButtonDown() then
+
         else
             local key = self.mouse.x / self.w * 127
             local velo = 127 - self.mouse.y / self.h * 127

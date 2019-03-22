@@ -254,27 +254,36 @@ function Window:defer()
 
     local res, err = xpcall(function()
 
-        self:evalMouse()
 
         Track.deferAll()
         Plugin.deferAll()
         Watcher.deferAll()
 
+        self:evalMouse()
         self:render()
 
-        rea.refreshUI(true)
+        if rea.refreshUI(true) then
+            self.paint = true
+        end
 
         self:updateState()
 
+        if self:isOpen() then
+            reaper.defer(function()
+                self:defer()
+            end)
+        end
+
     end, debug.traceback)
 
-    if not res then rea.logOnly(err) end
+    if not res then
+        local context = {reaper.get_action_context()}
+        rea.log({context,err})
 
-    if self:isOpen() then
-        reaper.defer(function()
-            self:defer()
-        end)
+        -- reaper.Main_OnCommandEx(context[4], 0, 0)
     end
+
+
 
 end
 

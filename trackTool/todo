@@ -1,12 +1,15 @@
 TrackTool:
-    ☐ lazy initialization
+    ✔ lazy initialization @done(19-03-22 22:13)
     ☐ switch global transpose
-    ☐ octave flipper
-    ☐ seperate single utils
-        ☐ transpose
-            ☐ filter range (map?)
-        ☐ delay
-
+    ✔ octave flipper @done(19-03-22 22:13)
+    ✘ seperate single utils @cancelled(19-03-22 22:13)
+        ✘ transpose @cancelled(19-03-22 22:13)
+            ✘ filter range (map?) @cancelled(19-03-22 22:13)
+        ✘ delay @cancelled(19-03-22 22:13)
+    ☐ remove track tools
+    ☐ add layer filter (advanced midi notes)
+    ☐ add range filter for transpose?
+        ☐ protected area for transpose
 
 
 Bugs:

@@ -278,6 +278,7 @@ local function refreshUI(now)
             reaper.TrackList_AdjustWindows(false)
             reaper.UpdateTimeline()
             refreshUI = false
+            return true
         end
     else
         refreshUI = true

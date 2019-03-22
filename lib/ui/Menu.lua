@@ -18,8 +18,15 @@ function Menu:create(options)
     return self
 end
 
+function Menu:__gc()
+
+    -- assert(self.wasShown)
+
+end
+
 function Menu:show()
 
+    self.wasShown = true
     local map = {}
     local menu = self:renderItems(self.items, map)
 

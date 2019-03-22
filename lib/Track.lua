@@ -160,7 +160,7 @@ end
 
 function Track:exists()
 
-    return _.find(Track.getAllTracks(), self)
+    return _.find(Track.getAllTracks(true), self)
     -- body
 end
 
@@ -190,6 +190,8 @@ end
 
 function Track:focus()
     reaper.SetMixerScroll(self.track)
+    rea.refreshUI()
+
     return self
 end
 
