@@ -73,8 +73,6 @@ function class(...)
     local class = {}
     local parents = {...}
 
-    -- rea.log()
-
     assertDebug(_.some(parents, function(p)
         return not p.__index
     end), 'base class needs __index:' .. tostring(#parents))

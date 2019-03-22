@@ -29,10 +29,8 @@ function LayerList:update()
 
     local layers = self.pad:getLayers()
 
-    -- rea.log('layers check')
     if _.equal(layers, self.layers) then return end
 
-    -- rea.log('layers changed')
     self.layers = layers
 
     self.children = {}

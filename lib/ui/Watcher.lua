@@ -18,7 +18,6 @@ function Watcher:create(callback)
         callback = callback
     }
 
-    -- rea.log('create')
     setmetatable(self, Watcher)
     table.insert(Watcher.watchers, self)
 

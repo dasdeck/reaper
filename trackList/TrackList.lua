@@ -14,7 +14,6 @@ function TrackList:create()
     setmetatable(self, TrackList)
 
     Project.watch.project:onChange(function(tracks)
-        -- rea.log('update')
         self:updateList()
     end)
 
@@ -36,7 +35,7 @@ function TrackList:getData()
     table.insert(tracks, {
         proto = TextButton,
         args = '+',
-        size = 30,
+        size = 20,
         onClick = function()
             rea.transaction('add track', function()
                 Track.insert()
@@ -45,12 +44,5 @@ function TrackList:getData()
     })
     return tracks
 end
-
--- function TrackList:evaluate()
---     Component.evaluate(self)
---     if gfx.getchar('del') > 0 then
---         rea.log('del')
---     end
--- end
 
 return TrackList

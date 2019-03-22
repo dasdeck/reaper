@@ -15,14 +15,12 @@ local Window = class()
 
 Window.currentWindow = nil
 
-
 Project.watch.project:onChange(function()
     if Window.currentWindow then
         Window.currentWindow.repaint = true
     end
     Track.onStateChange()
 end)
-
 
 function Window.openComponent(component, options)
 
@@ -52,7 +50,6 @@ end
 
 function Window:render()
 
-
     -- if self.repaint or self.component.mouse.over then
     if self.repaint or Component.dragging then
 
@@ -76,14 +73,11 @@ function Window:render()
 
     end
 
-
-
 end
 
 function Window:updateState()
     local dock = gfx.dock(-1)
     if self.h ~= gfx.h or self.w ~= gfx.w or dock ~= self.dock then
-    -- if dock ~= self.dock then
 
         self.repaint = true
         self.h = gfx.h
@@ -92,7 +86,6 @@ function Window:updateState()
 
 
         State.global.set('window_' .. self.name, _.pick(self, {'h','w', 'dock'}))
-        -- rea.log('store')
     end
 end
 

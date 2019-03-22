@@ -22,6 +22,7 @@ function TrackListComp:create(track)
 
     self.name.onButtonClick = function(s, mouse)
 
+        track:focus()
         if mouse:isAltKeyDown() then
             local tracks = Track.getSelectedTracks(true)
             rea.transaction('remove track', function()
@@ -52,6 +53,12 @@ function TrackListComp:create(track)
 
     local icon = track:getIcon()
     self.icon = self:addChildComponent(icon and Image:create(icon, 'fit') or Component:create())
+
+    local tcp = track:getIcon()
+    self.tcp = self:addChildComponent(icon and Image:create(icon, 'fit') or Component:create())
+
+    local mcp = track:getIcon()
+    self.mcp = self:addChildComponent(icon and Image:create(icon, 'fit') or Component:create())
 
     return self
 

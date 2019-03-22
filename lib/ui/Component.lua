@@ -246,7 +246,6 @@ function Component:getWindow()
 end
 
 function Component:repaint()
-    -- rea.log('repaint')
     if self:isVisible() then
         local win = self:getWindow()
         if win then

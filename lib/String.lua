@@ -27,8 +27,6 @@ function string:equal(other)
 
     for i = 1, len do
         if self:sub(i,i) ~= other:sub(i, i) then
-            -- rea.log(self:sub(i,i) .. '/' .. other:sub(i, i) .. '\n\n')
-            -- rea.log(self .. '\n\n' .. other)
             return false
         end
     end

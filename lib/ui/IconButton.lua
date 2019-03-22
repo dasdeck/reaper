@@ -10,10 +10,12 @@ local IconButton = class(TextButton)
 function IconButton:create(icon)
 
     local self = TextButton:create()
+
     self.icon = self:addChildComponent(Image:create(icon, 'fit'))
     self.icon.getAlpha = function()
         return self:getToggleStateInt() == 2 and 0.5 or 1
     end
+
     setmetatable(self, IconButton)
     return self
 
