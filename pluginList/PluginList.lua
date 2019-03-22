@@ -23,12 +23,13 @@ end
 
 function PluginList:resized()
 
+    local padding = 2
     if self.w > 0 then
         local y = 0
         _.forEach(self.children, function(child)
-            child:setPosition(0, y)
-            child:fitToWidth(self.w)
-            y = y + child.h
+            child:setPosition(padding, y + padding)
+            child:fitToWidth(self.w - padding * 2)
+            y = y + child.h + 2 * padding
         end)
     end
 end

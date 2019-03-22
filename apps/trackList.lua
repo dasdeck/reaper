@@ -1,5 +1,14 @@
---info = debug.getinfo(1,'S')
+package.path = debug.getinfo(1,"S").source:match[[^@?(.*[\/])[^\/]-$]] .. "../?.lua;".. package.path
 
---dofile '../boot.lua'
+require 'boot'
+addScope('trackList')
 
-is_new_value,filename,sectionID,cmdID,mode,resolution,val = reaper.get_action_context()
+local TrackList = require 'TrackList'
+local Window = require 'Window'
+
+Window.openComponent(TrackList:create(), {
+name = 'tracklist',
+w = 200,
+h = 600,
+dock = 1}
+)

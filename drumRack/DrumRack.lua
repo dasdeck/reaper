@@ -180,10 +180,9 @@ function DrumRack:loadKit(file)
 
     Track.deferAll()
 
-    loadedTracks = Track.getSelectedTracks()
-    -- Track.setSelectedTracks({})
+    local loadedTracks = Track.getSelectedTracks()
 
-    drumRackToLoad = _.some(loadedTracks, function(track)
+    local drumRackToLoad = _.some(loadedTracks, function(track)
         return DrumRack.getAssociatedDrumRack(track)
     end)
 

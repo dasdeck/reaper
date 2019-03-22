@@ -48,4 +48,8 @@ function Mouse:isAltKeyDown()
     return toboolean(self.cap & 16)
 end
 
+function Mouse:isShiftKeyDown()
+    return toboolean(self.cap & 8)
+end
+
 return Mouse

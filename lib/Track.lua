@@ -60,7 +60,7 @@ function Track.getSelectedTracks(live)
         Track.selectedTracks = {}
         for i=0, reaper.CountSelectedTracks(0)-1 do
             local track = Track:create(reaper.GetSelectedTrack(0,i))
-            Track.selectedTracks[track.guid] = track
+            table.insert(Track.selectedTracks, track)
         end
     end
 
@@ -198,7 +198,7 @@ end
 
 function Track:isSelected()
     return _.some(Track.getSelectedTracks(), function(track)
-        return track == self
+        return track == self and true or false
     end)
 end
 

@@ -29,9 +29,9 @@ function Collection:map(call)
     return Collection:create(_.map(self.data, call))
 end
 
--- function Collection:__index(key)
---     return self.data[key]
--- end
+function Collection:__index(key)
+    return self.data[key]
+end
 
 
 return Collection

@@ -14,14 +14,15 @@ function ButtonList:create(data, layout, proto, ...)
     self.data = data
     self.proto = proto or TextButton
     setmetatable(self, ButtonList)
-    self:createChildren()
+    self:updateList()
     return self
 
 end
 
-function ButtonList:createChildren()
+function ButtonList:updateList()
 
-    self.children = {}
+    _.forEach(self.children, function(child) child:delete() end)
+    -- self.children = {}
     local size = self.layout == true and 'w' or 'h'
     for i, value in pairs(self:getData()) do
 
@@ -53,7 +54,7 @@ function ButtonList:createChildren()
             comp.isVisible = function() return comp:getToggleState() end
         end
 
-        comp.getToggleState = function()
+        comp.getToggleState = comp.getToggleState or function()
             if value.getToggleState then
                 return value:getToggleState(value)
             else
@@ -108,15 +109,18 @@ function ButtonList:resized()
         local p = self.layout == true and 'x' or 'y'
         local size = self[dim] / len
 
-        local i = 0
-        for k, child in pairs(self.children) do
+        local i = 1
+        local off = 0
+        for index, child in pairs(self.children) do
+            local data = self:getData()[i]
             child.w = self.w
             child.h = self.h
             child.x = 0
             child.y = 0
 
-            child[p] = i * size
-            child[dim] = size
+            child[p] = off
+            child[dim] = data and data.size or size
+            off = off + child[dim]
             i = i + 1
         end
     end
