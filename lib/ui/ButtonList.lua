@@ -23,7 +23,7 @@ function ButtonList:createChildren()
 
     self.children = {}
     local size = self.layout == true and 'w' or 'h'
-    for i, value in pairs(self.data) do
+    for i, value in pairs(self:getData()) do
 
         local proto = value.proto or self.proto
 
@@ -89,6 +89,10 @@ function ButtonList:onClick()
     end
 end
 
+function ButtonList:getData()
+    return self.data
+end
+
 function ButtonList:resized()
 
     if self.layout == 1 then
@@ -99,7 +103,7 @@ function ButtonList:resized()
             child.y = 0
         end
     else
-        local len = _.size(self.data)
+        local len = _.size(self:getData())
         local dim = self.layout == true and 'w' or 'h'
         local p = self.layout == true and 'x' or 'y'
         local size = self[dim] / len

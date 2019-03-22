@@ -22,6 +22,10 @@ function Directory:mkdir()
     return self
 end
 
+function Directory:childDir(path, filter)
+    return Directory:create(self.dir .. '/' .. path, filter)
+end
+
 function Directory:file(path)
     return File:create(self.dir .. '/' .. path)
 end

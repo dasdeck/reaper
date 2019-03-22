@@ -44,6 +44,26 @@ function Image:create(file, scale, alpha)
 
 end
 
+function Image:fitToWidth(wToFit)
+    local w, h = gfx.getimgdim(self.slot)
+
+    self.w = wToFit
+    self.scale = wToFit / w
+    self.h = h * self.scale
+
+    return self
+end
+
+function Image:fitToHeight(hToFit)
+    local w, h = gfx.getimgdim(self.slot)
+
+    self.h = hToFit
+    self.scale = hToFit / h
+    self.w = w * self.scale
+
+    return self
+end
+
 function Image:isVisible()
     local alpha = self:getAlpha()
     return alpha and alpha > 0 and Component.isVisible(self)
