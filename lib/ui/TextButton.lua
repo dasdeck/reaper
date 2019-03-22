@@ -5,9 +5,9 @@ local color = require 'color'
 local rea = require 'Reaper'
 local TextButton = class(Label)
 
-function TextButton:create(text, ...)
+function TextButton:create(content, ...)
 
-    local self = Label:create(text, ...)
+    local self = Label:create(content, ...)
     setmetatable(self, TextButton)
     return self
 

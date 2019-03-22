@@ -1,15 +1,26 @@
 local Component = require 'Component'
 local color = require 'color'
+local Text = require 'Text'
 
 local rea = require 'Reaper'
 local Label = class(Component)
 
-function Label:create(text, ...)
+function Label:create(content, ...)
 
     local self = Component:create(...)
     self.h = 30
     self.w = 30
-    self.text = (text and text.label) or text or ''
+    if content then
+        if type(content) == 'string' then
+            self.content = self:addChildComponent(Text:create(content))
+            self.content.getText = function()
+                return self.getText and self:getText() or self.content.text
+            end
+        else
+            self.content = self:addChildComponent(content)
+        end
+    end
+
     self.color = color.rgb(1,1,1)
     setmetatable(self, Label)
     return self
@@ -31,33 +42,11 @@ function Label:drawBackground(c)
 
 end
 
-function Label:drawLabelText(c)
-
-    c = c or self:getColor()
-
-    local text = self:getText()
-    if text and text:len() then
-        local padding = 5
-        self:setColor(c:lighten_to(1-round(c.L)):desaturate_to(0))
-        self:drawFittedText(text, padding ,0 , self.w - padding * 2, self.h)
-    end
-end
-
 function Label:paint()
 
     local c = self:getColor()
     self:drawBackground(c)
-    self:drawLabelText(c)
 
-end
-
-
-function Label:isDisabled()
-    return self.disabled or (self.parent and self.parent:isDisabled())
-end
-
-function Label:getText()
-    return self.text
 end
 
 return Label

@@ -61,7 +61,7 @@ function PadUI:create(pad)
     self.watcher = Watcher:create(function() return self.pad:getVelocity() end)
     self.watcher:onChange(function() self:repaint() end)
 
-    self.padButton = self:addChildComponent(TextButton:create())
+    self.padButton = self:addChildComponent(TextButton:create(''))
 
     self.lock = self:addChildComponent(Image:create(icons.lock))
     self.lock.getAlpha = function()

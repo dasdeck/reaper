@@ -5,9 +5,9 @@ local color = require 'color'
 local rea = require 'Reaper'
 local Slider = class(Label)
 
-function Slider:create(text, ...)
+function Slider:create(...)
 
-    local self = Label:create(text, ...)
+    local self = Label:create('', ...)
     setmetatable(self, Slider)
     return self
 

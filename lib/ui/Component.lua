@@ -203,7 +203,7 @@ function Component:getIndexInParent()
 end
 
 function Component:isDisabled()
-    return self.disabled
+    return self.disabled or (self.parent and self.parent:isDisabled())
 end
 
 function Component:setVisible(vis)
