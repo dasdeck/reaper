@@ -20,7 +20,7 @@ function Layer:create(track, pad)
 
     self.icon = self:addChildComponent(Image:create(track:getIcon(), 'fit'))
 
-    self.mute = self:addChildComponent(TrackStateButton:create(self.track, 'B_MUTE', 'M'))
+    self.mute = self:addChildComponent(TrackStateButton:create(self.track, 'mute', 'M'))
     self.mute.color = colors.mute
 
     self.lock = self:addChildComponent(IconButton:create(icons.lock))
@@ -31,7 +31,7 @@ function Layer:create(track, pad)
         return track:isLocked()
     end
 
-    self.solo = self:addChildComponent(TrackStateButton:create(self.track, 'I_SOLO', 'S'))
+    self.solo = self:addChildComponent(TrackStateButton:create(self.track, 'solo', 'S'))
     self.solo.color = colors.solo
 
     self.name = self:addChildComponent(TextButton:create('layer'))

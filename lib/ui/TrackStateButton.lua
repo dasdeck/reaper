@@ -1,13 +1,14 @@
 local TextButton = require 'TextButton'
 local Component = require 'Component'
+local Track = require 'Track'
 local rea = require 'Reaper'
 
 local TrackStateButton = class(TextButton)
 
-function TrackStateButton:create(track, key, name)
-    local self = TextButton:create(name or key)
+function TrackStateButton:create(track, key, content)
+    local self = TextButton:create(content or key)
     self.track = track
-    self.key = key
+    self.key = Track.valMap[key] or Track.stringMap[key] or key
     setmetatable(self, TrackStateButton)
     return self
 end

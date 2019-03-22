@@ -221,15 +221,19 @@ function Track:getPrev()
     return Track.get(self:getIndex()-2)
 end
 
-local stringMap = {
+Track.stringMap = {
     name = 'P_NAME',
     icon = 'P_ICON'
 }
 
-local valMap = {
+Track.valMap = {
     arm = 'I_RECARM',
     toParent = 'B_MAINSEND',
-    lock = 'C_LOCK'
+    lock = 'C_LOCK',
+    tcp = 'B_SHOWINTCP',
+    mcp = 'B_SHOWINMIXER',
+    mute = 'B_MUTE',
+    solo = 'I_SOLO'
 }
 
 function Track:getDefaultName()
@@ -262,11 +266,11 @@ function Track:isLocked()
 end
 
 function Track:getValue(key)
-    if stringMap[key] then
-        local res, val = reaper.GetSetMediaTrackInfo_String(self.track, stringMap[key], '', false)
+    if Track.stringMap[key] then
+        local res, val = reaper.GetSetMediaTrackInfo_String(self.track, Track.stringMap[key], '', false)
         return res and val or nil
-    elseif valMap[key] then
-        return reaper.GetMediaTrackInfo_Value(self.track, valMap[key])
+    elseif Track.valMap[key] then
+        return reaper.GetMediaTrackInfo_Value(self.track, Track.valMap[key])
     end
 end
 
@@ -278,10 +282,10 @@ end
 function Track:setValues(vals)
 
     for k, v in pairs(vals or {}) do
-        if stringMap[k] then
-            reaper.GetSetMediaTrackInfo_String(self.track, stringMap[k], v, true)
-        elseif valMap[k] then
-            reaper.SetMediaTrackInfo_Value(self.track, valMap[k], v and 1 or 0)
+        if Track.stringMap[k] then
+            reaper.GetSetMediaTrackInfo_String(self.track, Track.stringMap[k], v, true)
+        elseif Track.valMap[k] then
+            reaper.SetMediaTrackInfo_Value(self.track, Track.valMap[k], v and 1 or 0)
         end
     end
 

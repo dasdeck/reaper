@@ -9,5 +9,8 @@ Ideas:
         add multiouts
         edit
         higlight when midi track is selected
+    ☐ change label to have text or image content
+        ☐ remove iconbutton in favour of general button
+
 Bugx:
     ☐ random sound if db file is missing
