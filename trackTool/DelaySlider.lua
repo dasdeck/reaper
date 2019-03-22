@@ -12,7 +12,7 @@ end
 
 function DelaySlider:getPlugin(create)
     local track = self.trackSource:getTrack()
-    return track and track:getFx('trackSource.jsfx', create)
+    return track and track:getTrackTool(create)
 
 end
 
@@ -38,6 +38,7 @@ end
 function DelaySlider:setValue(val)
     local plugin = self:getPlugin(true)
     if plugin then plugin:setIndex(0):setParam(0, val) end
+    self:repaint()
 end
 
 return DelaySlider

@@ -570,7 +570,7 @@ end
 
 function Track:getTrackTool(force)
     -- local plugin = self:getFx('../Scripts/D3CK/test.jsfx', force or false)
-    local plugin = self:getFx('trackTool.jsfx', force or false)
+    local plugin = self:getFx('TrackTool', force or false)
     if plugin then plugin:setIndex(0) end
     return plugin
 end

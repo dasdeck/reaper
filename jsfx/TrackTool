@@ -8,7 +8,8 @@ options:gmem=tracktool
 
 slider1:0<-1000,1000,1>Delay Amount (ms)
 slider2:0<0,2,{midi,audio,both}>mode
-slider3:0<-128,128,1>transpose
+slider3:transpose = 0<-128,128,1>transpose
+slider4:globalTranspose = 1<0,1,1>global transpose
 
 @init
 
@@ -129,7 +130,7 @@ slider3:0<-128,128,1>transpose
 
 @block
 
-  nextTranspose = slider3;// + gmem[0];
+  nextTranspose = transpose + globalTranspose ? gmem[0] : 0;
 
   transpose != nextTranspose ? (
     allNotesOff();

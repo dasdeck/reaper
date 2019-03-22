@@ -246,12 +246,19 @@ function Component:getWindow()
 end
 
 function Component:repaint()
+    -- rea.log('repaint')
     if self:isVisible() then
         local win = self:getWindow()
         if win then
             win.repaint = true
         end
     end
+end
+
+function Component:resized()
+    _.forEach(self.children, function(child)
+        child:setSize(self.w, self.h)
+    end)
 end
 
 function Component:evaluate()

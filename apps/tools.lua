@@ -5,6 +5,7 @@ package.path = debug.getinfo(1,"S").source:match[[^@?(.*[\/])[^\/]-$]] .. "../?.
 require 'boot'
 addScope('tools')
 addScope('drumRack')
+addScope('drumRack/ui')
 
 local Tools = require 'Tools'
 local ButtonList = require 'ButtonList'
