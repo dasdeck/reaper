@@ -8,19 +8,21 @@ local TrackStateButton = class(TextButton)
 function TrackStateButton:create(track, key, content)
     local self = TextButton:create(content or key)
     self.track = track
-    self.key = Track.valMap[key] or Track.stringMap[key] or key
+    self.key = key
     setmetatable(self, TrackStateButton)
     return self
 end
 
 function TrackStateButton:getToggleState()
-    return self.track and reaper.GetMediaTrackInfo_Value(self.track.track, self.key) > 0
+    return self.track and self.track:getValue(self.key) > 0
 end
 
 function TrackStateButton:onClick()
     rea.transaction('toggle: ' .. (self:getText()), function()
-        local state = (not self:getToggleState()) and 1 or 0
-        reaper.SetMediaTrackInfo_Value(self.track.track, self.key, state)
+        local state = self.track:getValue(self.key) == 0 and 1 or 0
+        --== 0 and 1 or 0
+        self.track:setValue(self.key, state)
+        rea.refreshUI()
     end)
 end
 

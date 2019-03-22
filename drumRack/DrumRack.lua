@@ -41,13 +41,14 @@ function DrumRack.init(track)
     if not track then track = Track.insert()end
 
     track:setType('drumrack')
-        :setIcon(track:getIcon() or 'drumbox.png')
-        :setVisibility(true, false)
-        :setName(track:getName() or 'drumrack')
-        :setValue('toParent', false)
-        :getFx(DrumRack.fxName, true)
-        local rack = DrumRack:create(track)
-        rack:setSelectedPad(1)
+    track:setIcon(track:getIcon() or 'drumbox.png')
+    track:setVisibility(true, false)
+    track:setName(track:getName() or 'drumrack')
+    track:setValue('toParent', false)
+    track:getFx(DrumRack.fxName, true)
+
+    local rack = DrumRack:create(track)
+    rack:setSelectedPad(1)
     return rack
 
 end
@@ -92,6 +93,14 @@ function DrumRack:getLocked()
     end
 
     return locks
+end
+
+function DrumRack:getSelectedTracks()
+    local own = self:getAllTracks()
+    local tracks = _.filter(Track.getSelectedTracks(), function(track)
+        return not _.find(own, track)
+    end)
+    return tracks
 end
 
 function DrumRack:setLocked(locked)

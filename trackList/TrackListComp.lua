@@ -1,6 +1,7 @@
 local Component = require 'Component'
 local Image = require 'Image'
 local TextButton = require 'TextButton'
+local TrackStateButton = require 'TrackStateButton'
 local Label = require 'Label'
 local Track = require 'Track'
 local rea = require 'Reaper'
@@ -54,11 +55,9 @@ function TrackListComp:create(track)
     local icon = track:getIcon()
     self.icon = self:addChildComponent(icon and Image:create(icon, 'fit') or Component:create())
 
-    local tcp = track:getIcon()
-    self.tcp = self:addChildComponent(icon and Image:create(icon, 'fit') or Component:create())
+    self.tcp = self:addChildComponent(TrackStateButton:create(track, 'tcp', 'T'))
+    self.mcp = self:addChildComponent(TrackStateButton:create(track, 'mcp', 'M'))
 
-    local mcp = track:getIcon()
-    self.mcp = self:addChildComponent(icon and Image:create(icon, 'fit') or Component:create())
 
     return self
 
@@ -72,9 +71,14 @@ function TrackListComp:resized()
 
     local h = self.h
 
+    local buttons = #self.children - 1
+
     self.icon:setBounds(0,0,h,h)
+    self.tcp:setBounds(self.icon:getRight(),0,h,h)
+    self.mcp:setBounds(self.tcp:getRight(),0,h,h)
+    -- self.mcp:setBounds(0,0,h,h)
     -- n = self.name.text
-    self.name:setBounds(self.icon:getRight(), 0, self.w - h, h)
+    self.name:setBounds(self.mcp:getRight(), 0, self.w - h*buttons, h)
 end
 
 return TrackListComp

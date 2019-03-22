@@ -31,7 +31,9 @@ function PadUI.showMenu(pad)
     menu:addItem('learn', learnMenu)
 
     local addMenu = Menu:create()
-    addMenu:addItem('selected tracks as layers', function() pad:addSelectedTracks() end, 'add empty track')
+    if _.size(pad.rack:getSelectedTracks()) > 0 then
+        addMenu:addItem('selected tracks as layers', function() pad:addSelectedTracks() end, 'add empty track')
+    end
     addMenu:addItem('empty track', function() pad:addLayer() end, 'add empty track')
     addMenu:addItem('instrument', function()
         local success, name = reaper.GetUserInputs("name", 1, "name", "")

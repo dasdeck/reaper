@@ -101,6 +101,7 @@ end
 
 Track.watch = {
     selectedTrack = Watcher:create(Track.getSelectedTrack),
+    selectedTracks = Watcher:create(Track.getSelectedTracks),
     tracks = Watcher:create(Track.getAllTracks),
     focusedTrack = Watcher:create(Track.getFocusedTrack)
 }
@@ -285,7 +286,7 @@ function Track:setValues(vals)
         if Track.stringMap[k] then
             reaper.GetSetMediaTrackInfo_String(self.track, Track.stringMap[k], v, true)
         elseif Track.valMap[k] then
-            reaper.SetMediaTrackInfo_Value(self.track, Track.valMap[k], v and 1 or 0)
+            reaper.SetMediaTrackInfo_Value(self.track, Track.valMap[k], v == true and 1 or (v == false and 0) or v)
         end
     end
 

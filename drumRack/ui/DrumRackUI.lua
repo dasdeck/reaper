@@ -32,10 +32,12 @@ function DrumRackUI.drumRackButton(mouse)
     if mouse:wasRightButtonDown() then
 
         local tracks = Track.getSelectedTracks()
+        -- _.removeValue(tracks, rack:getTrack())
 
         local menu = Menu:create()
         menu:addItem('new drumrack', addRack, 'add empty drumrack')
-        menu:addItem('new splitrack', addRack, 'add empty splitrack')
+        menu:addItem('new splitrack', addSplit, 'add empty splitrack')
+
 
         if _.size(tracks) > 0 then
             menu:addSeperator()

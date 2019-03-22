@@ -174,8 +174,8 @@ local function setTrackAttrib(track, name, value)
 end
 
 local function setTrackVisible(track, tcp, mcp)
-    reaper.SetMediaTrackInfo_Value(track, 'B_SHOWINMIXER', tcp)
-    reaper.SetMediaTrackInfo_Value(track, 'B_SHOWINTCP', mcp)
+    reaper.SetMediaTrackInfo_Value(track, 'B_SHOWINMIXER', tcp == true and 1 or 0)
+    reaper.SetMediaTrackInfo_Value(track, 'B_SHOWINTCP', mcp == true and 1 or 0)
 end
 
 local function transaction(name, action)

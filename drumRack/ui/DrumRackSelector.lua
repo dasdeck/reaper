@@ -4,6 +4,7 @@ local DrumRack = require 'DrumRack'
 local DrumRackUI = require 'DrumRackUI'
 local Track = require 'Track'
 local rea = require 'Reaper'
+local _ = require '_'
 
 local DrumRackSelector = class(Component)
 
@@ -29,9 +30,12 @@ function DrumRackSelector:create()
         end
     end)
 
-    Track.watch.selectedTrack:onChange(function(track)
+    Track.watch.selectedTracks:onChange(function(tracks)
         if self.followSelection then
-            local selectedDrumRack = DrumRack.getAssociatedDrumRack(track)
+
+            local selectedDrumRack = _.some(tracks, function(track)
+                return DrumRack.getAssociatedDrumRack(track)
+            end)
             if selectedDrumRack then
                 if not self.drumrack or self.drumrack.rack ~= selectedDrumRack then
                     self:setDrumRack(selectedDrumRack)
