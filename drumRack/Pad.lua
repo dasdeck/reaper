@@ -14,6 +14,12 @@ function Pad:create(rack)
     return self
 end
 
+function Pad:setKeyRange(low, hi)
+    self.rack:getMapper():setParamForPad(self, 1, low)
+    self.rack:getMapper():setParamForPad(self, 2, hi)
+    return self
+end
+
 function Pad:refreshConnections()
     local fxBus = self.rack:getFx()
     local fx = self:getFx()

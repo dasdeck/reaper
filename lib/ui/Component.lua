@@ -161,7 +161,7 @@ function Component:isMouseOver()
 end
 
 function Component:wantsMouse()
-    return true and (not self.parent or self.parent:wantsMouse())
+    return self:isVisible() and (not self.parent or self.parent:wantsMouse())
 end
 
 function Component:getAbsoluteX()

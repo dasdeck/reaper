@@ -137,10 +137,6 @@ function PadUI:onDrag()
     self.pad:noteOff()
 end
 
-function PadUI:wantsMouse()
-    return self:isVisible()
-end
-
 function PadUI:onDrop(mouse)
 
     if Component.dragging ~= self.pad then

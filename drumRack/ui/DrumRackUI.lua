@@ -21,37 +21,60 @@ function DrumRackUI.drumRackButton(mouse)
         local name = rea.prompt('name')
         if name then
             local track = Track.insert()
-            track:setName(name:len() and name or 'drumrack')
-            return DrumRack.init(track):getTrack():choose()
+            track:setName(name:len() and name or 'drumrack'):choose()
+            return DrumRack.init(track)
         end
+    end
+    local addSplit = function()
+        return addRack():setSplitMode()
     end
 
     if mouse:wasRightButtonDown() then
-        local menu = Menu:create()
-        menu:addItem('new drumrack', addRack, 'add drum rack')
-        menu:addItem('from selected tracks (layers)', function()
-            local tracks = Track.getSelectedTracks()
-            local rack = addRack()
-            if rack then
-                _.forEach(tracks, function(track)
-                    rack.pads[1]:addTrack(track)
-                end)
-            end
-        end, 'add drum rack')
-        menu:addItem('from selected tracks (pads)', function()
-            local tracks = Track.getSelectedTracks()
-            local rack = addRack()
-            if rack then
-                local i = 1
-                _.forEach(tracks, function(track)
-                    if rack.pads[i] then
-                        rack.pads[i]:addTrack(track)
-                    end
 
-                    i = i + 1
-                end)
-            end
-        end, 'add drum rack')
+        local tracks = Track.getSelectedTracks()
+
+        local menu = Menu:create()
+        menu:addItem('new drumrack', addRack, 'add empty drumrack')
+        menu:addItem('new splitrack', addRack, 'add empty splitrack')
+
+        if _.size(tracks) > 0 then
+            menu:addSeperator()
+            menu:addItem('pad-layers from selected tracks', function()
+
+                local rack = addRack()
+                if rack then
+                    _.forEach(tracks, function(track)
+                        rack.pads[1]:addTrack(track)
+                    end)
+                end
+            end, 'add drum rack')
+            menu:addItem('pads from selected tracks', function()
+                local tracks = Track.getSelectedTracks()
+                local rack = addRack()
+                if rack then
+                    local i = 1
+                    _.forEach(tracks, function(track)
+                        if rack.pads[i] then
+                            rack.pads[i]:addTrack(track)
+                        end
+
+                        i = i + 1
+                    end)
+                end
+            end, 'add drum rack')
+            menu:addSeperator()
+
+            menu:addItem('split-layers from selected tracks', function()
+                local tracks = Track.getSelectedTracks()
+                local rack = addSplit()
+                rack.pads[1]:setKeyRange(0,127)
+                if rack then
+                    _.forEach(tracks, function(track)
+                        rack.pads[1]:addTrack(track)
+                    end)
+                end
+            end, 'add drum rack')
+        end
         menu:show()
     else
         rea.transaction('add drum rack',addRack)

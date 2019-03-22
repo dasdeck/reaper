@@ -46,7 +46,9 @@ function DrumRack.init(track)
         :setName(track:getName() or 'drumrack')
         :setValue('toParent', false)
         :getFx(DrumRack.fxName, true)
-    return DrumRack:create(track)
+        local rack = DrumRack:create(track)
+        rack:setSelectedPad(1)
+    return rack
 
 end
 
