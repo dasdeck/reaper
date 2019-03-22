@@ -1,5 +1,6 @@
 local TextButton = require 'TextButton'
 local Component = require 'Component'
+local rea = require 'Reaper'
 
 local TrackStateButton = class(TextButton)
 
@@ -16,8 +17,10 @@ function TrackStateButton:getToggleState()
 end
 
 function TrackStateButton:onClick()
-    local state = (not self:getToggleState()) and 1 or 0
-    reaper.SetMediaTrackInfo_Value(self.track.track, self.key, state)
+    rea.transaction('toggle: ' .. (self:getText()), function()
+        local state = (not self:getToggleState()) and 1 or 0
+        reaper.SetMediaTrackInfo_Value(self.track.track, self.key, state)
+    end)
 end
 
 

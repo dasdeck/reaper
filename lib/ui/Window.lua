@@ -52,7 +52,9 @@ end
 
 function Window:render()
 
-    if self.repaint or self.component.mouse.over then
+
+    -- if self.repaint or self.component.mouse.over then
+    if self.repaint or Component.dragging then
 
         gfx.update()
         gfx.r = 0
@@ -66,13 +68,15 @@ function Window:render()
 
         self.component:evaluate()
 
+        self.repaint = false
+
         if Component.dragging then
             gfx.circle(gfx.mouse_x, gfx.mouse_y, 10, true, true)
         end
 
-        self.repaint = false
-
     end
+
+
 
 end
 
@@ -145,7 +149,22 @@ function getDroppedFiles()
     return files
 end
 
+function Window:evalKeyboard()
+    if self:isOpen() then
+        local key = true
+        while key do
+            key = gfx.getchar()
+            if key ~= 0 then
+                _.forEach(self.component:getAllChildren(), function(comp)
+                    -- if comp.onKeyPress
+                end)
+            end
+        end
+    end
+end
+
 function Window:evalMouse()
+
     local files = getDroppedFiles()
     local isFileDrop = _.size(files) > 0
 

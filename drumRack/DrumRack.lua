@@ -76,7 +76,7 @@ end
 function DrumRack:getLocked()
     local pads = _.filter(self.pads, function(pad) return pad:hasContent() end)
 
-    locks = _.reduce(pads, function(carry, pad)
+    local locks = _.reduce(pads, function(carry, pad)
         local lock = pad:getLocked()
         return math.max(carry, lock)
     end, 0)

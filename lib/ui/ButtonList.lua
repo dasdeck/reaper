@@ -54,7 +54,7 @@ function ButtonList:updateList()
             comp.isVisible = function() return comp:getToggleState() end
         end
 
-        comp.getToggleState = comp.getToggleState or function()
+        comp.getToggleState = comp.getToggleState ~= TextButton.getToggleState and comp.getToggleState or function()
             if value.getToggleState then
                 return value:getToggleState(value)
             else
