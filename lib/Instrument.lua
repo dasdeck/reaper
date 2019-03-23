@@ -43,7 +43,7 @@ function Instrument.bang()
 
         if numZones > 0 then
             if numZones > 1 or #zones[1] > 1 then
-                local rack = DrumRack.init(Track.insert())
+                local rack = DrumRack.init(Track.insert():setName(input))
                 rack:setSplitMode()
 
                 range = math.floor(128 / numZones)

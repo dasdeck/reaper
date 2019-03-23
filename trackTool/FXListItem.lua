@@ -6,13 +6,14 @@ local paths = require 'paths'
 local colors = require 'colors'
 local rea = require 'rea'
 
-local FXListItem = class(Image)
+local FXListItem = class(Image, Label)
 
 function FXListItem:create(plugin)
 
-    local name = plugin:getModule():split('%.')[1] .. '.png'
-    local file = paths.imageDir:findFile(name)
-    local self = file and Image:create(file, 'fit', 1) or Label:create(name)
+    local name = plugin:getModule():split('%.')[1]
+    local filename = name .. '.png'
+    local file = paths.imageDir:findFile(filename)
+    local self = file and Image:create(file, 'fit', 1) or Label:create(name, 0,0,200,40)
     setmetatable(self, FXListItem)
     self.fx = plugin
     self.file = file
@@ -46,6 +47,8 @@ function FXListItem:paint(g)
 
     if self.file then
         Image.paint(self, g)
+    else
+        Label.paint(self, g)
     end
 
     if Component.dragging and Component.dragging.fx and Component.dragging.fx ~= self.fx then

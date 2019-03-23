@@ -91,6 +91,23 @@ function Component:getAlpha()
     return self.alpha * (self.parent and self.parent:getAlpha() or 1)
 end
 
+function Component:fitToWidth(wToFit)
+
+    local scale = wToFit / self.w
+    self.w = wToFit
+    self.h = self.h * scale
+
+    return scale
+end
+
+function Component:fitToHeight(hToFit)
+
+    local scale = hToFit / self.h
+    self.h = hToFit
+    self.w = self.w * scale
+
+    return scale
+end
 
 function Component:clone()
     local comp = _.assign(Component:create(), self)

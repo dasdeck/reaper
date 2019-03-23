@@ -5,6 +5,7 @@ local Watcher = require 'Watcher'
 
 local paths = require 'paths'
 local _ = require '_'
+local rea = require 'rea'
 
 local PluginList = class(Component)
 
@@ -37,6 +38,7 @@ function PluginList:resized()
         end)
         -- self.h = y
     end
+    rea.log('resize')
 end
 
 return PluginList

@@ -1,5 +1,6 @@
 local Component = require 'Component'
 local _ = require '_'
+local rea = require 'rea'
 
 local Image = class(Component)
 
@@ -46,25 +47,7 @@ function Image:create(file, scale, alpha)
 
 end
 
-function Image:fitToWidth(wToFit)
-    local w, h = gfx.getimgdim(self.slot)
 
-    self.w = wToFit
-    self.scale = wToFit / w
-    self.h = h * self.scale
-
-    return self
-end
-
-function Image:fitToHeight(hToFit)
-    local w, h = gfx.getimgdim(self.slot)
-
-    self.h = hToFit
-    self.scale = hToFit / h
-    self.w = w * self.scale
-
-    return self
-end
 
 function Image:paint(g)
 
@@ -79,8 +62,11 @@ function Image:paint(g)
         g:drawImage(self.slot, (self.w - w) / 2, (self.h - h) / 2, scale)
 
     else
+        rea.log('image:paint' .. tostring(self.scale))
         g:drawImage(self.slot, 0, 0, self.scale)
     end
+
+
 
 end
 
