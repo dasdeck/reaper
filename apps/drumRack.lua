@@ -11,10 +11,10 @@ local Window = require 'Window'
 
 local paths = require 'paths'
 
-local DrumRackJSFX = paths.effectsDir:file('DrumRack')
+local DrumRackJSFX = paths.effectsDir:childFile('DrumRack')
 
 if not DrumRackJSFX:exists() then
-  DrumRackJSFX:setContent(paths.scriptDir:file('jsfx/DrumRack'):getContent())
+  DrumRackJSFX:setContent(paths.scriptDir:childFile('jsfx/DrumRack'):getContent())
   reaper.MB('plugin installed, restart script', 'restart', 0)
 else
 

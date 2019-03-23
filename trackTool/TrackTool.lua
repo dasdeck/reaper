@@ -2,6 +2,7 @@ local Component = require 'Component'
 local Track = require 'Track'
 local TrackToolControlls = require 'TrackToolControlls'
 local TextButton = require 'TextButton'
+local Project = require 'Project'
 
 local rea = require "Reaper"
 local _ = require "_"
@@ -10,35 +11,41 @@ local TrackTool = class(Component)
 
 function TrackTool:create()
     local self = Component:create()
+    setmetatable(self, TrackTool)
 
-    self.track = Track.getFocusedTrack()
+    self.track = Track.getFocusedTrack(true)
 
-    local change = function(track)
+    local change = function()
         -- rea.log('change')
-        self.track = track
+        self.track = Track.getFocusedTrack(true)
+        self:update()
         self:repaint()
     end
 
     Track.watch.focusedTrack:onChange(change)
-    -- Track.watch.tracks:onChange(change)
+    Track.watch.tracks:onChange(change)
+    Project.watch.project:onChange(change)
 
-    self.controlls = self:addChildComponent(TrackToolControlls:create())
-    self.controlls.isVisible = function()
-        return self.track and self.track:getTrackTool()
-    end
+    self:update()
 
-    self.activator = self:addChildComponent(TextButton:create('+tracktools'))
-    self.activator.isVisible = function()
-        return self.track and not self.track:getTrackTool()
-    end
-    self.activator.onButtonClick = function()
-        rea.transaction('init tracktool', function()
-            self.track:getTrackTool(true)
-        end)
-    end
-
-    setmetatable(self, TrackTool)
     return self
+end
+
+function TrackTool:update()
+    self:deleteChildren()
+
+    if self.track then
+        if self.track:getTrackTool() then
+            self.controlls = self:addChildComponent(TrackToolControlls:create(self.track))
+        else
+            self.activator = self:addChildComponent(TextButton:create('+tracktools'))
+            self.activator.onButtonClick = function()
+                rea.transaction('init tracktool', function()
+                    self.track:getTrackTool(true)
+                end)
+            end
+        end
+    end
 end
 
 return TrackTool

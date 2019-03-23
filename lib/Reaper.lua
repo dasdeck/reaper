@@ -259,8 +259,8 @@ local function setLyrics(text, track)
 
     local maxPos = 0
     for k, position in pairs(keys) do
-    lyrics = lyrics .. position .. '.1.1' .. '\t' .. lyricsLines[position] .. '\t'
-    maxPos = math.max(position, maxPos)
+        lyrics = lyrics .. position .. '.1.1' .. '\t' .. lyricsLines[position] .. '\t'
+        maxPos = math.max(position, maxPos)
     end
 
     ensureContentLength(track, maxPos + 2)

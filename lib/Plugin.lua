@@ -29,23 +29,6 @@ end
 
 --
 
-function Plugin:resolveIndex(nameOrIndex)
-    if type(nameOrIndex) == 'string' then
-        return rea.getFxByName(self.track, nameOrIndex, self.rec)
-    else
-        return nameOrIndex
-    end
-end
-
-function Plugin:resolveParamIndex(nameOrIndex)
-    if type(nameOrIndex) == 'string' then
-        return rea.getParamByName(self.track, self.index, nameOrIndex)
-    else
-        return nameOrIndex
-    end
-end
-
-
 function Plugin:create(track, index)
     local guid = reaper.TrackFX_GetFXGUID(track, index)
 
@@ -63,12 +46,46 @@ function Plugin:create(track, index)
     return Plugin.plugins[guid]
 end
 
+function Plugin:resolveIndex(nameOrIndex)
+    if type(nameOrIndex) == 'string' then
+        return rea.getFxByName(self.track, nameOrIndex, self.rec)
+    else
+        return nameOrIndex
+    end
+end
+
+function Plugin:resolveParamIndex(nameOrIndex)
+    if type(nameOrIndex) == 'string' then
+        return rea.getParamByName(self.track, self.index, nameOrIndex)
+    else
+        return nameOrIndex
+    end
+end
+
+function Plugin:getIndex()
+    return self.index
+end
+
+function Plugin:getModule()
+    local res, name =  reaper.BR_TrackFX_GetFXModuleName(self.track, self.index, '', 10000)
+    return name
+end
+
 function Plugin:isValid()
     return self.guid == reaper.TrackFX_GetFXGUID(self.track, self.index)
 end
 
 function Plugin:reconnect()
     self.index = Plugin.getByGUID(self.track, self.guid)
+end
+
+function Plugin:getEnabled()
+    return reaper.TrackFX_GetEnabled(self.track, self.index)
+
+end
+
+function Plugin:setEnabled(enabled)
+    reaper.TrackFX_SetEnabled(self.track, self.index, enabled)
 end
 
 function Plugin:refresh()

@@ -32,7 +32,7 @@ function Image:create(file, scale, alpha)
     local self = Component:create()
     setmetatable(self, Image)
     self.scale = scale or 1
-    self.alpha = alpha or 1
+    self:setAlpha(alpha or 1)
     self.slot = getSlot(file)
 
     local w, h = gfx.getimgdim(self.slot)
@@ -64,18 +64,9 @@ function Image:fitToHeight(hToFit)
     return self
 end
 
-function Image:isVisible()
-    local alpha = self:getAlpha()
-    return alpha and alpha > 0 and Component.isVisible(self)
-end
-
-function Image:getAlpha()
-    return self.alpha
-end
-
 function Image:paint()
 
-    local alpha = self:getAlpha() or 1
+    local alpha = self:getAlpha()
 
     gfx.x = self:getAbsoluteX()
     gfx.y = self:getAbsoluteY()

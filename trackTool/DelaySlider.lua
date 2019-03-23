@@ -3,16 +3,15 @@ local Slider = require 'Slider'
 
 local DelaySlider = class(Slider)
 
-function DelaySlider:create(trackSource)
+function DelaySlider:create(track)
     local self = Slider:create()
-    self.trackSource = trackSource
+    self.track = track
     setmetatable(self, DelaySlider)
     return self
 end
 
 function DelaySlider:getPlugin(create)
-    local track = self.trackSource:getTrack()
-    return track and track:getTrackTool(create)
+    return self.track:getTrackTool(create)
 
 end
 
@@ -27,12 +26,6 @@ end
 
 function DelaySlider:isDisabled()
     return self:getPlugin() == nil
-end
-
-function DelaySlider:isActive()
-    local track = self.trackSource:getTrack()
-    -- return not track or not track:isMidiTrack()
-    return track
 end
 
 function DelaySlider:setValue(val)

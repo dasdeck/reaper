@@ -8,6 +8,7 @@ local _ = require '_'
 local rea = require 'Reaper'
 
 local TrackList = class(ButtonList)
+local Instrument = require 'Instrument'
 
 function TrackList:create()
 
@@ -48,9 +49,11 @@ function TrackList:getData()
         args = '+',
         size = 20,
         onClick = function()
-            rea.transaction('add track', function()
-                Track.insert()
-            end)
+
+            Instrument.bang()
+            -- rea.transaction('add track', function()
+            --     Track.insert()
+            -- end)
         end
     })
     return tracks

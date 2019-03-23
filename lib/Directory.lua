@@ -26,8 +26,14 @@ function Directory:childDir(path, filter)
     return Directory:create(self.dir .. '/' .. path, filter)
 end
 
-function Directory:file(path)
+function Directory:childFile(path)
     return File:create(self.dir .. '/' .. path)
+end
+
+function Directory:findFile(pattern)
+    return _.first(rea.findFiles(self.dir,{}, function(file)
+        return file:lower() == pattern:lower()
+    end))
 end
 
 function Directory:listAsMenu(selected)

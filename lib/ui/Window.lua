@@ -68,7 +68,16 @@ function Window:render()
         self.repaint = false
 
         if Component.dragging then
-            gfx.circle(gfx.mouse_x, gfx.mouse_y, 10, true, true)
+            if Component.dragging.isComponent and false then
+                local copy = Component.dragging:clone():scaleToFit(30, 30)
+                copy.parent = nil
+                copy:setAlpha(0.5)
+                copy.x = gfx.mouse_x - 15
+                copy.y = gfx.mouse_y - 15
+                copy:evaluate()
+            else
+                gfx.circle(gfx.mouse_x, gfx.mouse_y, 10, true, true)
+            end
         end
 
     end
@@ -254,17 +263,16 @@ function Window:defer()
 
     local res, err = xpcall(function()
 
-
         Track.deferAll()
         Plugin.deferAll()
         Watcher.deferAll()
 
-        self:evalMouse()
-        self:render()
-
         if rea.refreshUI(true) then
             self.paint = true
         end
+
+        self:render()
+        self:evalMouse()
 
         self:updateState()
 

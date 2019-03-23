@@ -76,8 +76,6 @@ function TrackListComp:resized()
     self.icon:setBounds(0,0,h,h)
     self.tcp:setBounds(self.icon:getRight(),0,h,h)
     self.mcp:setBounds(self.tcp:getRight(),0,h,h)
-    -- self.mcp:setBounds(0,0,h,h)
-    -- n = self.name.text
     self.name:setBounds(self.mcp:getRight(), 0, self.w - h*buttons, h)
 end
 

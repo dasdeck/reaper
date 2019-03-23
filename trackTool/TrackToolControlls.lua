@@ -9,16 +9,21 @@ local TransposeControll = require "TransposeControll"
 local DirFlipper = require "DirFlipper"
 local rea = require "Reaper"
 
+local FXList = require 'FXList'
+
 local _ = require "_"
 
 local TrackToolControlls = class(Component)
 
-function TrackToolControlls:create()
+function TrackToolControlls:create(track)
     local self = Component:create()
+    setmetatable(self, TrackToolControlls)
 
-    self.transpose = self:addChildComponent(TransposeControll:create(self), 'transpose')
+    self.track = track
 
-    self.delay = self:addChildComponent(DelaySlider:create(self), 'delay')
+    self.transpose = self:addChildComponent(TransposeControll:create(track), 'transpose')
+
+    self.delay = self:addChildComponent(DelaySlider:create(track), 'delay')
 
     self.globalTranspose = self:addChildComponent(TextButton:create(''))
     self.globalTranspose.getText = function()
@@ -26,19 +31,20 @@ function TrackToolControlls:create()
         return tostring(reaper.gmem_read(0))
     end
     self.globalTranspose.onClick = function()
-        local state = Track.getFocusedTrack():getTrackTool():getParam(3) == 0
-        Track.getFocusedTrack():getTrackTool():setParam(3, state and 1 or 0)
+        local state = track:getTrackTool():getParam(3) == 0
+        track:getTrackTool():setParam(3, state and 1 or 0)
     end
     self.globalTranspose.getToggleState = function()
-        return Track.getFocusedTrack():getTrackTool():getParam(3) > 0
+        return track:getTrackTool():getParam(3) > 0
     end
 
-    setmetatable(self, TrackToolControlls)
+    self.fx = self:addChildComponent(FXList:create(track))
+
     return self
 end
 
 function TrackToolControlls:getTrack()
-    return self.parent.track
+    return self.track
 end
 
 function TrackToolControlls:resized()
@@ -50,6 +56,8 @@ function TrackToolControlls:resized()
     self.transpose:setBounds(0, self.delay:getBottom(), self.w, h)
 
     self.globalTranspose:setBounds(0, self.transpose:getBottom(), self.w, h)
+
+    self.fx:setBounds(0, self.globalTranspose:getBottom(), self.w, 200)
 
 end
 

@@ -4,6 +4,7 @@ local Plugin = require 'Plugin'
 local Watcher = require 'Watcher'
 local Collection = require 'Collection'
 local TrackState = require 'TrackState'
+
 local _ = require '_'
 
 local Track = class()
@@ -305,6 +306,20 @@ function Track:remove()
     reaper.DeleteTrack(self.track)
     Track.trackMap[self.guid] = nil
     Track.deferAll()
+end
+
+function Track:getFxList()
+
+    local ignored = {
+        'DrumRack',
+        'TrackTool'
+    }
+    local inst = self:getInstrument()
+    local res = {}
+    for i = inst and inst:getIndex() or 0, reaper.TrackFX_GetCount(self.track) - 1 do
+        table.insert(res, Plugin:create(self.track, i))
+    end
+    return res
 end
 
 function Track:getState(live, store)

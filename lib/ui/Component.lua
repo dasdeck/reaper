@@ -12,6 +12,8 @@ function Component:create(x, y, w, h)
         y = y or 0,
         w = w or 0,
         h = h or 0,
+        alpha = 1,
+        isComponent = true,
         visible = true,
         children = {},
         mouse = Mouse.capture()
@@ -43,11 +45,21 @@ function Component:getComponentsUnderMouse()
     return results
 end
 
-function Component:delete(doNotRemote)
+function Component:deleteChildren()
     _.forEach(self.children, function(comp)
-        comp:delete(true)
+        comp:delete()
     end)
+end
+
+function Component:triggerDeletion()
     if self.onDelete then self:onDelete() end
+    _.forEach(self.children, function(comp)
+        comp:triggerDeletion()
+    end)
+end
+
+function Component:delete(doNotRemote)
+    self:triggerDeletion()
     if not doNotRemote then
         self:remove()
         collectgarbage()
@@ -99,8 +111,31 @@ function Component:drawFittedText(text, x, y, w, h, ellipes)
 
 end
 
+function Component:scaleToFit(w, h)
+
+    local scale = math.min(self.w  / w, self.h / h)
+
+    self.w = self.w / scale
+    self.h = self.h / scale
+
+    return self
+
+end
+
+function Component:setAlpha(alpha)
+    self.alpha = alpha
+end
+
+function Component:getAlpha()
+    return self.alpha * (self.parent and self.parent:getAlpha() or 1)
+end
+
 function Component:rect(x, y, w, h, fill)
     gfx.rect(self:getAbsoluteX() + x, self:getAbsoluteY() + y, w, h, fill)
+end
+
+function Component:clone()
+    return _.assign(Component:create(), self)
 end
 
 function Component:setColor(r, g, b, a)
@@ -111,7 +146,7 @@ function Component:setColor(r, g, b, a)
         gfx.r = r
         gfx.g = g
         gfx.b = b
-        gfx.a = a
+        gfx.a = a * self:getAlpha()
     end
 end
 
@@ -214,7 +249,7 @@ function Component:setVisible(vis)
 end
 
 function Component:isVisible()
-    return self.visible and (not self.parent or self.parent:isVisible())
+    return self.visible and (not self.parent or self.parent:isVisible()) and self:getAlpha() > 0
 end
 
 function Component:updateMousePos(mouse)
@@ -225,7 +260,7 @@ function Component:updateMousePos(mouse)
 end
 
 function Component:setSize(w,h)
-    self.w = w
+    self.w = w == nil and self.w or w
     self.h = h == nil and self.h or h
 end
 

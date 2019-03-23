@@ -1,17 +1,17 @@
 local Component = require 'Component'
 local TextButton = require 'TextButton'
 local Slider = require 'Slider'
+local rea = require 'Reaper'
 
 local TransposeControll = class(Component)
 
-function TransposeControll:create(trackSource)
+function TransposeControll:create(track)
     local self = Component:create()
     setmetatable(self, TransposeControll)
 
     self.children.value = Slider:create()
 
     function getPlugin()
-        local track = trackSource:getTrack()
         return track:getTrackTool(true)
     end
 
@@ -25,11 +25,15 @@ function TransposeControll:create(trackSource)
 
     self.children.semDown = TextButton:create('<')
     self.children.semDown.onClick = function(s, mouse)
-        self.children.value:setValue(self.children.value:getValue() - (mouse:isAltKeyDown() and 12 or 1))
+        rea.transaction('change transpose', function()
+            self.children.value:setValue(self.children.value:getValue() - (mouse:isAltKeyDown() and 12 or 1))
+        end)
     end
     self.children.semUp = TextButton:create('>')
     self.children.semUp.onClick = function(s, mouse)
-        self.children.value:setValue(self.children.value:getValue() + (mouse:isAltKeyDown() and 12 or 1))
+        rea.transaction('change transpose', function()
+            self.children.value:setValue(self.children.value:getValue() + (mouse:isAltKeyDown() and 12 or 1))
+        end)
     end
 
     return self

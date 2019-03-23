@@ -136,27 +136,28 @@ function PadUI:onFilesDrop(files)
 end
 
 function PadUI:onDrag()
-    Component.dragging = self.pad
+    Component.dragging = self
     self.pad:noteOff()
 end
 
 function PadUI:onDrop(mouse)
 
-    if Component.dragging ~= self.pad then
+    if Component.dragging ~= self then
 
         self.pad:setSelected()
 
-        if getmetatable(Component.dragging) == Pad then
+        if Component.dragging.pad and getmetatable(Component.dragging.pad) == Pad then
 
+            local pad = Component.dragging.pad
 
             if mouse:wasRightButtonDown() then
                 local menu = Menu:create()
-                menu:addItem('flip pads', function() self.pad:flipPad(Component.dragging) end, 'flip pad')
-                menu:addItem('copy pad', function() self.pad:copyPad(Component.dragging) end, 'copy pad')
+                menu:addItem('flip pads', function() self.pad:flipPad(pad) end, 'flip pad')
+                menu:addItem('copy pad', function() self.pad:copyPad(pad) end, 'copy pad')
                 menu:show()
             else
                 rea.transaction('flip pads', function()
-                    self.pad:flipPad(Component.dragging)
+                    self.pad:flipPad(pad)
                 end)
             end
 

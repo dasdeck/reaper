@@ -3,16 +3,17 @@ package.path = debug.getinfo(1,"S").source:match[[^@?(.*[\/])[^\/]-$]] .. "../?.
 require 'boot'
 addScope('trackTool')
 addScope('drumRack')
+addScope('pluginList')
 
 local TrackTool = require 'TrackTool'
 local Window = require 'Window'
 
 local paths = require 'paths'
 
-local TrackToolJSFX = paths.effectsDir:file('TrackTool')
+local TrackToolJSFX = paths.effectsDir:childFile('TrackTool')
 
 if not TrackToolJSFX:exists() then
-  TrackToolJSFX:setContent(paths.scriptDir:file('jsfx/TrackTool'):getContent())
+  TrackToolJSFX:setContent(paths.scriptDir:childFile('jsfx/TrackTool'):getContent())
   reaper.MB('plugin installed, restart script', 'restart', 0)
 else
   Window.openComponent(TrackTool:create(), {
