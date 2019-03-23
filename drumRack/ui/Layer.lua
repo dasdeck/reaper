@@ -84,8 +84,8 @@ function Layer:isSampler()
     return self.track:getInstrument():getParam('FILE0') ~= nil
 end
 
-function Layer:paint()
-    self.name.drawBackground(self, self.name:getColor())
+function Layer:paint(g)
+    self.name.drawBackground(self, g, self.name:getColor())
 end
 
 function Layer:resized()

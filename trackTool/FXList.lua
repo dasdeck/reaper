@@ -16,11 +16,6 @@ function FXList:create(track)
     return self
 end
 
--- function FXList:paint()
---     self:setColor(colors.fx)
---     self:rect(0,0,self.w, self.h, true)
--- end
-
 function FXList:resized()
     PluginList.resized(self)
 end

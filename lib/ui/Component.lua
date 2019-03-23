@@ -1,7 +1,9 @@
 require 'Util'
-local color = require 'color'
 local Mouse = require 'Mouse'
+local Graphics = require 'Graphics'
+
 local _ = require '_'
+local color = require 'color'
 local rea = require 'Reaper'
 
 local Component = class()
@@ -70,47 +72,6 @@ function Component:interceptsMouse()
     return true
 end
 
-function Component:print()
-    print(self)
-end
-
-function Component:drawFittedText(text, x, y, w ,h)
-
-    local vert = h > w
-
-    gfx.x = self:getAbsoluteX() + x
-    gfx.y = self:getAbsoluteY() + y
-
-    gfx.drawstr(text, 1 | 4 | 256, gfx.x + w , gfx.y + h)
-
-end
-
-function Component:drawText(text, x, y, w, h)
-    gfx.x = self:getAbsoluteX() + x
-    gfx.y = self:getAbsoluteY() + y
-
-    gfx.drawstr(text, 1 | 4 | 256, gfx.x + w , gfx.y + h)
-end
-
-function Component:drawFittedText(text, x, y, w, h, ellipes)
-    ellipes = ellipes or '...'
-
-    local elLen = gfx.measurestr(ellipes)
-    local finalLen = gfx.measurestr(text)
-
-    if finalLen > w then
-        while text:len() > 0 and ((finalLen + elLen) > w) do
-            text = text:sub(0, -2)
-            finalLen = gfx.measurestr(text)
-        end
-
-        text = text .. ellipes
-    end
-
-    self:drawText(text, x, y, w, h)
-
-end
-
 function Component:scaleToFit(w, h)
 
     local scale = math.min(self.w  / w, self.h / h)
@@ -130,53 +91,12 @@ function Component:getAlpha()
     return self.alpha * (self.parent and self.parent:getAlpha() or 1)
 end
 
-function Component:rect(x, y, w, h, fill)
-    gfx.rect(self:getAbsoluteX() + x, self:getAbsoluteY() + y, w, h, fill)
-end
 
 function Component:clone()
     return _.assign(Component:create(), self)
 end
 
-function Component:setColor(r, g, b, a)
 
-    if type(r) == 'table' then
-        self:setColor(r:rgba())
-    else
-        gfx.r = r
-        gfx.g = g
-        gfx.b = b
-        gfx.a = a * self:getAlpha()
-    end
-end
-
-function Component:circle(x, y, r, fill, aa)
-    gfx.circle(self:getAbsoluteX() + x, self:getAbsoluteY() + y, r, fill, aa)
-end
-
-function Component:roundrect(x, y, w, h, r, fill, aa)
-
-    w = math.ceil(w)
-    x = math.ceil(x)
-    y = math.ceil(y)
-    h = math.ceil(h)
-
-    r = math.ceil(math.min(math.min(w,h)/2, r))
-
-    if(fill) then
-
-
-        self:rect(x, y + r, w, h - 2 * r, fill)
-        self:rect(x + r, y, w - 2 * r, h, fill)
-
-        self:circle(x + r, y + r, r, fill, aa)
-        self:circle(x + r, y + h - r-2, r, fill, aa)
-        self:circle(x + w - r-2, y + h - r-2, r, fill, aa)
-        self:circle(x + w - r-2, y + r, r, fill, aa)
-    else
-        gfx.roundrect(self:getAbsoluteX() + x, self:getAbsoluteY() + y, w, h, r*2, aa)
-    end
-end
 
 function Component:canClickThrough()
     return true
@@ -295,7 +215,9 @@ function Component:resized()
     end)
 end
 
-function Component:evaluate()
+function Component:evaluate(g)
+
+    g = g or Graphics:create()
 
     if not self:isVisible() then return end
 
@@ -304,13 +226,15 @@ function Component:evaluate()
     end
 
     if self.paint then
-        self:paint()
+        g:setFromComponent(self)
+        self:paint(g)
     end
 
     self:evaluateChildren()
 
     if self.paintOverChildren then
-        self:paintOverChildren()
+        g:setFromComponent(self)
+        self:paintOverChildren(g)
     end
 end
 
@@ -329,10 +253,10 @@ function Component:remove()
     self.parent = nil
 end
 
-function Component:evaluateChildren()
+function Component:evaluateChildren(g)
     for i, comp in pairs(self.children) do
         comp.parent = self
-        comp:evaluate()
+        comp:evaluate(g)
     end
 end
 

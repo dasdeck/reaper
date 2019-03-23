@@ -54,8 +54,8 @@ function FXButton:create(fxSource)
     return self
 end
 
-function FXButton:paint()
-    self.text.drawBackground(self, self.text:getColor())
+function FXButton:paint(g)
+    self.text.drawBackground(self, g, self.text:getColor())
 end
 
 function FXButton:resized()

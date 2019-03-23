@@ -64,16 +64,7 @@ function Image:fitToHeight(hToFit)
     return self
 end
 
-function Image:paint()
-
-    local alpha = self:getAlpha()
-
-    gfx.x = self:getAbsoluteX()
-    gfx.y = self:getAbsoluteY()
-
-    if alpha < 1 then
-        self:setColor(1,1,1, alpha)
-    end
+function Image:paint(g)
 
     if self.scale == 'fit' then
         local padding = 4
@@ -83,13 +74,10 @@ function Image:paint()
         w = w * scale
         h = h * scale
 
-        gfx.x = gfx.x + (self.w - w) / 2
-        gfx.y = gfx.y + (self.h - h) / 2
-
-        gfx.blit(self.slot, scale, 0)
+        g:drawImage(self.slot, (self.w - w) / 2, (self.h - h) / 2, scale)
 
     else
-        gfx.blit(self.slot, self.scale, 0)
+        g:drawImage(self.slot, 0, 0, self.scale)
     end
 
 end

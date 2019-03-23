@@ -20,14 +20,14 @@ function Text:getColor()
     return c
 end
 
-function Text:paint()
+function Text:paint(g)
 
     local c = self:getColor()
     local text = self:getText()
     if text and text:len() then
         local padding = 5
-        self:setColor(c:lighten_to(1-round(c.L)):desaturate_to(0))
-        self:drawFittedText(text, padding ,0 , self.w - padding * 2, self.h)
+        g:setColor(c:lighten_to(1-round(c.L)):desaturate_to(0))
+        g:drawFittedText(text, padding ,0 , self.w - padding * 2, self.h)
     end
 
 end

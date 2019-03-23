@@ -169,12 +169,12 @@ function PadUI:onDrop(mouse)
     end
 end
 
-function PadUI:paintOverChildren()
+function PadUI:paintOverChildren(g)
     local padding = 5
 
     if self.pad:getVelocity() > 0 then
-        self:setColor(colors.fx:with_alpha(self.pad:getVelocity() / 127))
-        self:rect(padding, padding, self.w - padding * 2, self.h - padding * 2, true, true)
+        g:setColor(colors.fx:with_alpha(self.pad:getVelocity() / 127))
+        g:rect(padding, padding, self.w - padding * 2, self.h - padding * 2, true, true)
     end
 end
 

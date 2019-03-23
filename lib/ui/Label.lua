@@ -33,19 +33,19 @@ function Label:getColor()
     return c
 end
 
-function Label:drawBackground(c)
+function Label:drawBackground(g, c)
     c = c or self:getColor()
     local padding = 0
 
-    self:setColor(c);
-    self:roundrect(padding ,padding , self.w - 2 * padding, self.h - 2*padding, 5, true)
+    g:setColor(c);
+    g:roundrect(padding ,padding , self.w - 2 * padding, self.h - 2*padding, 5, true)
 
 end
 
-function Label:paint()
+function Label:paint(g)
 
     local c = self:getColor()
-    self:drawBackground(c)
+    self:drawBackground(g, c)
 
 end
 

@@ -63,8 +63,8 @@ function TrackListComp:create(track)
 
 end
 
-function TrackListComp:paint()
-    Label.drawBackground(self, self.name:getColor())
+function TrackListComp:paint(g)
+    Label.drawBackground(self, g, self.name:getColor())
 end
 
 function TrackListComp:resized()

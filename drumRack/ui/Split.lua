@@ -13,7 +13,7 @@ function Split:create(pad)
     return self
 end
 
-function Split:paintOverChildren()
+function Split:paintOverChildren(g)
 
     if self.pad:hasContent() then
         local low, high = self.rack:getMapper():getKeyRange(self.pad)
@@ -21,8 +21,8 @@ function Split:paintOverChildren()
         local x1 = low / 127 * self.w
         local x2 = (high+1) / 127 * self.w
 
-        self:setColor(colors.fx:with_alpha(0.5))
-        self:rect(x1, 0, x2 - x1, self.h, true)
+        g:setColor(colors.fx:with_alpha(0.5))
+        g:rect(x1, 0, x2 - x1, self.h, true)
     end
 
 end

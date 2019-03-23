@@ -46,14 +46,14 @@ function Slider:getColor(full)
     return c
 end
 
-function Slider:paint()
+function Slider:paint(g)
 
-    Label.paint(self)
+    Label.paint(self, g)
 
-    self:setColor(self:getColor(true))
+    g:setColor(self:getColor(true))
 
     local padding = 0
-    self:roundrect(padding ,padding , self.w - 2 * padding, self.h - 2*padding, 5, false)
+    g:roundrect(padding ,padding , self.w - 2 * padding, self.h - 2*padding, 5, false)
 
 end
 

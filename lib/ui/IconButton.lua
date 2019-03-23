@@ -21,8 +21,8 @@ function IconButton:create(icon)
 
 end
 
-function IconButton:paint()
-    self:drawBackground()
+function IconButton:paint(g)
+    self:drawBackground(g)
 end
 
 function IconButton:resized()
