@@ -12,7 +12,7 @@ local colors = require 'colors'
 local _ = require '_'
 
 
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 local DrumRackUI = class(Component)
 

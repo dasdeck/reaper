@@ -1,12 +1,16 @@
 local Component = require 'Component'
 local Directory = require 'Directory'
 local Image = require 'Image'
+local Watcher = require 'Watcher'
+
 local paths = require 'paths'
 local _ = require '_'
 
 local PluginList = class(Component)
 
 function PluginList:create()
+
+    Mem.write('pluginlist', 0, 1)
 
     local dir = paths.scriptDir:childDir('images', function(path)
         return path:endsWith('.png')

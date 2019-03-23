@@ -1,7 +1,8 @@
 local Instrument = class()
 local Track = require 'Track'
 local DrumRack = require 'DrumRack'
-local rea = require 'Reaper'
+local paths = require 'paths'
+local rea = require 'rea'
 local _ = require '_'
 
 function Instrument.bang()
@@ -24,7 +25,7 @@ function Instrument.bang()
                     track:setName(splits[2] or name)
                     track:setType('instrument')
                     track:choose()
-                    icon = rea.findIcon(name)
+                    icon = rea.findIcon(name) or paths.imageDir:findFile(name)
                     if icon then track:setIcon(icon) end
                     track:getInstrument():open()
                     return track

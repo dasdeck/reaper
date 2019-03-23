@@ -5,12 +5,15 @@ addScope('pluginList')
 
 local Window = require 'Window'
 local PluginList = require 'PluginList'
+local rea = require 'rea'
+
+rea.log({reaper.get_action_context()})
 
 Window.openComponent(PluginList:create(), {
   name = 'pluginlist',
   w = 170,
   h = 100,
-  dock = 769
+  dock = 0
 })
 
 

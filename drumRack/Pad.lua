@@ -1,6 +1,7 @@
 local Track = require 'Track'
+local Mem = require 'Mem'
 local _ = require '_'
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 local Pad = class()
 
@@ -278,12 +279,12 @@ end
 
 function Pad:noteOff()
     if self:getVelocity() > 0 then
-        reaper.gmem_write(self.rack.maxNumPads + self:getIndex() - 1, -1)
+        Mem.write('drumrack', self.rack.maxNumPads + self:getIndex() - 1, -1)
     end
 end
 
 function Pad:getVelocity()
-    return reaper.gmem_read(self:getIndex() - 1)
+    return Mem.read('drumrack', self:getIndex() - 1)
 end
 
 return Pad

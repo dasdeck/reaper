@@ -3,7 +3,7 @@ local TextButton = require 'TextButton'
 local DrumRack = require 'DrumRack'
 local DrumRackUI = require 'DrumRackUI'
 local Track = require 'Track'
-local rea = require 'Reaper'
+local rea = require 'rea'
 local _ = require '_'
 
 local DrumRackSelector = class(Component)

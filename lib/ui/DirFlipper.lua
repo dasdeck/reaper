@@ -4,7 +4,7 @@ local Menu = require 'Menu'
 local Directory = require 'Directory'
 
 local _ = require '_'
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 local DirFlipper = class(Component)
 

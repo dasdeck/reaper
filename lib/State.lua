@@ -1,5 +1,5 @@
 local _ = require '_'
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 local State = {}
 local cat = 'D3CK'

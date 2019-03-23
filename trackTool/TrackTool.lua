@@ -4,8 +4,8 @@ local TrackToolControlls = require 'TrackToolControlls'
 local TextButton = require 'TextButton'
 local Project = require 'Project'
 
-local rea = require "Reaper"
-local _ = require "_"
+local rea = require 'rea'
+local _ = require '_'
 
 local TrackTool = class(Component)
 
@@ -45,6 +45,7 @@ function TrackTool:update()
                 end)
             end
         end
+
     end
 end
 

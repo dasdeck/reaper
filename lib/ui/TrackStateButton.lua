@@ -1,7 +1,7 @@
 local TextButton = require 'TextButton'
 local Component = require 'Component'
 local Track = require 'Track'
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 local TrackStateButton = class(TextButton)
 

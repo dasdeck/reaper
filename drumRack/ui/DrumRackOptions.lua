@@ -2,7 +2,7 @@ local DrumRack = require 'DrumRack'
 local IconButton = require 'IconButton'
 local FXButton = require 'FXButton'
 local icons = require 'icons'
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 local _ = require '_'
 

@@ -1,7 +1,7 @@
 local _ = require '_'
 
 local Watcher = class()
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 Watcher.watchers = {}
 

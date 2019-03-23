@@ -1,6 +1,6 @@
 local Menu = require 'Menu'
 local _ = require '_'
-local rea = require 'Reaper'
+local rea = require 'rea'
 local File = require 'File'
 local Directory = class()
 
@@ -31,9 +31,10 @@ function Directory:childFile(path)
 end
 
 function Directory:findFile(pattern)
-    return _.first(rea.findFiles(self.dir,{}, function(file)
-        return file:lower() == pattern:lower()
-    end))
+    local filter = type(pattern) == 'function' and pattern or function(file)
+        return (file:lower() == pattern:lower()) or file:lower():match(pattern:lower())
+    end
+    return _.first(rea.findFiles(self.dir, {}, filter))
 end
 
 function Directory:listAsMenu(selected)

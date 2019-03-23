@@ -4,7 +4,7 @@ local Graphics = require 'Graphics'
 
 local _ = require '_'
 local color = require 'color'
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 local Component = class()
 
@@ -93,7 +93,9 @@ end
 
 
 function Component:clone()
-    return _.assign(Component:create(), self)
+    local comp = _.assign(Component:create(), self)
+    setmetatable(comp, getmetatable(self))
+    return comp
 end
 
 
@@ -249,8 +251,10 @@ function Component:addChildComponent(comp, key)
 end
 
 function Component:remove()
-    _.removeValue(self.parent.children, self)
-    self.parent = nil
+    if self.parent then
+        _.removeValue(self.parent.children, self)
+        self.parent = nil
+    end
 end
 
 function Component:evaluateChildren(g)

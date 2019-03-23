@@ -1,7 +1,7 @@
 local Component = require 'Component'
 local Layer = require 'Layer'
 local Project = require 'Project'
-local rea = require 'Reaper'
+local rea = require 'rea'
 local _ = require '_'
 
 local LayerList = class(Component)

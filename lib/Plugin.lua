@@ -1,6 +1,6 @@
 local Slider = require 'Slider'
 
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 local Plugin = class()
 
@@ -125,7 +125,7 @@ function Plugin:remove()
 end
 
 function Plugin:open(show)
-    reaper.TrackFX_SetOpen(self.track, self.index, show == nil and false or true)
+    reaper.TrackFX_SetOpen(self.track, self.index, show == nil and true or show)
 end
 
 function Plugin:setParam(nameOrIndex, value)

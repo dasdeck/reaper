@@ -2,7 +2,7 @@ local TextButton = require 'TextButton'
 local IconButton = require 'IconButton'
 local Component = require 'Component'
 local Mouse = require 'Mouse'
-local rea = require 'Reaper'
+local rea = require 'rea'
 local colors = require 'colors'
 local icons = require 'icons'
 

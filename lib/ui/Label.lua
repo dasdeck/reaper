@@ -2,7 +2,7 @@ local Component = require 'Component'
 local color = require 'color'
 local Text = require 'Text'
 
-local rea = require 'Reaper'
+local rea = require 'rea'
 local Label = class(Component)
 
 function Label:create(content, ...)
@@ -10,6 +10,7 @@ function Label:create(content, ...)
     local self = Component:create(...)
     self.h = 30
     self.w = 30
+    self.r = 5
     if content then
         if type(content) == 'string' then
             self.content = self:addChildComponent(Text:create(content))
@@ -38,7 +39,7 @@ function Label:drawBackground(g, c)
     local padding = 0
 
     g:setColor(c);
-    g:roundrect(padding ,padding , self.w - 2 * padding, self.h - 2*padding, 5, true)
+    g:roundrect(padding ,padding , self.w - 2 * padding, self.h - 2*padding, self.r or 5, true)
 
 end
 

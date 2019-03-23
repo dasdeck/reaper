@@ -8,7 +8,7 @@ local _ = require '_'
 local colors = require 'colors'
 local icons = require 'icons'
 
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 local Layer = class(Component)
 

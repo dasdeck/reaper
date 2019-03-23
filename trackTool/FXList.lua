@@ -1,6 +1,6 @@
 
 local Component = require 'Component'
-local _ = require "_"
+local _ = require '_'
 local FXList = class(Component)
 local PluginList = require 'PluginList'
 local FXListItem = require 'FXListItem'

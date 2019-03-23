@@ -3,7 +3,7 @@ local TextButton = require 'TextButton'
 local _ = require '_'
 local Menu = require 'Menu'
 
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 local ButtonList = class(Component)
 

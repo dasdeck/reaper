@@ -4,14 +4,16 @@ local Track = require 'Track'
 local Layer = require 'Layer'
 local Menu = require 'Menu'
 local Pad = require 'Pad'
-local _ = require '_'
-local colors = require 'colors'
-local rea = require 'Reaper'
+local Mem = require 'Mem'
 local Watcher = require 'Watcher'
 local Image = require 'Image'
-local icons = require 'icons'
 local PadUI = class(Component)
 local DrumRack = require 'DrumRack'
+
+local _ = require '_'
+local rea = require 'rea'
+local icons = require 'icons'
+local colors = require 'colors'
 
 function PadUI.showMenu(pad)
 
@@ -86,8 +88,8 @@ function PadUI:create(pad)
         else
             local key = self.mouse.x / self.w * 127
             local velo = 127 - self.mouse.y / self.h * 127
-            reaper.gmem_write(DrumRack.maxNumPads + self.pad:getIndex() - 1, velo)
-            reaper.gmem_write(DrumRack.maxNumPads * 2 + self.pad:getIndex() - 1, key)
+            Mem.write('drumrack', DrumRack.maxNumPads + self.pad:getIndex() - 1, velo)
+            Mem.write('drumrack', DrumRack.maxNumPads * 2 + self.pad:getIndex() - 1, key)
         end
     end
 

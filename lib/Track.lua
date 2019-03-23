@@ -1,4 +1,4 @@
-local rea = require 'Reaper'
+local rea = require 'rea'
 local Send = require 'Send'
 local Plugin = require 'Plugin'
 local Watcher = require 'Watcher'

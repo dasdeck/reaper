@@ -4,7 +4,7 @@ local TextButton = require 'TextButton'
 local TrackStateButton = require 'TrackStateButton'
 local Label = require 'Label'
 local Track = require 'Track'
-local rea = require 'Reaper'
+local rea = require 'rea'
 local _ = require '_'
 
 local TrackListComp = class(Component)
@@ -56,7 +56,9 @@ function TrackListComp:create(track)
     self.icon = self:addChildComponent(icon and Image:create(icon, 'fit') or Component:create())
 
     self.tcp = self:addChildComponent(TrackStateButton:create(track, 'tcp', 'T'))
+    self.tcp.r = 0
     self.mcp = self:addChildComponent(TrackStateButton:create(track, 'mcp', 'M'))
+    self.mcp.r = 0
 
 
     return self

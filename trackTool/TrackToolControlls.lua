@@ -5,13 +5,14 @@ local DelaySlider = require 'DelaySlider'
 local TextButton = require 'TextButton'
 local Track = require 'Track'
 local Menu = require 'Menu'
-local TransposeControll = require "TransposeControll"
-local DirFlipper = require "DirFlipper"
-local rea = require "Reaper"
+local Mem = require 'Mem'
+local TransposeControll = require 'TransposeControll'
+local DirFlipper = require 'DirFlipper'
+local rea = require 'rea'
 
 local FXList = require 'FXList'
 
-local _ = require "_"
+local _ = require '_'
 
 local TrackToolControlls = class(Component)
 
@@ -27,8 +28,7 @@ function TrackToolControlls:create(track)
 
     self.globalTranspose = self:addChildComponent(TextButton:create(''))
     self.globalTranspose.getText = function()
-        reaper.gmem_attach('tracktool')
-        return tostring(reaper.gmem_read(0))
+        return tostring(Mem.read('tracktool', 0))
     end
     self.globalTranspose.onClick = function()
         local state = track:getTrackTool():getParam(3) == 0

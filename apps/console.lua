@@ -3,7 +3,7 @@ local dirname = debug.getinfo(1,"S").source:match[[^@?(.*[\/])[^\/]-$]]
 package.path = dirname .. "../?.lua;".. package.path
 require 'boot'
 
-local rea = require 'Reaper'
+local rea = require 'rea'
 local lib_path = dirname .. '../../ReaTeam Scripts/Development/Lokasenna_GUI v2/Library/'
 
 rea.log(lib_path)

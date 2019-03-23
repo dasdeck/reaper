@@ -1,7 +1,7 @@
 local colors = require 'colors'
 local Menu = require 'Menu'
 local Slider = require 'Slider'
-local rea = require 'Reaper'
+local rea = require 'rea'
 local Mouse = require 'Mouse'
 local FXButton = require 'FXButton'
 

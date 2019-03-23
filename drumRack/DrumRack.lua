@@ -5,7 +5,7 @@ local Directory = require 'Directory'
 
 local Track = require 'Track'
 
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 local DrumRack = class()
 

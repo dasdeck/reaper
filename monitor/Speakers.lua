@@ -4,7 +4,7 @@ local Component = require 'Component'
 local TextButton = require 'TextButton'
 local ButtonList = require 'ButtonList'
 local JSON = require 'json'
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 local sets = JSON.decode(readFile(__dirname(debug.getinfo(1,'S'))..'/'..'monitors.json'))
 

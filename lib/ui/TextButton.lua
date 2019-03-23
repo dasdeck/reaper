@@ -2,7 +2,7 @@ local Component = require 'Component'
 local Label = require 'Label'
 local color = require 'color'
 
-local rea = require 'Reaper'
+local rea = require 'rea'
 local TextButton = class(Label)
 
 function TextButton:create(content, ...)

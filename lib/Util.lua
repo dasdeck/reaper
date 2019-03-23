@@ -1,7 +1,7 @@
 
 require 'String'
 
-local _ = require('_')
+local _ = require '_'
 function dump(o, deep, depth, references)
     depth = depth or 0
     deep = deep == nil and true or deep

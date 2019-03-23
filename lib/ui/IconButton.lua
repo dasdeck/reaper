@@ -3,7 +3,7 @@ local Label = require 'Label'
 local TextButton = require 'TextButton'
 local Image = require 'Image'
 local color = require 'color'
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 local IconButton = class(TextButton)
 

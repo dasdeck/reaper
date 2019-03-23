@@ -9,7 +9,7 @@ local Distances = require 'Distances'
 local Rooms = require 'Rooms'
 local MS = require 'MidSide'
 local TextButton = require 'TextButton'
-local rea = require 'Reaper'
+local rea = require 'rea'
 local JSON = require 'json'
 
 local MonitorPresets = class(Component)

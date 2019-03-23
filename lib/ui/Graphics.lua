@@ -99,6 +99,11 @@ function Graphics:roundrect(x, y, w, h, r, fill, aa)
 
     if(fill) then
 
+        gfx.dest = 0
+        self:circle(0 , 0 , r , fill, aa)
+
+        gfx.dest = -1
+
 
         self:rect(x, y + r, w, h - 2 * r, fill)
         self:rect(x + r, y, w - 2 * r, h, fill)

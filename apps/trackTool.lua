@@ -7,11 +7,11 @@ addScope('pluginList')
 
 local TrackTool = require 'TrackTool'
 local Window = require 'Window'
-
+local Builder = require 'Builder'
+local rea = require 'rea'
 local paths = require 'paths'
 
 local TrackToolJSFX = paths.effectsDir:childFile('TrackTool')
-
 if not TrackToolJSFX:exists() then
   TrackToolJSFX:setContent(paths.scriptDir:childFile('jsfx/TrackTool'):getContent())
   reaper.MB('plugin installed, restart script', 'restart', 0)

@@ -1,7 +1,7 @@
 local Component = require 'Component'
 local TextButton = require 'TextButton'
 local Slider = require 'Slider'
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 local TransposeControll = class(Component)
 

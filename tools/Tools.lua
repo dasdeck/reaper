@@ -1,7 +1,7 @@
 
 
 local Track = require 'Track'
-local rea = require 'Reaper'
+local rea = require 'rea'
 local DrumRackUI = require 'DrumRackUI'
 local RandomSound = require 'RandomSound'
 local Menu = require 'Menu'

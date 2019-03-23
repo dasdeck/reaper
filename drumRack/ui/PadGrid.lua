@@ -5,7 +5,7 @@ local Component = require 'Component'
 local PadUI = require 'PadUI'
 local _ = require '_'
 local PadGrid = class(Component)
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 local defaults = {
     cols = 4,

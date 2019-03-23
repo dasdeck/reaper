@@ -1,5 +1,5 @@
 
-local rea = require 'Reaper'
+local rea = require 'rea'
 local Menu = class()
 local _ = require '_'
 

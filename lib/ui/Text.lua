@@ -1,7 +1,7 @@
 local Component = require 'Component'
 local color = require 'color'
 
-local rea = require 'Reaper'
+local rea = require 'rea'
 local Text = class(Component)
 
 function Text:create(text, ...)

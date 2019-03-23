@@ -3,7 +3,7 @@ local LayerList = require 'LayerList'
 local ButtonList = require 'ButtonList'
 local PadOptions = require 'PadOptions'
 local Split = require 'Split'
-local rea = require 'Reaper'
+local rea = require 'rea'
 
 local PadEditor = class(Component)
 

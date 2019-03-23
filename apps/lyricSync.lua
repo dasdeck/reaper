@@ -2,8 +2,8 @@ package.path = debug.getinfo(1,"S").source:match[[^@?(.*[\/])[^\/]-$]] .."../?.l
 
 
 require 'Util'
-local rea = require 'Reaper'
-local TextButton = require 'TextButtono'
+local rea = require 'rea'
+local TextButton = require 'TextButton'
 
 
 local project = 40021

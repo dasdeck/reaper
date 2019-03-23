@@ -10,7 +10,7 @@ Image.images = {
 function getSlot(file)
     if not Image.images[file] then
 
-        for i = 0, 1024 do
+        for i = 1, 1024 do
             if not _.find(Image.images, i) then
 
                 Image.images[file] = i
@@ -32,7 +32,9 @@ function Image:create(file, scale, alpha)
     local self = Component:create()
     setmetatable(self, Image)
     self.scale = scale or 1
-    self:setAlpha(alpha or 1)
+    if alpha ~= nil then
+        self:setAlpha(alpha)
+    end
     self.slot = getSlot(file)
 
     local w, h = gfx.getimgdim(self.slot)

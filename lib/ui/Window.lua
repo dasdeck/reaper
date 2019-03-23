@@ -7,7 +7,8 @@ local Plugin = require 'Plugin'
 local Project = require 'Project'
 local Watcher = require 'Watcher'
 local Profiler = require 'Profiler'
-local rea = require 'Reaper'
+local Graphics = require 'Graphics'
+local rea = require 'rea'
 
 gfx.setfont(1, "arial", 0.2, 'bi')
 
@@ -34,7 +35,8 @@ function Window:create(component)
     local self = {
         mouse = Mouse.capture(),
         state = {},
-        repaint = true
+        repaint = true,
+        g = Graphics:create()
     }
     setmetatable(self, Window)
     component.window = self
@@ -63,18 +65,21 @@ function Window:render()
         self.component.w = gfx.w
         self.component.h = gfx.h
 
-        self.component:evaluate()
+        self.component:evaluate(self.g)
 
         self.repaint = false
 
         if Component.dragging then
-            if Component.dragging.isComponent and false then
-                local copy = Component.dragging:clone():scaleToFit(30, 30)
-                copy.parent = nil
-                copy:setAlpha(0.5)
-                copy.x = gfx.mouse_x - 15
-                copy.y = gfx.mouse_y - 15
-                copy:evaluate()
+            if Component.dragging.isComponent then
+
+                if not self.dragComp then
+                    self.dragComp = Component.dragging:clone():scaleToFit(30, 30)
+                    self.dragComp.parent = nil
+                    self.dragComp:setAlpha(0.5)
+                end
+                self.dragComp.x = gfx.mouse_x - 15
+                self.dragComp.y = gfx.mouse_y - 15
+                self.dragComp:evaluate(self.g)
             else
                 gfx.circle(gfx.mouse_x, gfx.mouse_y, 10, true, true)
             end
@@ -253,6 +258,11 @@ function Window:evalMouse()
     if not self.mouse:isButtonDown() then
         for k,v in pairs(self.component:getAllChildren()) do
             v.mouse.down = false
+        end
+        if self.dragComp then
+            self.dragComp:delete()
+            self.repaint = true
+            self.dragComp = nil
         end
         Component.dragging = nil
     end

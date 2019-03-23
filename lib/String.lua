@@ -37,7 +37,7 @@ end
 function string:equal(other)
     local len = self:len()
     if other:len() ~= len then return false end
-    local rea = require 'Reaper'
+    local rea = require 'rea'
 
     for i = 1, len do
         if self:sub(i,i) ~= other:sub(i, i) then
