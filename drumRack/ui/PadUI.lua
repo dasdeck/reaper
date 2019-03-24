@@ -19,6 +19,26 @@ function PadUI.showMenu(pad)
 
     local menu = Menu:create()
 
+    menu:addItem('save', {
+        disabled = not pad:hasContent(),
+        callback = function()
+            local file = DrumRack.padPresetDir:saveDialog('.RTrackTemplate', pad:getName())
+            if file then
+                writeFile(file, pad:savePad())
+            end
+        end,
+    })
+    menu:addItem('load', function()
+        local file = DrumRack.padPresetDir:browseForFile('RTrackTemplate')
+        if file then
+            rea.transaction('load pad', function()
+                pad:loadPad(file)
+            end)
+        end
+    end)
+
+    menu:addSeperator()
+
     local low, high = pad.rack:getMapper():getKeyRange(pad)
 
     local learnMenu = Menu:create()
@@ -105,11 +125,13 @@ function PadUI:create(pad)
         local wasSelected = pad:setSelected()
 
         if wasSelected then
-            if pad:getFx() then
-                pad:getFx():focus()
-            elseif _.first(pad:getLayers()) then
-                _.first(pad:getLayers()):focus()
-            end
+            rea.transaction('select pad', function()
+                if pad:getFx() then
+                    pad:getFx():focus()
+                elseif _.first(pad:getLayers()) then
+                    _.first(pad:getLayers()):focus()
+                end
+            end)
         end
 
         pad:noteOff()

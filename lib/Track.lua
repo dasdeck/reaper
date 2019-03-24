@@ -147,16 +147,6 @@ end
 
 function Track:defer()
     self.state = nil
-    -- return nil
-
-    -- local state = self:getState(true):gsub('<JS_SER.*>-', '')
-
-
-    -- if self.state ~= state then
-    --     self:triggerChange(state)
-    --     self.state = state
-    -- end
-    -- body
 end
 
 function Track:exists()
@@ -250,23 +240,14 @@ function Track:getName()
 end
 
 function Track:setLocked(locked)
-    if locked ~= self:isLocked() then
-        if locked then
-            self.state = self:getState():gsub('<TRACK', '<TRACK \n LOCK 1\n')
-        else
-            self.state = self:getState():gsub('(LOCK %d)', '')
-        end
-        self:setState(self.state)
-    end
 
-    self:setValue('lock', locked and 1 or 0)
+    self:setState(self:getState():withLocking(locked))
+
     return self
 end
 
 function Track:isLocked()
-    local locker = tonumber(self:getState():match('LOCK (%d)'))
-    return locker and (locker & 1 > 0) or false
-    -- return (self:getValue('lock') & 1) > 0
+    return self:getState():isLocked()
 end
 
 function Track:getValue(key)
@@ -322,24 +303,24 @@ function Track:getFxList()
     return res
 end
 
-function Track:getState(live, store)
+function Track:getState(live)
     if live or not self.state then
         local success, state = reaper.GetTrackStateChunk(self.track, '', false)
-        self.state = state
-        -- return state
+        self.state = TrackState:create(state)
     end
     return self.state
+end
+
+function Track:setState(state)
+    self.state = state
+    reaper.SetTrackStateChunk(self.track, state:__tostring(), false)
+    return self
 end
 
 function Track:removeReceives()
     for i=0,reaper.GetTrackNumSends(self.track, -1) do
         reaper.RemoveTrackSend(self.track, -1, i)
     end
-    return self
-end
-
-function Track:setState(state)
-    reaper.SetTrackStateChunk(self.track, state, false)
     return self
 end
 

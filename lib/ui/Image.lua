@@ -62,7 +62,7 @@ function Image:paint(g)
         g:drawImage(self.slot, (self.w - w) / 2, (self.h - h) / 2, scale)
 
     else
-        rea.log('image:paint' .. tostring(self.scale))
+        -- rea.log('image:paint' .. tostring(self.scale))
         g:drawImage(self.slot, 0, 0, self.scale)
     end
 

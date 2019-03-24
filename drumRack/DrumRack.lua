@@ -9,8 +9,8 @@ local rea = require 'rea'
 
 local DrumRack = class()
 
-DrumRack.presetDir = Directory:create(reaper.GetResourcePath() .. '/TrackTemplates/DrumRack')
-DrumRack.presetDir:mkdir()
+DrumRack.presetDir = Directory:create(reaper.GetResourcePath() .. '/TrackTemplates/DrumRack'):mkdir()
+DrumRack.padPresetDir = Directory:create(reaper.GetResourcePath() .. '/TrackTemplates/DrumRack/Pads'):mkdir()
 DrumRack.fxName = 'DrumRack'
 DrumRack.maxNumPads = 16
 
@@ -135,13 +135,7 @@ function DrumRack:getAllTracks(includeMidi)
     if fx then tracks[fx.guid] = fx end
 
     _.forEach(self.pads, function(pad, i)
-        local fx = pad:getFx()
-
-        if fx then tracks[fx.guid] = fx end
-
-        _.forEach(pad:getLayers(), function(track)
-            tracks[track.guid] = track
-        end)
+        pad:getAllTracks(tracks)
     end)
 
     if includeMidi then

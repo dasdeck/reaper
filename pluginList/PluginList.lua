@@ -27,7 +27,6 @@ function PluginList:create()
 end
 
 function PluginList:resized()
-
     local padding = 2
     if self.w > 0 then
         local y = 0
@@ -36,9 +35,7 @@ function PluginList:resized()
             child:fitToWidth(self.w - padding * 2)
             y = y + child.h + 2 * padding
         end)
-        -- self.h = y
     end
-    rea.log('resize')
 end
 
 return PluginList

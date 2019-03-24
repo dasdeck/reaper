@@ -46,3 +46,4 @@ DrumRack:
         ☐ try to use 16 x 16 pads (for keyzones / slices)
 Bugs:
     ✔ delete pad/rack fx @done(19-03-19 11:16)
+    ☐ redraw on track focus

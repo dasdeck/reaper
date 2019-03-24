@@ -8,7 +8,6 @@ local function map(data, callback)
     return res
 end
 
-
 local function assign(target, source)
     for k,v in pairs(source or {}) do
         target[k] = v
@@ -73,8 +72,6 @@ local function reverse(arr)
     return res
 end
 
-
-
 local function find(data, needle)
     local callback = type(needle) ~= 'function' and function(subj) return subj == needle end or needle
     for k,v in pairs(data or {}) do
@@ -83,7 +80,6 @@ local function find(data, needle)
     end
     return nil
 end
-
 
 local function indexOf(data, needle)
     return some(data, function(v,i)
@@ -98,7 +94,6 @@ local function filter(data, callback)
     end
     return res
 end
-
 
 local function pick(data, list)
     local res = {}
@@ -123,7 +118,7 @@ local function join(table, glue)
 
     local i = 1
     for key, row in pairs(table or {}) do
-        res = res .. row .. (i < #table and glue or '')
+        res = res .. tostring(row) .. (i < #table and glue or '')
         i = i + 1
     end
     return res

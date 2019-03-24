@@ -1,5 +1,7 @@
 local Track = require 'Track'
 local Mem = require 'Mem'
+local TrackState = require 'TrackState'
+
 local _ = require '_'
 local rea = require 'rea'
 
@@ -18,6 +20,66 @@ end
 function Pad:setKeyRange(low, hi)
     self.rack:getMapper():setParamForPad(self, 1, low)
     self.rack:getMapper():setParamForPad(self, 2, hi)
+    return self
+end
+
+function Pad:getAllTracks(tracks)
+    tracks = tracks or {}
+
+    local fx = pad:getFx()
+    if fx then tracks[fx.guid] = fx end
+
+    _.forEach(pad:getLayers(), function(track)
+        tracks[track.guid] = track
+    end)
+
+    return tracks
+end
+
+function Pad:savePad()
+    local tracks = self:getAllTracks()
+    table.sort(tracks)
+    local data = _.map(tracks, function(track)
+        if track ~= self:getFx() then
+            return track:getState():withoutAuxRecs()
+        else
+            return track:getState()
+        end
+    end)
+    return _.join(data, '\n')
+end
+
+function Pad:loadPad(file)
+    local selection = Track.getSelectedTracks()
+
+    Track.setSelectedTracks({})
+
+    reaper.Main_openProject(file)
+
+    Track.deferAll()
+
+    local loadedTracks = Track.getSelectedTracks()
+
+    -- return
+    fx = _.find(loadedTracks, function(track)
+        return _.some(track:getReceives(), function(rec)
+            return _.find(loadedTracks, rec:getSourceTrack())
+        end)
+    end)
+
+    if not self:getFx() or not self:getFx():isLocked() then
+        self:setFx(fx)
+    end
+
+    self:clear()
+
+    _.forEach(loadedTracks, function(layerToLoad)
+        if layerToLoad ~= fx then
+            self:addTrack(layerToLoad)
+        end
+    end)
+
+    Track.setSelectedTracks(selection)
     return self
 end
 
@@ -118,17 +180,18 @@ function Pad:removeFx()
     local layers = self:getLayers()
 
     if fx then
-        while _.size(fx:getReceives()) > 0 do
-            local rec = _.first(fx:getReceives())
-            local source = rec:getSourceTrack()
-            rec:remove()
-            if rackFx then source:createSend(rackFx)
-            else source:setValue('toParent', true)
-            end
-        end
+        -- while _.size(fx:getReceives()) > 0 do
+        --     local rec = _.first(fx:getReceives())
+        --     local source = rec:getSourceTrack()
+        --     rec:remove()
+        --     if rackFx then source:createSend(rackFx)
+        --     else source:setValue('toParent', true)
+        --     end
+        -- end
+        fx:remove()
+        self:refreshConnections()
     end
 
-    fx:remove()
 
 end
 
@@ -152,6 +215,7 @@ function Pad:getFx(create)
 end
 
 function Pad:setFx(track)
+    self:removeFx()
     if track then
         local send = self.rack:getTrack():createSend(track)
         send:setMuted()
