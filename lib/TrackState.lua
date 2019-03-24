@@ -48,6 +48,13 @@ function TrackState.fromTracks(tracks)
 
 end
 
+function TrackState:getPlugins()
+    local chainContent = self.text:match('(<FXCHAIN.-\n>)\n>')
+    local pluginsText = chainContent:match('<FXCHAIN.-(<.*)>'):trim():sub(1, -2)
+    local plugins = pluginsText:gmatchall('<(.-\n)(.-)>([^<]*)')
+    return plugins
+end
+
 function TrackState:withLocking(locked)
     local text = self.text
     if locked ~= self:isLocked() then
@@ -76,7 +83,7 @@ end
 
 function TrackState:getAuxRecs()
     local recs = {}
-    for index in  self.text:gmatch('AUXRECV (%d) (.-)\n') do
+    for index in self.text:gmatch('AUXRECV (%d) (.-)\n') do
         table.insert(recs, math.floor(tonumber(index)))
     end
     -- rea.log(recs)

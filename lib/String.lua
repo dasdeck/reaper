@@ -48,6 +48,40 @@ function string:equal(other)
     return true
 end
 
+function string:gmatchall(pattern)
+
+    local result = {}
+
+    local iterator = self:gmatch(pattern)
+
+    local wrapper = function()
+        return function(...)
+            local res = {iterator(...)}
+            return #res > 0 and res or nil
+        end
+    end
+
+    for v in wrapper() do
+        table.insert(result, v)
+    end
+    return result
+end
+
+-- function string:gmatchall(pattern)
+--     local recs = {}
+--     local match = true
+--     local index = 0
+--     while match do
+--         match = self:match(pattern, index)
+--         index = index + 1
+--         if match then
+--             table.insert(recs, match)
+--         end
+--     end
+--     -- rea.log(recs)
+--     return recs
+-- end
+
 function string:split(sep, quote)
     local result = {}
 

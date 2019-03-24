@@ -280,7 +280,7 @@ end
 
 function Track:getInstrument()
     local inst = reaper.TrackFX_GetInstrument(self.track)
-    return inst >= 0 and Plugin:create(self.track, inst) or nil
+    return inst >= 0 and Plugin:create(self, inst) or nil
 end
 
 function Track:remove()
@@ -298,7 +298,7 @@ function Track:getFxList()
     local inst = self:getInstrument()
     local res = {}
     for i = inst and inst:getIndex() or 0, reaper.TrackFX_GetCount(self.track) - 1 do
-        table.insert(res, Plugin:create(self.track, i))
+        table.insert(res, Plugin:create(self, i))
     end
     return res
 end
@@ -472,7 +472,7 @@ function Track:getPlugins(live)
         local res = {}
 
         for i = 0, reaper.TrackFX_GetCount()-1 do
-            table.insert(res, Plugin:create(self.track, i))
+            table.insert(res, Plugin:create(self, i))
         end
 
         return res
@@ -492,7 +492,7 @@ function Track:getFx(name, force, rec)
 
     local index = reaper.TrackFX_AddByName(self.track, name, rec or false, force and 1 or 0)
 
-    return index >= 0 and Plugin:create(self.track, index + (rec and 0x1000000 or 0)) or nil
+    return index >= 0 and Plugin:create(self, index + (rec and 0x1000000 or 0)) or nil
 end
 
 function Track:addFx(name, input)

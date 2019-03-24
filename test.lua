@@ -46,10 +46,10 @@ local data2 = {
     b = 'b'
 }
 
-local coll = Collection:create(data)
-print(_.size(data))
-print(_.size(data2))
-print(_.size(coll))
+-- local coll = Collection:create(data)
+-- print(_.size(data))
+-- print(_.size(data2))
+-- print(_.size(coll))
 
 
 
@@ -108,3 +108,13 @@ assert(obj:test1() == 'test1', 'simple class')
 assert(obj:test2() == 'test2', 'simple class')
 assert(obj:test3() == 'test3', 'simple class')
 
+
+local trackState = readFile('./TrackState')
+
+local chainContent = trackState:match('(<FXCHAIN.-\n>)\n>')
+local pluginsText = chainContent:match('<FXCHAIN.-(<.*)>'):trim():sub(1, -2)
+local plugins = pluginsText:gmatchall('<(.-\n)(.-)>([^<]*)')
+-- print(pluginsText)
+
+print(dump(plugins))
+-- print(dump(plugins))

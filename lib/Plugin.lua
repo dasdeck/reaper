@@ -30,7 +30,7 @@ end
 --
 
 function Plugin:create(track, index)
-    local guid = reaper.TrackFX_GetFXGUID(track, index)
+    local guid = reaper.TrackFX_GetFXGUID(track.track, index)
 
     if not Plugin.plugins[guid] then
         local p = {}
@@ -48,7 +48,7 @@ end
 
 function Plugin:resolveIndex(nameOrIndex)
     if type(nameOrIndex) == 'string' then
-        return rea.getFxByName(self.track, nameOrIndex, self.rec)
+        return rea.getFxByName(self.track.track, nameOrIndex, self.rec)
     else
         return nameOrIndex
     end
@@ -56,7 +56,7 @@ end
 
 function Plugin:resolveParamIndex(nameOrIndex)
     if type(nameOrIndex) == 'string' then
-        return rea.getParamByName(self.track, self.index, nameOrIndex)
+        return rea.getParamByName(self.track.track, self.index, nameOrIndex)
     else
         return nameOrIndex
     end
@@ -66,26 +66,31 @@ function Plugin:getIndex()
     return self.index
 end
 
+
+function Plugin:getState()
+    return self.track:getState():getPlugins()[self.index + 1]
+end
+
 function Plugin:getModule()
-    local res, name =  reaper.BR_TrackFX_GetFXModuleName(self.track, self.index, '', 10000)
+    local res, name =  reaper.BR_TrackFX_GetFXModuleName(self.track.track, self.index, '', 10000)
     return name
 end
 
 function Plugin:isValid()
-    return self.guid == reaper.TrackFX_GetFXGUID(self.track, self.index)
+    return self.guid == reaper.TrackFX_GetFXGUID(self.track.track, self.index)
 end
 
 function Plugin:reconnect()
-    self.index = Plugin.getByGUID(self.track, self.guid)
+    self.index = Plugin.getByGUID(self.track.track, self.guid)
 end
 
 function Plugin:getEnabled()
-    return reaper.TrackFX_GetEnabled(self.track, self.index)
+    return reaper.TrackFX_GetEnabled(self.track.track, self.index)
 
 end
 
 function Plugin:setEnabled(enabled)
-    reaper.TrackFX_SetEnabled(self.track, self.index, enabled)
+    reaper.TrackFX_SetEnabled(self.track.track, self.index, enabled)
 end
 
 function Plugin:refresh()
@@ -95,37 +100,37 @@ end
 
 function Plugin:setIndex(index)
     if self.index ~= index then
-        reaper.TrackFX_CopyToTrack(self.track, self.index, self.track, index, true)
+        reaper.TrackFX_CopyToTrack(self.track.track, self.index, self.track.track, index, true)
         self.index = index
     end
     return self
 end
 
 function Plugin:isOpen()
-    return reaper.TrackFX_GetOpen(self.track, self.index)
+    return reaper.TrackFX_GetOpen(self.track.track, self.index)
 end
 
 function Plugin:getName()
-    local success, name = reaper.TrackFX_GetFXName(self.track, self.index, '')
+    local success, name = reaper.TrackFX_GetFXName(self.track.track, self.index, '')
     return success and name
 end
 
 function Plugin:setPreset(nameOrIndex)
-    reaper.TrackFX_SetPreset(self.track, self.index, nameOrIndex)
+    reaper.TrackFX_SetPreset(self.track.track, self.index, nameOrIndex)
 end
 
 function Plugin:getPreset()
-    local s, name = reaper.TrackFX_GetPreset(self.track, self.index, 1)
+    local s, name = reaper.TrackFX_GetPreset(self.track.track, self.index, 1)
     return name
 end
 
 function Plugin:remove()
-    reaper.TrackFX_Delete(self.track, self.index)
+    reaper.TrackFX_Delete(self.track.track, self.index)
     Plugin.plugins[self.guid] = nil
 end
 
 function Plugin:open(show)
-    reaper.TrackFX_SetOpen(self.track, self.index, show == nil and true or show)
+    reaper.TrackFX_SetOpen(self.track.track, self.index, show == nil and true or show)
 end
 
 function Plugin:setParam(nameOrIndex, value)
@@ -133,10 +138,10 @@ function Plugin:setParam(nameOrIndex, value)
     if not self:refresh() then return end
 
     if type(nameOrIndex) == 'string' then
-        local res = reaper.TrackFX_SetNamedConfigParm(self.track, self.index, nameOrIndex, value)
+        local res = reaper.TrackFX_SetNamedConfigParm(self.track.track, self.index, nameOrIndex, value)
         if not res then self:setParam(self:resolveParamIndex(nameOrIndex), value) end
     else
-        return reaper.TrackFX_SetParam(self.track, self.index, nameOrIndex, value)
+        return reaper.TrackFX_SetParam(self.track.track, self.index, nameOrIndex, value)
     end
 
 end
@@ -144,14 +149,14 @@ end
 function Plugin:getParam(nameOrIndex)
 
     if type(nameOrIndex) == 'string' then
-        local res, val = reaper.TrackFX_GetNamedConfigParm(self.track, self.index, nameOrIndex)
+        local res, val = reaper.TrackFX_GetNamedConfigParm(self.track.track, self.index, nameOrIndex)
         if res then
             return val
         else
             return self:getParam(self:resolveParamIndex(nameOrIndex))
         end
     elseif type(nameOrIndex) == 'number' then
-        return reaper.TrackFX_GetParam(self.track, self.index, nameOrIndex)
+        return reaper.TrackFX_GetParam(self.track.track, self.index, nameOrIndex)
     end
 
 end

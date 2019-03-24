@@ -23,6 +23,8 @@ end
 
 function FXListItem:onClick(mouse)
 
+    rea.log(self.fx:getState())
+
     if mouse:isShiftKeyDown() then
         self.fx:setEnabled(not self.fx:getEnabled())
     elseif mouse:isAltKeyDown() then
