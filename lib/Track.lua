@@ -311,6 +311,10 @@ function Track:getState(live)
     return self.state
 end
 
+function Track:__tostring()
+    return self:getName() .. ' :: ' .. tostring(self.track)
+end
+
 function Track:setState(state)
     self.state = state
     reaper.SetTrackStateChunk(self.track, state:__tostring(), false)

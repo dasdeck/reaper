@@ -169,10 +169,7 @@ end
 
 function DrumRack:saveKit()
     local tracks = self:getAllTracks()
-    table.sort(tracks)
-    local data = _.map(tracks, function(track)
-        return track:getState()
-    end)
+    local data = TrackState.fromTracks(track)
     return _.join(data, '\n')
 end
 

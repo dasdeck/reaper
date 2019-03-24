@@ -38,14 +38,8 @@ end
 
 function Pad:savePad()
     local tracks = self:getAllTracks()
-    table.sort(tracks)
-    local data = _.map(tracks, function(track)
-        if track ~= self:getFx() then
-            return track:getState():withoutAuxRecs()
-        else
-            return track:getState()
-        end
-    end)
+
+    local data = TrackState.fromTracks(tracks)
     return _.join(data, '\n')
 end
 
@@ -62,16 +56,14 @@ function Pad:loadPad(file)
 
     -- return
     fx = _.find(loadedTracks, function(track)
-        return _.some(track:getReceives(), function(rec)
-            return _.find(loadedTracks, rec:getSourceTrack())
-        end)
+        return _.size(track:getReceives()) > 0
     end)
 
     if not self:getFx() or not self:getFx():isLocked() then
         self:setFx(fx)
     end
 
-    self:clear()
+    self:removeLayers()
 
     _.forEach(loadedTracks, function(layerToLoad)
         if layerToLoad ~= fx then
@@ -289,11 +281,17 @@ function Pad:addLayer(path)
 
 end
 
-function Pad:clear()
-
+function Pad:removeLayers(keepLocked)
     while _.size(self:getLayers()) > 0 do
         _.first(self:getLayers()):remove()
     end
+end
+
+function Pad:clear()
+
+    self:removeLayers()
+
+    self:removeFx()
 
 end
 

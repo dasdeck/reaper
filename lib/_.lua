@@ -82,8 +82,10 @@ local function find(data, needle)
 end
 
 local function indexOf(data, needle)
-    return some(data, function(v,i)
+    local i = 1
+    return some(data, function(v)
         if v == needle then return i end
+        i = i + 1
     end)
 end
 
