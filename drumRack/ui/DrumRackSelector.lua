@@ -8,8 +8,8 @@ local _ = require '_'
 
 local DrumRackSelector = class(Component)
 
-function DrumRackSelector:create()
-    local self = Component:create()
+function DrumRackSelector:create(...)
+    local self = Component:create(...)
     self.followSelection = true
 
     self.button = self:addChildComponent(TextButton:create('+DrumRack'))

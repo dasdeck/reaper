@@ -4,10 +4,9 @@ require 'boot'
 addScope('drumRack')
 addScope('drumRack/ui')
 
-local Watcher = require 'Watcher'
 
 local DrumRackSelector = require 'DrumRackSelector'
-local Window = require 'Window'
+local WindowApp = require 'WindowApp'
 
 local paths = require 'paths'
 
@@ -15,16 +14,11 @@ local DrumRackJSFX = paths.effectsDir:childFile('DrumRack')
 
 if not DrumRackJSFX:exists() then
   DrumRackJSFX:setContent(paths.scriptDir:childFile('jsfx/DrumRack'):getContent())
-  reaper.MB('plugin installed, restart script', 'restart', 0)
+  reaper.MB('plugin installed, restart sscript', 'restart', 0)
 else
 
-Window.openComponent(DrumRackSelector:create(), {
-    name = 'drumrack',
-    w = 600,
-    h = 300,
-    dock = 1,
+  WindowApp:create('drumrack', DrumRackSelector:create(0,0, 600, 300)):start({
     profile = false
-    }
-  )
+  })
 
 end

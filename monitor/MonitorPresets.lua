@@ -14,8 +14,8 @@ local JSON = require 'json'
 
 local MonitorPresets = class(Component)
 
-function MonitorPresets:create()
-  local self = Component:create()
+function MonitorPresets:create(...)
+  local self = Component:create(...)
 
   setmetatable(self, MonitorPresets)
 

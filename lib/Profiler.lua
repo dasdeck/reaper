@@ -16,8 +16,10 @@ function Profiler:create(libs)
 
     self.wrappedLibs = _.map(self.unwrappedLibs, function(lib, key)
         return _.map(lib, function(member, name)
+            name = key .. '.' .. name
             if type(member) == 'function' then
                 return function(...)
+
 
                     self.profile.totalCalls = self.profile.totalCalls + 1
 

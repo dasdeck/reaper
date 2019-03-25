@@ -115,6 +115,14 @@ function Plugin:getName()
     return success and name
 end
 
+function Plugin:getCleanName()
+    return self:getName():gsub('%(.-%)', ''):gsub('.-: ', ''):trim()
+end
+
+function Plugin:setName()
+
+end
+
 function Plugin:setPreset(nameOrIndex)
     reaper.TrackFX_SetPreset(self.track.track, self.index, nameOrIndex)
 end

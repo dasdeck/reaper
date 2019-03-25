@@ -1,4 +1,22 @@
 Ideas:
+    ☐ profiler
+        ☐ num components
+        ☐ num components in window
+    ☐  contextual strack
+        ☐ show only if other track is selected
+            drumbus (if fx bus / pad fx)
+            la
+        ☐ get contexts
+            on track selection change, change contexts
+
+    ☐ move eventloop outside window
+        app
+            keyboard
+            app quit
+        window
+            mouse
+            paint
+            option quit on close ?
 
     ☐ Selection set to have unified selection bhaviour
         ☐ set has drive by existing set

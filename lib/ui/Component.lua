@@ -8,6 +8,8 @@ local rea = require 'rea'
 
 local Component = class()
 
+Component.numInstances = 0
+
 function Component:create(x, y, w, h)
     local obj = {
         x = x or 0,
@@ -22,7 +24,14 @@ function Component:create(x, y, w, h)
     }
 
     setmetatable(obj, Component)
+
+    Component.numInstances = Component.numInstances + 1
+
     return obj
+end
+
+function Component:__gc()
+    Component.numInstances = Component.numInstances - 1
 end
 
 function Component:getAllChildren(results)
@@ -272,6 +281,7 @@ function Component:remove()
         _.removeValue(self.parent.children, self)
         self.parent = nil
     end
+    return self
 end
 
 function Component:evaluateChildren(g)

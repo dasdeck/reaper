@@ -6,7 +6,7 @@ addScope('drumRack')
 addScope('pluginList')
 
 local TrackTool = require 'TrackTool'
-local Window = require 'Window'
+local WindowApp = require 'WindowApp'
 local Builder = require 'Builder'
 local rea = require 'rea'
 local paths = require 'paths'
@@ -16,10 +16,5 @@ if not TrackToolJSFX:exists() then
   TrackToolJSFX:setContent(paths.scriptDir:childFile('jsfx/TrackTool'):getContent())
   reaper.MB('plugin installed, restart script', 'restart', 0)
 else
-  Window.openComponent(TrackTool:create(), {
-    name = 'tracktool',
-    w = 200,
-    h = 600,
-    dock = 1}
-  )
+  WindowApp:create('tracktool', TrackTool:create(0,0,200, 600)):start()
 end

@@ -31,10 +31,14 @@ function Directory:childFile(path)
 end
 
 function Directory:findFile(pattern)
+    return _.first(self:findFiles(pattern))
+end
+
+function Directory:findFiles(pattern)
     local filter = type(pattern) == 'function' and pattern or function(file)
         return (file:lower() == pattern:lower()) or file:lower():match(pattern:lower())
     end
-    return _.first(rea.findFiles(self.dir, {}, filter))
+    return rea.findFiles(self.dir, {}, filter)
 end
 
 function Directory:listAsMenu(selected)
@@ -81,6 +85,8 @@ function Directory:indexOf(needle)
         return file:match(needle) and (index+1)
     end)
 end
+
+
 
 function Directory:getFiles()
     return rea.getFiles(self.dir, self.filter)

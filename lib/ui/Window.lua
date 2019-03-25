@@ -1,13 +1,13 @@
 local Mouse = require 'Mouse'
 local Component = require 'Component'
-local _ = require '_'
 local State = require 'State'
 local Track = require 'Track'
 local Plugin = require 'Plugin'
 local Project = require 'Project'
 local Watcher = require 'Watcher'
-local Profiler = require 'Profiler'
 local Graphics = require 'Graphics'
+
+local _ = require '_'
 local rea = require 'rea'
 
 gfx.setfont(1, "arial", 0.2, 'bi')
@@ -23,16 +23,17 @@ Project.watch.project:onChange(function()
     Track.onStateChange()
 end)
 
-function Window.openComponent(component, options)
+function Window.openComponent(name, component, options)
 
-    local win = Window:create(component)
+    local win = Window:create(name, component)
     win:show(options)
     return win
 
 end
 
-function Window:create(component)
+function Window:create(name, component)
     local self = {
+        name = name,
         mouse = Mouse.capture(),
         state = {},
         repaint = true,
@@ -47,7 +48,7 @@ function Window:create(component)
 end
 
 function Window:isOpen()
-    return gfx.getchar() ~= -1
+    return self.open ~= false
 end
 
 function Window:render()
@@ -89,25 +90,16 @@ function Window:render()
 
 end
 
-function Window:updateState()
-    local dock = gfx.dock(-1)
-    if self.h ~= gfx.h or self.w ~= gfx.w or dock ~= self.dock then
 
-        self.repaint = true
-        self.h = gfx.h
-        self.w = gfx.w
-        self.dock = dock
-
-
-        State.global.set('window_' .. self.name, _.pick(self, {'h','w', 'dock'}))
-    end
-end
 
 function Window:unfocus(options)
-    reaper.SetCursorContext(1, 0)
+    -- reaper.SetCursorContext(1, 0)
 end
 
 function Window:show(options)
+
+    options = options or {}
+    options.persist = options.persist == nil and true or options.persist
 
     Window.currentWindow = self
     _.assign(self, options)
@@ -120,25 +112,103 @@ function Window:show(options)
 
     if not options.focus then self:unfocus() end
 
-    if options.profile then
-
-        local def = self.defer
-        profiler = Profiler:create({'gfx', 'reaper'})
-
-        self.defer = function()
-
-            local log = profiler:run(function() def(self) end, 1)
-            rea.logOnly(log)
-
-        end
-    end
-    self:defer()
 
 end
 
 function Window:close()
+    self.open = false
     gfx.quit()
     if self.onClose then self:onClose() end
+end
+
+function Window:restoreState()
+
+    if self.options.persist then
+
+        self.docked = State.global.get('window_' .. self.name .. '_docked')
+
+        if docked then
+            self.docked = true
+            self.dock = State.global.get('window_' .. self.name .. '_dock')
+            gfx.dock(self.dock)
+        else
+            gfx.dock(0)
+        end
+
+        self.h = State.global.get('window_' .. self.name .. '_h')
+        self.w = State.global.get('window_' .. self.name .. '_w')
+
+    end
+
+end
+
+function Window:storeState()
+    if self.options.persist then
+
+        local dock = gfx.dock(-1)
+
+        if dock ~= self.dock then
+            self.docked = dock > 0
+            self.dock = self.docked and dock or self.dock
+            State.global.set('window_' .. self.name, _.pick(self, {'dock', 'docked'}))
+        end
+
+        if  self.h ~= gfx.h then
+            self.h = gfx.h
+            State.global.set('window_' .. self.name, _.pick(self, {'h'}))
+            self.repaint = true
+        end
+
+        if  self.w ~= gfx.w then
+            self.w = gfx.w
+            State.global.set('window_' .. self.name, _.pick(self, {'w'}))
+            self.repaint = true
+        end
+
+    end
+
+end
+
+function Window:toggleDock()
+
+    local dock = gfx.dock(-1)
+    if dock > 0 then
+        self.dock = dock
+        self.docked = false
+        gfx.dock(0)
+    else
+        gfx.dock(self.dock)
+        self.docked = true
+    end
+    self:storeState()
+    self:restoreState()
+
+end
+
+function Window:evalKeyboard()
+
+    local key = gfx.getchar()
+
+    if key == -1 then
+        self:close()
+    else
+        while key > 0 do
+            rea.log('keycode:' .. tostring(key))
+
+
+            if key == 324 and self.mouse:isShiftKeyDown() then
+                self:toggleDock()
+            end
+
+            _.forEach(self.component:getAllChildren(), function(comp)
+                if comp.onKeyPress then
+                    comp:onKeyPress(key)
+                end
+            end)
+            key = gfx.getchar()
+
+        end
+    end
 end
 
 function getDroppedFiles()
@@ -156,19 +226,6 @@ function getDroppedFiles()
     return files
 end
 
-function Window:evalKeyboard()
-    if self:isOpen() then
-        local key = true
-        while key do
-            key = gfx.getchar()
-            if key ~= 0 then
-                _.forEach(self.component:getAllChildren(), function(comp)
-                    -- if comp.onKeyPress
-                end)
-            end
-        end
-    end
-end
 
 function Window:evalMouse()
 
@@ -271,37 +328,15 @@ end
 
 function Window:defer()
 
-    local res, err = xpcall(function()
-
-        Track.deferAll()
-        Plugin.deferAll()
-        Watcher.deferAll()
-
-        if rea.refreshUI(true) then
-            self.paint = true
-        end
-
-        self:render()
-        self:evalMouse()
-
-        self:updateState()
-
-        if self:isOpen() then
-            reaper.defer(function()
-                self:defer()
-            end)
-        end
-
-    end, debug.traceback)
-
-    if not res then
-        local context = {reaper.get_action_context()}
-        rea.log({context,err})
-
-        -- reaper.Main_OnCommandEx(context[4], 0, 0)
+    if rea.refreshUI(true) then
+        self.paint = true
     end
 
+    self:render()
+    self:evalMouse()
+    self:evalKeyboard()
 
+    self:storeState()
 
 end
 

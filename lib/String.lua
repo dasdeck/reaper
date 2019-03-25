@@ -20,14 +20,19 @@ function string:escaped()
     return self:gsub("([^%w])", "%%%1")
 end
 
--- function escapePattern()
---     local specials = {
---         '(', ')', '.', '%', '+', '-', '*', '?', '[', '^', '$'
---     }
---     _.forEach(specials, function(special)
---     end)
+function string:forEachChar(callback)
+    for i=1, #self do
+        if callback(self:byte(i), i) == false then return end
+    end
+end
 
--- end
+function string:forEach(callback)
+    local i = 1
+    for c in str:gmatch ('.') do
+        if callback(c, i) == false then return end
+        i = i + 1
+    end
+end
 
 function string:includes(needle)
 

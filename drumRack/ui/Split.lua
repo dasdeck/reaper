@@ -25,6 +25,8 @@ function Split:paintOverChildren(g)
         g:rect(x1, 0, x2 - x1, self.h, true)
     end
 
+    PadUI.paintOverChildren(self, g)
+
 end
 
 return Split

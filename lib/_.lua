@@ -115,15 +115,16 @@ local function reduce(data, callback, carry)
     return carry
 end
 
-local function join(table, glue)
-    local res = ''
+local function join(t, glue)
+    -- local res = ''
 
-    local i = 1
-    for key, row in pairs(table or {}) do
-        res = res .. tostring(row) .. (i < #table and glue or '')
-        i = i + 1
-    end
-    return res
+    -- local i = 1
+    -- for key, row in pairs(table or {}) do
+    --     res = res .. tostring(row) .. (i < #table and glue or '')
+    --     i = i + 1
+    -- end
+    -- return res
+    return table.concat(t, glue)
 end
 
 local function empty(table)

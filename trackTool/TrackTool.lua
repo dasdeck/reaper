@@ -9,8 +9,8 @@ local _ = require '_'
 
 local TrackTool = class(Component)
 
-function TrackTool:create()
-    local self = Component:create()
+function TrackTool:create(...)
+    local self = Component:create(...)
     setmetatable(self, TrackTool)
 
     self.track = Track.getFocusedTrack(true)

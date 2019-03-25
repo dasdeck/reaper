@@ -10,9 +10,11 @@ local FXListItem = class(Image, Label)
 
 function FXListItem:create(plugin)
 
-    local name = plugin:getModule():split('%.')[1]
+    local name = plugin:getCleanName()
+    -- rea.log(name)
     local filename = name .. '.png'
     local file = paths.imageDir:findFile(filename)
+
     local self = file and Image:create(file, 'fit', 1) or Label:create(name, 0,0,200,40)
     setmetatable(self, FXListItem)
     self.fx = plugin
@@ -23,7 +25,7 @@ end
 
 function FXListItem:onClick(mouse)
 
-    rea.log(self.fx:getState())
+    rea.log(self.fx:getName())
 
     if mouse:isShiftKeyDown() then
         self.fx:setEnabled(not self.fx:getEnabled())

@@ -5,12 +5,6 @@ addScope('trackList')
 addScope('drumRack')
 
 local TrackList = require 'TrackList'
-local Window = require 'Window'
+local WindowApp = require 'WindowApp'
 
-Window.openComponent(TrackList:create(), {
-name = 'tracklist',
-w = 200,
-h = 600,
-dock = 1
-}
-)
+WindowApp:create('tracklist', TrackList:create(0,0, 200, 600)):start()

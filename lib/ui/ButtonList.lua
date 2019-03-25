@@ -33,12 +33,6 @@ function ButtonList:updateList()
 
         comp.color = value.color or comp.color
 
-        assert(not comp.data, 'comps can not have a "data" member')
-
-        comp.data = value
-
-        comp.data.args = args
-
         comp.onButtonClick = comp.onButtonClick or function(s, mouse)
             if value.onClick then
                 value.onClick(value, mouse)
@@ -81,6 +75,8 @@ function ButtonList:updateList()
     if self.layout == 1 and _.size(self.children) then
         self[size] = _.first(self.children)[size]
     end
+
+    self:repaint()
 end
 
 
@@ -136,13 +132,14 @@ end
 function ButtonList:showAsMenu()
     local menu = Menu:create()
 
-    for k, child in pairs(self.children) do
-
-        menu:addItem(child.data.args,{
+    _.forEach(self:getData(), function(opt, i)
+        local child = self.children[i]
+        menu:addItem(opt.args, {
             callback = function() return child:onButtonClick(true) end,
             checked = child:getToggleState()
         })
-    end
+    end)
+
 
     menu:show()
 
