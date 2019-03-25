@@ -17,7 +17,7 @@ function Watcher:create(callback)
         lastValue = nil,
         callback = callback
     }
-
+    rea.logCount('watcher')
     setmetatable(self, Watcher)
     table.insert(Watcher.watchers, self)
 
@@ -25,14 +25,24 @@ function Watcher:create(callback)
 end
 
 function Watcher:close()
+    rea.logCount('watcher', -1)
+    rea.logCount('watch', -#self.listeners)
+
     _.removeValue(Watcher.watchers, self)
+    self.listeners = {}
 end
 
 function Watcher:onChange(listener)
+    rea.logCount('watch')
     table.insert(self.listeners, listener)
+    return function()
+        self:removeListener(listener)
+    end
 end
 
 function Watcher:removeListener(listener)
+    -- rea.logCount('watch', -1)
+
     _.removeValue(self.listeners, listener)
 end
 

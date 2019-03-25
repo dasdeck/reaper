@@ -52,4 +52,8 @@ function Mouse:isShiftKeyDown()
     return toboolean(self.cap & 8)
 end
 
+function Mouse:__tostring()
+    return dump(self)
+end
+
 return Mouse

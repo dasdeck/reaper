@@ -14,7 +14,6 @@ local defaults = {
 
 function PadGrid:create(options, ...)
 
-
     local self = Component:create(...)
     _.assign(self, defaults)
     _.assign(self, options)
@@ -46,10 +45,7 @@ function PadGrid:resized()
         for col = 1, self.cols do
             local pad = self.children[i]
             i = i + 1
-            pad.w = w
-            pad.h = h
-            pad.y = (self.rows - row) * h
-            pad.x = (col-1) * w
+            pad:setBounds((col-1) * w, (self.rows - row) * h, w, h)
         end
     end
 

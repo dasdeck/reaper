@@ -47,8 +47,6 @@ function Image:create(file, scale, alpha)
 
 end
 
-
-
 function Image:paint(g)
 
     if self.scale == 'fit' then

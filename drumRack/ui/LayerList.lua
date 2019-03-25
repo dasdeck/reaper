@@ -11,17 +11,20 @@ function LayerList:create(pad)
     self.pad = pad
     setmetatable(self, LayerList)
 
-    self._changeCallback = function()
+    self.onChange = Project.watch.project:onChange(function()
         self:update()
-    end
-    Project.watch.project:onChange(self._changeCallback)
+    end)
+
+    rea.logCount('LayerList')
 
     self:update()
     return self
 end
 
 function LayerList:onDelete()
-    Project.watch.project:removeListener(self._changeCallback)
+    rea.logCount('LayerList', -1)
+
+    self.onChange()
 end
 
 
@@ -33,7 +36,7 @@ function LayerList:update()
 
     self.layers = layers
 
-    self.children = {}
+    self:deleteChildren()
 
    _.forEach(layers, function(layer)
         self:addChildComponent(Layer:create(layer, self.pad))
@@ -42,17 +45,10 @@ end
 
 function LayerList:resized()
 
-    -- self:update()
-
     local size = 20
     for i, child in pairs(self.children) do
-        child.w = self.w
-        child.x = 0
-
-        child.y = (i - 1) * size
-        child.h = size
+        child:setBound(0, (i - 1) * size, size, self.w)
     end
-
 end
 
 return LayerList

@@ -19,7 +19,8 @@ function WindowApp:getProfileData()
             numComps = #self.window.component:getAllChildren()
         },
         component = {
-            numComps = Component.numInstances
+            numComps = Component.numInstances,
+            numCompsInMem = Component.numInMem
         }
     }
 end

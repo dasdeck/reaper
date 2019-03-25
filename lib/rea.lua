@@ -18,6 +18,11 @@ local function getParamByName(track, fx, name)
     end
 end
 
+local logCounts = {}
+local function logCount(key, mnt)
+    logCounts[key] = (logCounts[key] or 0) + (mnt or 1)
+end
+
 local function log(msg, deep)
     if 'table' == type(msg) then
         msg = dump(msg, deep)
@@ -31,6 +36,7 @@ end
 
 local function logOnly(msg, deep)
     reaper.ClearConsole()
+    log(logCounts)
     log(msg, deep)
 end
 
@@ -288,6 +294,7 @@ end
 
 
 local rea = {
+    logCount = logCount,
     getFiles = getFiles,
     profile = profile,
     logOnly = logOnly,

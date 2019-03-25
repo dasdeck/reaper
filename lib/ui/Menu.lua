@@ -88,6 +88,9 @@ function Menu:renderItems(items, map)
 end
 
 function Menu:addItem(name, data, transaction)
+
+    if type(name) == 'table' then data = name end
+
     local item = {
         name =  name,
         callback = type(data) == 'function' and data,

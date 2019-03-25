@@ -18,7 +18,7 @@ if not DrumRackJSFX:exists() then
 else
 
   WindowApp:create('drumrack', DrumRackSelector:create(0,0, 600, 300)):start({
-    profile = false
+    profile = true
   })
 
 end

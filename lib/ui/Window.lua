@@ -37,7 +37,8 @@ function Window:create(name, component)
         mouse = Mouse.capture(),
         state = {},
         repaint = true,
-        g = Graphics:create()
+        g = Graphics:create(),
+        options = {debug = true}
     }
     setmetatable(self, Window)
     component.window = self
@@ -63,9 +64,7 @@ function Window:render()
         gfx.a = 1
         gfx.rect(0, 0, gfx.w, gfx.h, true)
 
-        self.component.w = gfx.w
-        self.component.h = gfx.h
-
+        --self.component:setSize(gfx.w, gfx.h)
         self.component:evaluate(self.g)
 
         self.repaint = false
@@ -135,35 +134,34 @@ function Window:restoreState()
             gfx.dock(0)
         end
 
-        self.h = State.global.get('window_' .. self.name .. '_h')
-        self.w = State.global.get('window_' .. self.name .. '_w')
+        self.component.h = State.global.get('window_' .. self.name .. '_h')
+        self.component.w = State.global.get('window_' .. self.name .. '_w')
 
     end
 
 end
 
-function Window:storeState()
+function Window:updateWindow()
+
+    if  self.component.h ~= gfx.h or self.component.w ~= gfx.w then
+        self.component:setSize(gfx.w, gfx.h)
+    end
+
+
+
+    local dock = gfx.dock(-1)
+
+    if dock ~= self.dock then
+        self.docked = dock > 0
+        self.dock = self.docked and dock or self.dock
+
+    end
+
     if self.options.persist then
 
-        local dock = gfx.dock(-1)
-
-        if dock ~= self.dock then
-            self.docked = dock > 0
-            self.dock = self.docked and dock or self.dock
-            State.global.set('window_' .. self.name, _.pick(self, {'dock', 'docked'}))
-        end
-
-        if  self.h ~= gfx.h then
-            self.h = gfx.h
-            State.global.set('window_' .. self.name, _.pick(self, {'h'}))
-            self.repaint = true
-        end
-
-        if  self.w ~= gfx.w then
-            self.w = gfx.w
-            State.global.set('window_' .. self.name, _.pick(self, {'w'}))
-            self.repaint = true
-        end
+        State.global.set('window_' .. self.name, _.pick(self, {'dock', 'docked'}))
+        State.global.set('window_' .. self.name .. '_h', gfx.h)
+        State.global.set('window_' .. self.name .. '_w', gfx.w)
 
     end
 
@@ -173,15 +171,13 @@ function Window:toggleDock()
 
     local dock = gfx.dock(-1)
     if dock > 0 then
-        self.dock = dock
-        self.docked = false
         gfx.dock(0)
     else
         gfx.dock(self.dock)
-        self.docked = true
     end
-    self:storeState()
-    self:restoreState()
+
+    self:updateWindow()
+    -- self:restoreState()
 
 end
 
@@ -328,15 +324,15 @@ end
 
 function Window:defer()
 
-    if rea.refreshUI(true) then
-        self.paint = true
-    end
-
+    self:updateWindow()
     self:render()
     self:evalMouse()
     self:evalKeyboard()
 
-    self:storeState()
+    if rea.refreshUI(true) then
+        self.paint = true
+    end
+
 
 end
 

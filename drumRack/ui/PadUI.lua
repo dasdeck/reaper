@@ -71,11 +71,14 @@ function PadUI.showMenu(pad)
 
 end
 
-function PadUI:onDelete( )
+function PadUI:onDelete()
+    rea.logCount('PadUI', -1)
     self.watcher:close()
 end
 
 function PadUI:create(pad)
+
+    rea.logCount('PadUI')
 
     local self = Component:create()
     setmetatable(self, PadUI)

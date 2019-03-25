@@ -9,6 +9,8 @@ local _ = require '_'
 local DrumRackSelector = class(Component)
 
 function DrumRackSelector:create(...)
+
+    rea.logCount('DrumRackSelector')
     local self = Component:create(...)
     self.followSelection = true
 
@@ -21,7 +23,7 @@ function DrumRackSelector:create(...)
         DrumRackUI.drumRackButton(mouse)
     end
 
-    Track.watch.tracks:onChange(function()
+   self.tracksWatch = Track.watch.tracks:onChange(function()
         if self.drumrack then
             if not self.drumrack.rack.track:exists() then
                 self.drumrack:remove()
@@ -30,7 +32,7 @@ function DrumRackSelector:create(...)
         end
     end)
 
-    Track.watch.selectedTracks:onChange(function(tracks)
+    self.selTrackWatch =  Track.watch.selectedTracks:onChange(function(tracks)
         if self.followSelection then
 
             local selectedDrumRack = _.some(tracks, function(track)
@@ -45,12 +47,20 @@ function DrumRackSelector:create(...)
             end
 
         end
+        self:repaint()
     end)
 
     setmetatable(self, DrumRackSelector)
 
     return self
 end
+
+function DrumRackSelector:onDelete()
+    self.tracksWatch()
+    self.selTrackWatch()
+end
+
+
 
 function DrumRackSelector:setDrumRack(rack)
     if self.drumrack then self.drumrack:delete() end

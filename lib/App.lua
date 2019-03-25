@@ -52,7 +52,7 @@ end
 
 function App:start(options)
 
-    options = options or {}
+    options = options or {debug = true}
     self.running = true
     self.options = options
     App.current = self
@@ -78,7 +78,7 @@ function App:start(options)
         end
     end
 
-    if options.debug or true then
+    if options.debug then
         reaper.atexit(function()
             rea.log('exited')
         end)

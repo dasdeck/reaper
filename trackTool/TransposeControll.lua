@@ -9,30 +9,30 @@ function TransposeControll:create(track)
     local self = Component:create()
     setmetatable(self, TransposeControll)
 
-    self.children.value = Slider:create()
+    self.value = self:addChildComponent(Slider:create())
 
     function getPlugin()
         return track:getTrackTool(true)
     end
 
-    function self.children.value.getValue()
+    function self.value.getValue()
          return getPlugin():getParam(2)
     end
 
-    function self.children.value:setValue(val)
+    function self.value:setValue(val)
         getPlugin():setParam(2, val)
     end
 
-    self.children.semDown = TextButton:create('<')
-    self.children.semDown.onClick = function(s, mouse)
+    self.semDown = self:addChildComponent(TextButton:create('<'))
+    self.semDown.onClick = function(s, mouse)
         rea.transaction('change transpose', function()
-            self.children.value:setValue(self.children.value:getValue() - (mouse:isAltKeyDown() and 12 or 1))
+            self.children.value:setValue(self.value:getValue() - (mouse:isAltKeyDown() and 12 or 1))
         end)
     end
-    self.children.semUp = TextButton:create('>')
-    self.children.semUp.onClick = function(s, mouse)
+    self.semUp = self:addChildComponent(TextButton:create('>'))
+    self.semUp.onClick = function(s, mouse)
         rea.transaction('change transpose', function()
-            self.children.value:setValue(self.children.value:getValue() + (mouse:isAltKeyDown() and 12 or 1))
+            self.value:setValue(self.value:getValue() + (mouse:isAltKeyDown() and 12 or 1))
         end)
     end
 
@@ -41,18 +41,10 @@ end
 
 function TransposeControll:resized()
     local size = 20
-    local c = self.children
 
-    c.semDown.w = size
-    c.semDown.h = size
-
-    c.value.x = c.semDown:getRight()
-    c.value.w = self.w - size * 2
-    c.value.h = size
-
-    c.semUp.x = c.value:getRight()
-    c.semUp.w = size
-    c.semUp.h = size
+    self.semDown:setSize(size, size)
+    self.value:setBounds(self.semDown:getRight(), 0, self.w - size * 2, size)
+    self.semUp:setBounds(self.value:getRight(), 0, size, size)
 
 end
 

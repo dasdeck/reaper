@@ -19,7 +19,6 @@ function TrackTool:create(...)
         -- rea.log('change')
         self.track = Track.getFocusedTrack(true)
         self:update()
-        self:repaint()
     end
 
     Track.watch.focusedTrack:onChange(change)

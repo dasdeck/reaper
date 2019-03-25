@@ -4,6 +4,8 @@ local TextButton = require 'TextButton'
 local TrackStateButton = require 'TrackStateButton'
 local Label = require 'Label'
 local Track = require 'Track'
+local Menu = require 'Menu'
+
 local rea = require 'rea'
 local _ = require '_'
 
@@ -22,6 +24,17 @@ function TrackListComp:create(track)
     end
 
     self.name.onButtonClick = function(s, mouse)
+
+        rea.log('click')
+
+        if mouse:wasRightButtonDown() then
+            local menu = Menu:create()
+            menu:addItem(TrackStateButton:create(track, 'tcp', 'T'):getMenuEntry())
+            menu:addItem(TrackStateButton:create(track, 'mcp', 'M'):getMenuEntry())
+            menu:show()
+
+            return
+        end
 
         track:focus()
         if mouse:isAltKeyDown() then
@@ -55,10 +68,10 @@ function TrackListComp:create(track)
     local icon = track:getIcon()
     self.icon = self:addChildComponent(icon and Image:create(icon, 'fit') or Component:create())
 
-    self.tcp = self:addChildComponent(TrackStateButton:create(track, 'tcp', 'T'))
-    self.tcp.r = 0
-    self.mcp = self:addChildComponent(TrackStateButton:create(track, 'mcp', 'M'))
-    self.mcp.r = 0
+    -- self.tcp = self:addChildComponent(TrackStateButton:create(track, 'tcp', 'T'))
+    -- self.tcp.r = 0
+    -- self.mcp = self:addChildComponent(TrackStateButton:create(track, 'mcp', 'M'))
+    -- self.mcp.r = 0
 
 
     return self
@@ -76,9 +89,9 @@ function TrackListComp:resized()
     local buttons = #self.children - 1
 
     self.icon:setBounds(0,0,h,h)
-    self.tcp:setBounds(self.icon:getRight(),0,h,h)
-    self.mcp:setBounds(self.tcp:getRight(),0,h,h)
-    self.name:setBounds(self.mcp:getRight(), 0, self.w - h*buttons, h)
+    -- self.tcp:setBounds(self.icon:getRight(),0,h,h)
+    -- self.mcp:setBounds(self.tcp:getRight(),0,h,h)
+    self.name:setBounds(self.icon:getRight(), 0, self.w - h*buttons, h)
 end
 
 return TrackListComp

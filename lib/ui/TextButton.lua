@@ -1,8 +1,10 @@
 local Component = require 'Component'
 local Label = require 'Label'
-local color = require 'color'
+local Mouse = require 'Mouse'
 
+local color = require 'color'
 local rea = require 'rea'
+
 local TextButton = class(Label)
 
 function TextButton:create(content, ...)
@@ -54,5 +56,19 @@ end
 function TextButton:getToggleState()
     return false
 end
+
+function TextButton:getMenuEntry(tansaction)
+    assert(self.getText)
+    return {
+        name = self:getText(),
+        callback = function()
+            self:onClick(Mouse.capture())
+        end,
+        checked = self:getToggleState(),
+        disabled = self:isDisabled(),
+        tansaction = tansaction
+    }
+end
+
 
 return TextButton

@@ -8,10 +8,11 @@ local rea = require 'rea'
 
 local Component = class()
 
+Component.numInMem = 0
 Component.numInstances = 0
 
 function Component:create(x, y, w, h)
-    local obj = {
+    local self = {
         x = x or 0,
         y = y or 0,
         w = w or 0,
@@ -23,15 +24,20 @@ function Component:create(x, y, w, h)
         mouse = Mouse.capture()
     }
 
-    setmetatable(obj, Component)
+    setmetatable(self, Component)
+
+    self:relayout()
 
     Component.numInstances = Component.numInstances + 1
+    Component.numInMem = Component.numInMem + 1
 
-    return obj
+    return self
 end
 
 function Component:__gc()
-    Component.numInstances = Component.numInstances - 1
+    rea.logCount('__gc')
+    Component.numInMem = Component.numInMem - 1
+
 end
 
 function Component:getAllChildren(results)
@@ -63,6 +69,10 @@ function Component:deleteChildren()
 end
 
 function Component:triggerDeletion()
+    rea.logCount('delete')
+
+    Component.numInstances = Component.numInstances - 1
+
     if self.onDelete then self:onDelete() end
     _.forEach(self.children, function(comp)
         comp:triggerDeletion()
@@ -70,11 +80,16 @@ function Component:triggerDeletion()
 end
 
 function Component:delete(doNotRemote)
+
+
     self:triggerDeletion()
     if not doNotRemote then
         self:remove()
-        collectgarbage()
+
     end
+
+    collectgarbage()
+
 end
 
 function Component:interceptsMouse()
@@ -85,8 +100,7 @@ function Component:scaleToFit(w, h)
 
     local scale = math.min(self.w  / w, self.h / h)
 
-    self.w = self.w / scale
-    self.h = self.h / scale
+    self:setSize(self.w / scale, self.h / scale)
 
     return self
 
@@ -102,20 +116,14 @@ end
 
 function Component:fitToWidth(wToFit)
 
-    local scale = wToFit / self.w
-    self.w = wToFit
-    self.h = self.h * scale
-
-    return scale
+    self:setSize(wToFit, self.h * wToFit / self.w)
+    return self
 end
 
 function Component:fitToHeight(hToFit)
 
-    local scale = hToFit / self.h
-    self.h = hToFit
-    self.w = self.w * scale
-
-    return scale
+    self:setSize(self.w * hToFit / self.h, hToFit)
+    return self
 end
 
 function Component:clone()
@@ -123,8 +131,6 @@ function Component:clone()
     setmetatable(comp, getmetatable(self))
     return comp
 end
-
-
 
 function Component:canClickThrough()
     return true
@@ -208,8 +214,23 @@ function Component:updateMousePos(mouse)
 end
 
 function Component:setSize(w,h)
-    self.w = w == nil and self.w or w
-    self.h = h == nil and self.h or h
+
+    w = w == nil and self.w or w
+    h = h == nil and self.h or h
+
+    if self.w ~= w or self.h ~= h then
+
+        self.w = w
+        self.h = h
+
+        self:relayout()
+    end
+
+end
+
+function Component:relayout()
+    self.needsLayout = true
+    self:repaint()
 end
 
 function Component:setPosition(x,y)
@@ -249,8 +270,9 @@ function Component:evaluate(g)
 
     if not self:isVisible() then return end
 
-    if self.resized then
+    if self.needsLayout and self.resized then
         self:resized()
+        self.needsLayout = false
     end
 
     if self.paint then
@@ -266,13 +288,22 @@ function Component:evaluate(g)
     end
 end
 
-function Component:addChildComponent(comp, key)
+function Component:evaluateChildren(g)
+    for i, comp in pairs(self.children) do
+        assert(comp.parent == self, 'comp has different parent')
+        comp:evaluate(g)
+    end
+end
+
+function Component:addChildComponent(comp, key, doNotLayout)
     comp.parent = self
     if key then
         self.children[key] = comp
     else
         table.insert(self.children, comp)
     end
+    self:relayout()
+
     return comp
 end
 
@@ -284,11 +315,6 @@ function Component:remove()
     return self
 end
 
-function Component:evaluateChildren(g)
-    for i, comp in pairs(self.children) do
-        comp.parent = self
-        comp:evaluate(g)
-    end
-end
+
 
 return Component

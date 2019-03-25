@@ -94,10 +94,8 @@ function ButtonList:resized()
 
     if self.layout == 1 then
         for k, child in pairs(self.children) do
-            child.w = self.w
-            child.h = self.h
-            child.x = 0
-            child.y = 0
+
+            child:setBounds(0,0,self.w, self.h)
         end
     else
         local len = _.size(self:getData())
@@ -118,6 +116,7 @@ function ButtonList:resized()
             child[dim] = data and data.size or size
             off = off + child[dim]
             i = i + 1
+            child:relayout()
         end
     end
 
