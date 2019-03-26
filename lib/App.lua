@@ -34,7 +34,7 @@ function App:defer()
 
         if not res and self.options.debug then
             local context = {reaper.get_action_context()}
-            rea.log({context,err})
+            rea.logError({context, err})
         end
 
     if self.running then

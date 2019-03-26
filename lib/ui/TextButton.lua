@@ -1,4 +1,3 @@
-local Component = require 'Component'
 local Label = require 'Label'
 local Mouse = require 'Mouse'
 

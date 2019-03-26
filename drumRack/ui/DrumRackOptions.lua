@@ -25,7 +25,9 @@ return function(rack)
             -- mode
             args = '',
             onClick = function()
-                rack:setSplitMode(not rack:isSplitMode() and true or false)
+                rea.transaction('set drumrack mode', function()
+                    rack:setSplitMode(not rack:isSplitMode() and true or false)
+                end)
             end,
             getText = function()
                 return rack:isSplitMode() and 'pads' or 'splits'
@@ -66,8 +68,10 @@ return function(rack)
             proto = IconButton,
             args = icons.lock,
             onClick = function()
-                local lock = rack:getLocked() ~= 1
-                rack:setLocked(lock)
+                rea.transaction('toggle locking', function()
+                    local lock = rack:getLocked() ~= 1
+                    rack:setLocked(lock)
+                end)
             end,
             getToggleState = function()
                 return rack:getLocked()

@@ -25,8 +25,6 @@ function TrackListComp:create(track)
 
     self.name.onButtonClick = function(s, mouse)
 
-        rea.log('click')
-
         if mouse:wasRightButtonDown() then
             local menu = Menu:create()
             menu:addItem(TrackStateButton:create(track, 'tcp', 'T'):getMenuEntry())

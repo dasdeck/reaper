@@ -6,7 +6,6 @@ require 'boot'
 local rea = require 'rea'
 local lib_path = dirname .. '../../ReaTeam Scripts/Development/Lokasenna_GUI v2/Library/'
 
-rea.log(lib_path)
 loadfile(lib_path .. "Set Lokasenna_GUI v2 library path.lua")()
 
 loadfile(lib_path .. "Core.lua")()

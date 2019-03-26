@@ -41,6 +41,8 @@ local function equal(a, b)
     if type(a) == 'table' then
         if size(a) ~= size(b) then return false end
         if some(a, function(val, key) return not equal(val, b[key]) end) then return false end
+    else
+        return a == b
     end
 
     return true

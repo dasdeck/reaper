@@ -11,7 +11,6 @@ local FXListItem = class(Image, Label)
 function FXListItem:create(plugin)
 
     local name = plugin:getCleanName()
-    -- rea.log(name)
     local filename = name .. '.png'
     local file = paths.imageDir:findFile(filename)
 
@@ -24,8 +23,6 @@ function FXListItem:create(plugin)
 end
 
 function FXListItem:onClick(mouse)
-
-    rea.log(self.fx:getName())
 
     if mouse:isShiftKeyDown() then
         self.fx:setEnabled(not self.fx:getEnabled())
@@ -42,8 +39,6 @@ function FXListItem:onDblClick(mouse)
 end
 
 function FXListItem:onDrag()
-    -- rea.log('drag')
-
     Component.dragging = self
 end
 

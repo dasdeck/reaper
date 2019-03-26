@@ -72,21 +72,6 @@ function string:gmatchall(pattern)
     return result
 end
 
--- function string:gmatchall(pattern)
---     local recs = {}
---     local match = true
---     local index = 0
---     while match do
---         match = self:match(pattern, index)
---         index = index + 1
---         if match then
---             table.insert(recs, match)
---         end
---     end
---     -- rea.log(recs)
---     return recs
--- end
-
 function string:split(sep, quote)
     local result = {}
 

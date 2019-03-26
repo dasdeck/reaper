@@ -4,29 +4,7 @@ local rea = require 'rea'
 
 local Image = class(Component)
 
-Image.images = {
-
-}
-
-function getSlot(file)
-    if not Image.images[file] then
-
-        for i = 1, 1024 do
-            if not _.find(Image.images, i) then
-
-                Image.images[file] = i
-                gfx.loadimg(i, file)
-
-                return i
-            end
-        end
-
-        assert(false, 'out of image slots')
-
-    else
-        return Image.images[file]
-    end
-end
+Image.images = {}
 
 function Image:create(file, scale, alpha)
 
@@ -36,9 +14,22 @@ function Image:create(file, scale, alpha)
     if alpha ~= nil then
         self:setAlpha(alpha)
     end
-    self.slot = getSlot(file)
 
-    local w, h = gfx.getimgdim(self.slot)
+    -- rea.logCount('img:')
+    -- rea.logPin('images', Image.images)
+
+    if not Image.images[file] then
+        Image.images[file] = 0
+    end
+
+    Image.images[file] = Image.images[file] + 1
+
+    self.file = file
+    self.imgSlot = self:getSlot(file, gfx.loadimg)
+    self.uislots[file] = nil
+
+    local w, h = gfx.getimgdim(self.imgSlot)
+
 
     self.w = w
     self.h = h
@@ -47,21 +38,33 @@ function Image:create(file, scale, alpha)
 
 end
 
+function Image:onDelete()
+    local file = self.file
+
+    Image.images[file] = Image.images[file] - 1
+
+    if Image.images[file] == 0 then
+        -- rea.logCount('clear:' .. file)
+        Component.slots[self.imgSlot] = false
+    end
+
+    -- assert(Image.images[file] >= 0, 'image tracking failed')
+end
+
 function Image:paint(g)
 
     if self.scale == 'fit' then
         local padding = 4
-        local w, h = gfx.getimgdim(self.slot)
+        local w, h = gfx.getimgdim(self.imgSlot)
         local scale = math.min((self.w-padding) / w, (self.h-padding) / h)
 
         w = w * scale
         h = h * scale
 
-        g:drawImage(self.slot, (self.w - w) / 2, (self.h - h) / 2, scale)
+        g:drawImage(self.imgSlot, (self.w - w) / 2, (self.h - h) / 2, scale)
 
     else
-        -- rea.log('image:paint' .. tostring(self.scale))
-        g:drawImage(self.slot, 0, 0, self.scale)
+        g:drawImage(self.imgSlot, 0, 0, self.scale)
     end
 
 

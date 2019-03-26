@@ -18,11 +18,6 @@ local function getParamByName(track, fx, name)
     end
 end
 
-local logCounts = {}
-local function logCount(key, mnt)
-    logCounts[key] = (logCounts[key] or 0) + (mnt or 1)
-end
-
 local function log(msg, deep)
     if 'table' == type(msg) then
         msg = dump(msg, deep)
@@ -34,9 +29,48 @@ local function log(msg, deep)
     end
 end
 
-local function logOnly(msg, deep)
+local logCounts = {}
+local logPins = {}
+local error = nil
+
+local function showLogs()
     reaper.ClearConsole()
-    log(logCounts)
+
+    if error then
+        log(error)
+    end
+    if _.size(logCounts) > 0 then
+        log(logCounts)
+    end
+    if _.size(logPins) > 0 then
+        log(logPins)
+    end
+end
+
+local function logCount(key, mnt)
+    key = tostring(key)
+    logCounts[key] = (logCounts[key] or 0) + (mnt or 1)
+    showLogs()
+end
+
+
+local function logPin(key, ...)
+    key = tostring(key)
+    logPins[key] = dump({...})
+    showLogs()
+end
+
+local function logError(key)
+    error = key
+    showLogs()
+end
+
+
+
+
+
+local function logOnly(msg, deep)
+    showLogs()
     log(msg, deep)
 end
 
@@ -276,24 +310,26 @@ local function setLyrics(text, track)
     reaper.SetTrackMIDILyrics(track, 2, lyrics)
 end
 
-local refreshUI = false
+local refresh = false
 
 local function refreshUI(now)
     if now then
-        if refreshUI then
+        if refresh then
             reaper.TrackList_AdjustWindows(false)
             reaper.UpdateTimeline()
-            refreshUI = false
+            refresh = false
             return true
         end
     else
-        refreshUI = true
+        refresh = true
     end
 end
 
 
 
 local rea = {
+    logPin = logPin,
+    logError = logError,
     logCount = logCount,
     getFiles = getFiles,
     profile = profile,

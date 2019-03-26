@@ -42,8 +42,9 @@ function FXButton:create(fxSource)
     --     return not fxSource:getFx()
     -- end
     self.lock.onButtonClick = function()
-        if fxSource:getFx(true) then
-            fxSource:getFx(true):setLocked(not fxSource:getFx():isLocked())
+        self.text.onClick()
+        if fxSource:getFx() then
+            fxSource:getFx():setLocked(not fxSource:getFx():isLocked())
         end
     end
     self.lock.getToggleState = function()

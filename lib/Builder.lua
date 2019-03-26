@@ -30,7 +30,6 @@ function Builder.build(file, done)
             assert(depFile, lookup)
 
             local depContent = Builder.build(depFile, done)
-            -- rea.log('replacing:' .. pattern)
             content = content:gsub(pattern, depContent:gsub('%%', '%%%%') .. '\n')
         else
             content = content:gsub(pattern, '')

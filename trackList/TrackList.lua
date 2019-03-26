@@ -35,7 +35,6 @@ end
 
 function TrackList:getData()
 
-    -- rea.log('tracklist:update')
     local tracks = {
         {
             proto = function()

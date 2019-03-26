@@ -3,6 +3,8 @@ local TextButton = require 'TextButton'
 local DrumRack = require 'DrumRack'
 local DrumRackUI = require 'DrumRackUI'
 local Track = require 'Track'
+local Project = require 'Project'
+
 local rea = require 'rea'
 local _ = require '_'
 
@@ -10,20 +12,16 @@ local DrumRackSelector = class(Component)
 
 function DrumRackSelector:create(...)
 
-    rea.logCount('DrumRackSelector')
     local self = Component:create(...)
     self.followSelection = true
 
     self.button = self:addChildComponent(TextButton:create('+DrumRack'))
-    self.button.isVisible = function()
-        return not self.drumrack
-    end
 
     self.button.onButtonClick = function(s, mouse)
         DrumRackUI.drumRackButton(mouse)
     end
 
-   self.tracksWatch = Track.watch.tracks:onChange(function()
+    self.watchers:watch(Track.watch.tracks, function()
         if self.drumrack then
             if not self.drumrack.rack.track:exists() then
                 self.drumrack:remove()
@@ -32,7 +30,7 @@ function DrumRackSelector:create(...)
         end
     end)
 
-    self.selTrackWatch =  Track.watch.selectedTracks:onChange(function(tracks)
+    self.watchers:watch(Track.watch.selectedTracks, function(tracks)
         if self.followSelection then
 
             local selectedDrumRack = _.some(tracks, function(track)
@@ -47,7 +45,6 @@ function DrumRackSelector:create(...)
             end
 
         end
-        self:repaint()
     end)
 
     setmetatable(self, DrumRackSelector)
@@ -55,25 +52,22 @@ function DrumRackSelector:create(...)
     return self
 end
 
-function DrumRackSelector:onDelete()
-    self.tracksWatch()
-    self.selTrackWatch()
-end
-
-
 
 function DrumRackSelector:setDrumRack(rack)
     if self.drumrack then self.drumrack:delete() end
     self.drumrack = rack and self:addChildComponent(DrumRackUI:create(rack)) or nil
+
+    self.button:setVisible(not self.drumrack)
+    self:repaint()
+
 end
 
 function DrumRackSelector:resized()
 
     if self.drumrack then
         self.drumrack:setSize(self.w, self.h)
-    else
-        self.button:setSize(self.w, self.h)
     end
+    self.button:setSize(self.w, self.h)
 
 
 

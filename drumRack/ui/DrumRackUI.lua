@@ -4,13 +4,13 @@ local PadEditor = require 'PadEditor'
 local ButtonList = require 'ButtonList'
 local Split = require 'Split'
 local DrumRackOptions = require 'DrumRackOptions'
+local Project = require 'Project'
 local DrumRack = require 'DrumRack'
 local Menu = require 'Menu'
 local Track = require 'Track'
 
 local colors = require 'colors'
 local _ = require '_'
-
 
 local rea = require 'rea'
 
@@ -89,6 +89,8 @@ function DrumRackUI:create(rack)
 
     setmetatable(self, DrumRackUI)
 
+    -- rea.logCount('DrumRackUI:create')
+
     self.rack = rack
 
     self.opts = self:addChildComponent(ButtonList:create(DrumRackOptions(rack), true))
@@ -96,13 +98,13 @@ function DrumRackUI:create(rack)
 
     local splits = _.map(rack.pads, function(pad) return {args = pad} end)
     self.layers = self:addChildComponent(ButtonList:create(splits, false, Split))
-    self.layers.isVisible = function()
-        return rack:isSplitMode()
-    end
-    self.padgrid.isVisible = function()
-        return not rack:isSplitMode()
-    end
---
+
+    self.watchers:watch(Project.watch.project, function()
+        self.layers:setVisible(rack:isSplitMode())
+        self.padgrid:setVisible(not rack:isSplitMode())
+        self:update()
+    end)
+
     return self
 
 end
@@ -121,8 +123,6 @@ function DrumRackUI:update()
 end
 
 function DrumRackUI:resized()
-
-    self:update()
 
     self.opts:setBounds(0, 0, self.w, 20)
 

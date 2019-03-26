@@ -87,6 +87,19 @@ function class(...)
     function class:__index(key)
         return class[key] or class.__parentIndex(key)
     end
+
+    function class:__gc()
+        return _.some(parents, function(c)
+            return c.__gc and c.__gc()
+        end)
+    end
+
+    function class:__instanceOf(needle)
+        return class == needle or _.some(parents, function(parent)
+            return needle == parent or parent:__instanceOf(needle)
+        end)
+    end
+
     return class
 end
 

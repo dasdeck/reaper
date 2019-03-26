@@ -63,6 +63,7 @@ function Track.getSelectedTracks(live)
             local track = Track:create(reaper.GetSelectedTrack(0,i))
             table.insert(Track.selectedTracks, track)
         end
+        Track.selectedTracks = Collection:create(Track.selectedTracks)
     end
 
     return Track.selectedTracks

@@ -11,11 +11,14 @@ function PadEditor:create(pad)
     self = Component:create()
     self.pad = pad
     self.options =  self:addChildComponent(ButtonList:create(PadOptions(pad), true))
+
     self.options.isVisible = function( )
         return pad:hasContent()
     end
+
     self.range = self:addChildComponent(Split:create(pad))
     self.range.padButton:setVisible(false)
+
     self.range.isVisible = function()
         return self.pad.rack:isSplitMode()
     end

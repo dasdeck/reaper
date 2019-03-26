@@ -16,7 +16,6 @@ function TrackTool:create(...)
     self.track = Track.getFocusedTrack(true)
 
     local change = function()
-        -- rea.log('change')
         self.track = Track.getFocusedTrack(true)
         self:update()
     end

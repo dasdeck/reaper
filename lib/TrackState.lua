@@ -24,15 +24,11 @@ function TrackState.fromTracks(tracks)
     _.forEach(tracks, function(track, i)
         local state = track:getState()
         local sourceTracks = _.map(state:getAuxRecs(), Track.get)
-        -- rea.log(sourceTracks)
         _.forEach(sourceTracks, function(sourceTrack)
             local currentIndex = sourceTrack:getIndex() - 1
             local indexInTemplate = _.indexOf(tracks, sourceTrack)
 
             if indexInTemplate then
-                rea.log(sourceTracks)
-
-                rea.log('do rep: ' .. tostring(track))
                 state = state:withAuxRec(currentIndex, indexInTemplate - 1)
             else
                 local sourceTrackIndex = sourceTrack:getIndex() - 1
@@ -86,7 +82,6 @@ function TrackState:getAuxRecs()
     for index in self.text:gmatch('AUXRECV (%d) (.-)\n') do
         table.insert(recs, math.floor(tonumber(index)))
     end
-    -- rea.log(recs)
     return recs
 end
 
@@ -99,19 +94,13 @@ function TrackState:withoutAuxRec(index)
     return TrackState:create(self.text:gsub('AUXRECV '..rec..' (.-)\n', ''))
 end
 
-
 function TrackState:withAuxRec(from, to)
     from = tostring(math.floor(tonumber(from)))
     to = tostring(math.floor(tonumber(to)))
     local a = 'AUXRECV '..from..' (.-)\n'
     local b = 'AUXRECV '..to..' %1\n'
-    rea.log('replace:' .. a .. ' to ' .. b)
     return TrackState:create(self.text:gsub(a, b))
 end
-
-
-
--- rea.log(TrackState:create('test'):gsub('test', 'tested'))
 
 return TrackState
 

@@ -59,7 +59,6 @@ local function defer()
   Watcher.deferAll()
   Track.deferAll()
 
-  -- rea.logOnly(collectgarbage('count'))
   -- collectgarbage()
 
   rea.logOnly(Project.getStates())

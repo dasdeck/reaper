@@ -1,6 +1,6 @@
 local Component = require 'Component'
-local color = require 'color'
 local Text = require 'Text'
+local color = require 'color'
 
 local rea = require 'rea'
 local Label = class(Component)
@@ -8,7 +8,7 @@ local Label = class(Component)
 function Label:create(content, ...)
 
     local self = Component:create(...)
-    self.r = 5
+    self.r = 6
     if content then
         if type(content) == 'string' then
             self.content = self:addChildComponent(Text:create(content))

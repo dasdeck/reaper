@@ -18,7 +18,8 @@ Window.currentWindow = nil
 
 Project.watch.project:onChange(function()
     if Window.currentWindow then
-        Window.currentWindow.repaint = true
+        Window.currentWindow.repaint = 'all'
+        -- rea.logCount('global repaint')
     end
     Track.onStateChange()
 end)
@@ -38,7 +39,8 @@ function Window:create(name, component)
         state = {},
         repaint = true,
         g = Graphics:create(),
-        options = {debug = true}
+        options = {debug = true},
+        paints = 0
     }
     setmetatable(self, Window)
     component.window = self
@@ -54,36 +56,36 @@ end
 
 function Window:render()
 
-    -- if self.repaint or self.component.mouse.over then
     if self.repaint or Component.dragging then
 
         gfx.update()
-        gfx.r = 0
-        gfx.g = 0
-        gfx.b = 0
-        gfx.a = 1
-        gfx.rect(0, 0, gfx.w, gfx.h, true)
+        gfx.clear = 0
 
-        --self.component:setSize(gfx.w, gfx.h)
         self.component:evaluate(self.g)
-
-        self.repaint = false
 
         if Component.dragging then
             if Component.dragging.isComponent then
 
-                if not self.dragComp then
-                    self.dragComp = Component.dragging:clone():scaleToFit(30, 30)
-                    self.dragComp.parent = nil
-                    self.dragComp:setAlpha(0.5)
-                end
-                self.dragComp.x = gfx.mouse_x - 15
-                self.dragComp.y = gfx.mouse_y - 15
-                self.dragComp:evaluate(self.g)
+                gfx.setimgdim(0, -1,-1)
+                gfx.setimgdim(0, Component.dragging.w, Component.dragging.h)
+
+                Component.dragging:evaluate(self.g, 0)
+
+                gfx.dest = -1
+                gfx.x = gfx.mouse_x - Component.dragging.w/2
+                gfx.y = gfx.mouse_y - Component.dragging.h/2
+                gfx.a = 0.5
+                gfx.blit(0, 1, 0)
+
             else
-                gfx.circle(gfx.mouse_x, gfx.mouse_y, 10, true, true)
+                self.g:setColor(1,1,1,0.5)
+                self.g:circle(gfx.mouse_x, gfx.mouse_y, 10, true, true)
             end
         end
+
+        self.repaint = false
+
+        self.paints = self.paints + 1
 
     end
 
@@ -191,7 +193,6 @@ function Window:evalKeyboard()
         while key > 0 do
             rea.log('keycode:' .. tostring(key))
 
-
             if key == 324 and self.mouse:isShiftKeyDown() then
                 self:toggleDock()
             end
@@ -225,6 +226,8 @@ end
 
 function Window:evalMouse()
 
+    -- if not  then return end
+
     local files = getDroppedFiles()
     local isFileDrop = _.size(files) > 0
 
@@ -256,7 +259,7 @@ function Window:evalMouse()
                     comp:onMouseLeave()
                 end
                 if comp == self.component then
-                    self.repaint = true
+                    self.repaint = self.repaint or true
                 end
             end
 
@@ -314,7 +317,7 @@ function Window:evalMouse()
         end
         if self.dragComp then
             self.dragComp:delete()
-            self.repaint = true
+            self.repaint = self.repaint or true
             self.dragComp = nil
         end
         Component.dragging = nil

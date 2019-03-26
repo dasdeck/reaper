@@ -11,20 +11,12 @@ function LayerList:create(pad)
     self.pad = pad
     setmetatable(self, LayerList)
 
-    self.onChange = Project.watch.project:onChange(function()
+    self.watchers:watch(Project.watch.project, function()
         self:update()
     end)
 
-    rea.logCount('LayerList')
-
     self:update()
     return self
-end
-
-function LayerList:onDelete()
-    rea.logCount('LayerList', -1)
-
-    self.onChange()
 end
 
 
@@ -32,9 +24,12 @@ function LayerList:update()
 
     local layers = self.pad:getLayers()
 
-    if _.equal(layers, self.layers) then return end
+    -- if _.equal(layers, self.layers) then return end
 
-    self.layers = layers
+    -- self.layers = layers
+
+    -- rea.logPin('buildLayers', layers)
+
 
     self:deleteChildren()
 
@@ -47,7 +42,7 @@ function LayerList:resized()
 
     local size = 20
     for i, child in pairs(self.children) do
-        child:setBound(0, (i - 1) * size, size, self.w)
+        child:setBounds(0, (i - 1) * size,self.w, size)
     end
 end
 

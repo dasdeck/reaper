@@ -9,6 +9,7 @@ local Watcher = require 'Watcher'
 local Image = require 'Image'
 local PadUI = class(Component)
 local DrumRack = require 'DrumRack'
+local Collection = require 'Collection'
 
 local _ = require '_'
 local rea = require 'rea'
@@ -67,23 +68,25 @@ function PadUI.showMenu(pad)
     menu:addItem('add', addMenu)
     menu:addSeperator()
     menu:addItem('clear', function() pad:clear() end, 'clear pad')
+    menu:addItem('test', function()
+        local a = Collection:create({Track.get(0).track})
+        local b = Collection:create({Track.get(1).track})
+    end, 'clear pad')
     menu:show()
 
 end
 
 function PadUI:onDelete()
-    rea.logCount('PadUI', -1)
     self.watcher:close()
 end
 
 function PadUI:create(pad)
 
-    rea.logCount('PadUI')
-
     local self = Component:create()
     setmetatable(self, PadUI)
     self.pad = pad
     self.rack = pad.rack
+
 
     self.watcher = Watcher:create(function() return self.pad:getVelocity() end)
     self.watcher:onChange(function() self:repaint() end)

@@ -1,22 +1,34 @@
 require 'Util'
 local Mouse = require 'Mouse'
 local Graphics = require 'Graphics'
+local WatcherManager = require 'WatcherManager'
 
 local _ = require '_'
 local color = require 'color'
 local rea = require 'rea'
 
+
 local Component = class()
 
-Component.numInMem = 0
-Component.numInstances = 0
+Component.componentIds = 1
+
+Component.slots = {}
+for i = 1, 1023 do
+    Component.slots[i] = false
+end
+
+
 
 function Component:create(x, y, w, h)
+
     local self = {
         x = x or 0,
         y = y or 0,
         w = w or 0,
         h = h or 0,
+        uislots = {},
+        watchers = WatcherManager:create(),
+        id = Component.componentIds,
         alpha = 1,
         isComponent = true,
         visible = true,
@@ -24,20 +36,77 @@ function Component:create(x, y, w, h)
         mouse = Mouse.capture()
     }
 
+    Component.componentIds = Component.componentIds + 1
+
     setmetatable(self, Component)
 
-    self:relayout()
+    -- rea.log(self:__class())
 
-    Component.numInstances = Component.numInstances + 1
-    Component.numInMem = Component.numInMem + 1
+    self:relayout()
 
     return self
 end
 
-function Component:__gc()
-    rea.logCount('__gc')
-    Component.numInMem = Component.numInMem - 1
+function Component:getSlot(name, create)
 
+    if not self.uislots[name] then
+
+        local slot = _.indexOf(Component.slots, name)
+
+        if not slot then
+
+            -- rea.logPin('newSlot', name)
+            -- rea.logPin('slots', _.filter(Component.slots, function(s) return s end))
+            slot = _.some(Component.slots, function(used, i)
+                if not used then
+                    Component.slots[i] = name
+                    if create then
+                        -- rea.logPin('create', i)
+                        -- rea.logCount('create:' .. name)
+                        create(i, name)
+                    end
+                    return i
+                end
+            end)
+
+            assert(slot, 'out of image slots')
+        -- else
+            -- rea.logCount('reusedSlot')
+        end
+
+        self.uislots[name] = slot
+    end
+
+    assert(self.uislots[name], 'has no slot?')
+
+    return self.uislots[name]
+end
+
+
+function Component:delete(doNotRemote)
+
+    self:triggerDeletion()
+    if not doNotRemote then
+        self:remove()
+    end
+end
+
+function Component:triggerDeletion()
+
+    self.watchers:clear()
+
+    self:freeSlot()
+    if self.onDelete then self:onDelete() end
+    _.forEach(self.children, function(comp)
+        comp:triggerDeletion()
+    end)
+end
+
+
+function Component:freeSlot()
+    _.forEach(self.uislots, function(slot)
+        Component.slots[slot] = false
+    end)
 end
 
 function Component:getAllChildren(results)
@@ -68,29 +137,8 @@ function Component:deleteChildren()
     end)
 end
 
-function Component:triggerDeletion()
-    rea.logCount('delete')
-
-    Component.numInstances = Component.numInstances - 1
-
-    if self.onDelete then self:onDelete() end
-    _.forEach(self.children, function(comp)
-        comp:triggerDeletion()
-    end)
-end
-
-function Component:delete(doNotRemote)
 
 
-    self:triggerDeletion()
-    if not doNotRemote then
-        self:remove()
-
-    end
-
-    collectgarbage()
-
-end
 
 function Component:interceptsMouse()
     return true
@@ -127,8 +175,15 @@ function Component:fitToHeight(hToFit)
 end
 
 function Component:clone()
+
     local comp = _.assign(Component:create(), self)
     setmetatable(comp, getmetatable(self))
+
+    comp.children = _.map(self.children, function(child)
+        local clone = child:clone()
+        clone.parent = comp
+        return clone
+    end)
     return comp
 end
 
@@ -150,7 +205,7 @@ function Component:isMouseOver()
 end
 
 function Component:wantsMouse()
-    return self:isVisible() and (not self.parent or self.parent:wantsMouse())
+    return self.isCurrentlyVisible and (not self.parent or self.parent:wantsMouse())
 end
 
 function Component:getAbsoluteX()
@@ -250,10 +305,12 @@ function Component:getWindow()
 end
 
 function Component:repaint()
+    self.needsPaint = true
+
     if self:isVisible() then
         local win = self:getWindow()
         if win then
-            win.repaint = true
+            win.repaint = win.repaint or true
         end
     end
 end
@@ -264,34 +321,64 @@ function Component:resized()
     end)
 end
 
-function Component:evaluate(g)
 
+function Component:evaluate(g, dest, x, y)
+
+    x = x or 0
+    y = y or 0
+
+    dest = dest or -1
     g = g or Graphics:create()
 
-    if not self:isVisible() then return end
+    self.isCurrentlyVisible = self:isVisible()
+    if not self.isCurrentlyVisible then return end
 
     if self.needsLayout and self.resized then
         self:resized()
         self.needsLayout = false
     end
 
+    local doPaint = (self.paint or self.paintOverChildren) and (self.needsPaint or self:getWindow().repaint == 'all')
+
     if self.paint then
-        g:setFromComponent(self)
-        self:paint(g)
+        local pslot = self:getSlot('component:' .. tostring(self.id) .. ':paint')
+        if doPaint then
+            g:setFromComponent(self, pslot)
+            self:paint(g)
+        end
+
+        gfx.dest = dest
+        gfx.x = x
+        gfx.y = y
+        gfx.a = self:getAlpha()
+        gfx.blit(pslot, 1, 0)
+
     end
 
-    self:evaluateChildren()
+    self:evaluateChildren(g, dest, x, y)
 
     if self.paintOverChildren then
-        g:setFromComponent(self)
-        self:paintOverChildren(g)
+
+        local poslot = self:getSlot('component:' .. tostring(self.id) .. ':paintOverChildren')
+        if doPaint then
+            g:setFromComponent(self, poslot)
+            self:paintOverChildren(g)
+        end
+
+        gfx.dest = dest
+        gfx.a = self:getAlpha()
+        gfx.x = x
+        gfx.y = y
+        gfx.blit(poslot, 1, 0)
     end
+
+    self.needsPaint = false
 end
 
-function Component:evaluateChildren(g)
+function Component:evaluateChildren(g, dest, x, y)
     for i, comp in pairs(self.children) do
         assert(comp.parent == self, 'comp has different parent')
-        comp:evaluate(g)
+        comp:evaluate(g, dest, x + comp.x, y + comp.y)
     end
 end
 

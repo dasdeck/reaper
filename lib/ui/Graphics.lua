@@ -1,4 +1,5 @@
 local color = require 'color'
+local rea = require 'rea'
 
 local Graphics = class()
 
@@ -7,24 +8,42 @@ function Graphics:create()
         alphaOffset = 1,
         x = 0,
         y = 0,
-
     }
     setmetatable(self, Graphics)
     self:setColor(0,0,0,1)
     return self
 end
 
-function Graphics:setFromComponent(comp)
-    self.x = comp:getAbsoluteX()
-    self.y = comp:getAbsoluteY()
-    self.alphaOffset = comp:getAlpha()
+function Graphics:setFromComponent(comp, slot)
+
+    -- if self.usebuffers then
+
+        self.dest = slot
+        self.a = 1
+        gfx.mode = 0
+        gfx.setimgdim(self.dest, -1, -1)
+        gfx.setimgdim(self.dest, comp.w, comp.h)
+        -- self.x = 0
+        -- self.y = 0
+        gfx.dest = self.dest
+
+    -- end
+
+    -- comp:paint(self)
+
+    -- self.x = comp:getAbsoluteX()
+    -- self.y = comp:getAbsoluteY()
+    -- self.alphaOffset = comp:getAlpha()
+
 end
+
+
 
 function Graphics:loadColors()
     gfx.r = self.r
     gfx.g = self.g
     gfx.b = self.b
-    gfx.a = self.a * self.alphaOffset
+    gfx.a = self.a
 end
 
 
@@ -50,12 +69,11 @@ end
 function Graphics:drawImage(slot, x, y, scale)
 
     self:loadColors()
-    gfx.x = self.x + x
-    gfx.y = self.y + y
+    gfx.x = x
+    gfx.y = y
 
+    -- rea.log({'img', gfx.dest})
     gfx.blit(slot, scale or 1, 0)
-
-
 
 end
 
@@ -90,28 +108,29 @@ function Graphics:roundrect(x, y, w, h, r, fill, aa)
 
     self:loadColors()
 
-    w = math.ceil(w)
-    x = math.ceil(x)
-    y = math.ceil(y)
-    h = math.ceil(h)
 
     r = math.ceil(math.min(math.min(w,h)/2, r))
 
-    if(fill) then
-
-        gfx.dest = 0
-        self:circle(0 , 0 , r , fill, aa)
-
-        gfx.dest = -1
-
+    if fill then
 
         self:rect(x, y + r, w, h - 2 * r, fill)
-        self:rect(x + r, y, w - 2 * r, h, fill)
 
-        self:circle(x + r, y + r, r, fill, aa)
-        self:circle(x + r, y + h - r-2, r, fill, aa)
-        self:circle(x + w - r-2, y + h - r-2, r, fill, aa)
-        self:circle(x + w - r-2, y + r, r, fill, aa)
+        self:rect(x+r, y , w- 2*r, r, fill)
+        self:rect(x+r, y + h - r , w- 2*r, r, fill)
+
+        gfx.dest = 0
+
+        gfx.setimgdim(0, -1, -1)
+        gfx.setimgdim(0, r * 2, r * 2)
+        gfx.circle(r, r, r, fill, aa)
+        gfx.dest = self.dest
+
+        gfx.blit(0, 1, 0, 0, 0, r, r, self.x, self.y)
+        gfx.blit(0, 1, 0, r, 0, r, r, self.x + w - r, self.y)
+        gfx.blit(0, 1, 0, 0, r, r, r, self.x, self.y + h - r)
+
+        gfx.blit(0, 1, 0, r, r, r, r, self.x + w - r, self.y + h - r)
+
     else
         gfx.roundrect(self.x + x, self.y + y, w, h, r*2, aa)
     end

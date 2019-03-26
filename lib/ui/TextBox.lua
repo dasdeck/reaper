@@ -51,7 +51,6 @@ function TextBox:onKeyPress(keycode)
             local char = string.char(keycode)
             self.text = self.text .. char
             local sel = self.selStart + 1
-            -- rea.log(sel)
             self:setSelection(sel, sel)
         end)
     end
@@ -69,7 +68,6 @@ end
 
 --     x = self:getTextStartX()
 --     self.text:forEachChar(function(c, i)
---         -- rea.log(i)
 
 --         self.selStart = i - 1
 --         self.selEnd = self.selStart
@@ -114,7 +112,6 @@ end
 function TextBox:setSelection(start, e)
     self.selStart = math.min(#self.text, math.max(0, math.min(start, e)))
     self.selEnd = math.min(#self.text, math.max(0, math.max(start, e)))
-    rea.log(self)
 end
 
 function TextBox:__tostring()
