@@ -97,11 +97,13 @@ function DrumRackUI:create(rack)
     local splits = _.map(rack.pads, function(pad) return {args = pad} end)
     self.layers = self:addChildComponent(ButtonList:create(splits, false, Split))
 
-    self.watchers:watch(Project.watch.project, function()
+    local change = function()
         self.layers:setVisible(rack:isSplitMode())
         self.padgrid:setVisible(not rack:isSplitMode())
         self:update()
-    end)
+    end
+    self.watchers:watch(Project.watch.project, change)
+    change()
 
     return self
 

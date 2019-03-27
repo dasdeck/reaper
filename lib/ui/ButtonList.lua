@@ -21,9 +21,11 @@ end
 
 function ButtonList:updateList()
 
-    _.forEach(self.children, function(child) child:delete() end)
+    self:deleteChildren()
+    -- _.forEach(self.children, function(child) child:delete() end)
     -- self.children = {}
     local size = self.layout == true and 'w' or 'h'
+    self[size] = 0
     for i, value in pairs(self:getData()) do
 
         local proto = value.proto or self.proto
@@ -69,7 +71,8 @@ function ButtonList:updateList()
         end
 
         self:addChildComponent(comp)
-        self[size] = self[size] + comp[size]
+        local CompSize = value.size or (comp[size] > 0 and comp[size]) or self.getDefaultCompSize()
+        self[size] = self[size] + CompSize
     end
 
     if self.layout == 1 and _.size(self.children) then
@@ -79,6 +82,9 @@ function ButtonList:updateList()
     self:repaint()
 end
 
+function ButtonList:getDefaultCompSize()
+    return 20
+end
 
 function ButtonList:onClick()
     if self.layout == 1 then

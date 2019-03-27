@@ -23,8 +23,8 @@ function TrackList:create(...)
         self:updateList()
     end
 
-    Project.watch.project:onChange(updater)
-    Track.watch.selectedTracks:onChange(updater)
+    self.watchers:watch(Project.watch.project, updater)
+    self.watchers:watch(Track.watch.selectedTracks, updater)
 
     TrackListFilter.onChange = updater
 

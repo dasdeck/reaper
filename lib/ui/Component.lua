@@ -296,8 +296,14 @@ function Component:getWindow()
     end
 end
 
-function Component:repaint()
+function Component:repaint(children)
     self.needsPaint = true
+
+    if children then
+        _.forEach(self.children, function(child)
+            child:repaint(children)
+        end)
+    end
 
     if self:isVisible() then
         local win = self:getWindow()

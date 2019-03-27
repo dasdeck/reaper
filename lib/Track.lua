@@ -5,6 +5,8 @@ local Watcher = require 'Watcher'
 local Collection = require 'Collection'
 local TrackState = require 'TrackState'
 
+local color = require 'color'
+local colors = require 'colors'
 local _ = require '_'
 
 local Track = class()
@@ -90,6 +92,8 @@ function Track.getAllTracks(live)
     return Track.tracks
 end
 
+--function Track.getUniqueName()
+
 function Track.get(index)
     local track = (index >= 0) and reaper.GetTrack(0, index);
     return track and Track:create(track)
@@ -133,6 +137,13 @@ function Track:create(track)
     return wrapper
 end
 
+function Track:createSlave(name, indexOffset)
+    local t = Track.insert(self:getIndex() + indexOffset)
+    self:setName(self:getName() or self:getDefaultName())
+
+    return t:setName(self:getName() .. ':' .. name)
+end
+
 function Track:onChange(listener)
     table.insert(self.listeners, listener)
 end
@@ -150,10 +161,18 @@ function Track:defer()
     self.state = nil
 end
 
+function Track:isAux()
+    return self:getName() and self:getName():startsWith('aux:')
+end
+
 function Track:exists()
 
     return _.find(Track.getAllTracks(true), self)
     -- body
+end
+
+function Track:isLA()
+    return self:getName() and self:getName():endsWith(':la')
 end
 
 function Track:isMidiTrack()
@@ -237,7 +256,8 @@ end
 
 function Track:getName()
     local res, name = reaper.GetTrackName(self.track, '')
-    return res and name ~= self:getDefaultName() and name or nil
+    -- return res and name ~= self:getDefaultName() and name or nil
+    return res and name or nil
 end
 
 function Track:setLocked(locked)
@@ -341,6 +361,13 @@ function Track:hasMedia()
     return reaper.CountTrackMediaItems(self.track) > 0
 end
 
+function Track:getOutput()
+    local toParent = self:getValue('toParent') > 0
+    return not toParent and _.some(self:getSends(), function(send)
+        return send:getMode() == 0 and send:getTargetTrack()
+    end)
+end
+
 function Track:isBusTrack()
 
     local isDrumRack = self:getFx('DrumRack')
@@ -350,25 +377,50 @@ function Track:isBusTrack()
         return rec:isBusSend()
     end))
     local sends = self:getSends()
-    local hasMidiSends = _.some(sends, function(send)
-        return send:isMidi() and not send:isAudio()
-    end)
+    -- local hasMidiSends = _.some(sends, function(send)
+    --     return send:isMidi() and not send:isAudio()
+    -- end)
     return hasBusRecs and not isContentTrack and not isDrumRack
 
 end
 
+function Track:getLATracks()
+    return _.map(self:getSends(), function(send)
+        return send:getMode() == 3 and send:getTargetTrack() or nil
+    end)
+end
+
 function Track:createLATrack()
+
+    if not self:getName() then
+        self:setName(self:getDefaultName())
+    end
+
     local la = Track.insert(self:getIndex())
 
     la:setVisibility(false, true)
+            :routeTo(self:getOutput())
+            :setColor(colors.la)
             :setIcon(self:getIcon() or 'fx.png')
             :setName(self:getName() .. ':la')
-            :createSend(self)
-                :setMidiIO(-1, -1)
-                :setSendMode(3)
+
+    self:createSend(la)
+                :setMidiBusIO(-1, -1)
+                :setMode(3)
 
     return la
 end
+
+function Track:isSlave()
+    return self:getName():includes(':')
+end
+
+function Track:getSlaves()
+end
+
+function Track:getMaster()
+end
+
 
 function Track:createMidiSlave()
 

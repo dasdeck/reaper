@@ -45,14 +45,11 @@ function App:defer()
 
     end
 
-
-
 end
 
 function App:stop()
     self.running = false
 end
-
 
 function App:start(options)
 

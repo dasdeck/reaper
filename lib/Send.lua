@@ -64,18 +64,18 @@ function Send:isAudio()
     return self:getAudioIO() ~= -1
 end
 
-function Send:setSendMode(mode)
+function Send:setMode(mode)
     reaper.BR_GetSetTrackSendInfo(self.track, self.cat, self.index, 'I_SENDMODE', true, mode)
     return self
 end
 
-function Send:getSendMode()
+function Send:getMode()
     return reaper.BR_GetSetTrackSendInfo(self.track, self.cat, self.index, 'I_SENDMODE', false, 0)
 end
 
 function Send:isBusSend()
     local i , o = self:getAudioIO()
-    return i == 0 and o == 0 and self:getSendMode() == 0
+    return i == 0 and o == 0 and self:getMode() == 0
 end
 
 function Send:isPreFaderSend()

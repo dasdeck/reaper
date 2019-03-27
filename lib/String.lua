@@ -35,7 +35,6 @@ function string:forEach(callback)
 end
 
 function string:includes(needle)
-
     return _.size(self:split(needle)) > 1
 end
 

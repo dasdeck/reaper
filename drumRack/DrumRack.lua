@@ -259,7 +259,7 @@ function DrumRack:setFx(track)
 end
 
 function DrumRack:createFx()
-    local fxTrack = Track.insert(self:getTrack():getIndex() - 1)
+    local fxTrack = self:getTrack():createSlave('fx', -1)
     fxTrack:setIcon(fxTrack:getIcon() or 'beats.png')
     fxTrack:setColor(colors.fx)
     :setVisibility(false, true)

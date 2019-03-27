@@ -55,7 +55,6 @@ function Pad:loadPad(file)
 
     local loadedTracks = Track.getSelectedTracks()
 
-    -- return
     fx = _.find(loadedTracks, function(track)
         return _.size(track:getReceives()) > 0
     end)
@@ -173,18 +172,9 @@ function Pad:removeFx()
     local layers = self:getLayers()
 
     if fx then
-        -- while _.size(fx:getReceives()) > 0 do
-        --     local rec = _.first(fx:getReceives())
-        --     local source = rec:getSourceTrack()
-        --     rec:remove()
-        --     if rackFx then source:createSend(rackFx)
-        --     else source:setValue('toParent', true)
-        --     end
-        -- end
         fx:remove()
         self:refreshConnections()
     end
-
 
 end
 
@@ -198,7 +188,7 @@ function Pad:getFx(create)
 
         track = Track.insert(_.first(self:getLayers()):getIndex())
         track:setIcon('pads.png')
-        track:setName(self:getName())
+        track:setName(self.rack:getTrack():getName() .. ':' .. self:getName() ..':'.. 'fx')
         track:setVisibility(false, true)
         track:setColor(colors.fx)
         track:setType('pad')

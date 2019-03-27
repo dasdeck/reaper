@@ -17,7 +17,9 @@ function TrackListComp:create(track)
     setmetatable(self, TrackListComp)
 
     self.track = track
+
     self.name = self:addChildComponent(TextButton:create(track:getName() or track:getDefaultName()))
+    self.name.color = track:getColor() or self.name.color
 
     self.name.getToggleState = function()
         return track:isSelected()
