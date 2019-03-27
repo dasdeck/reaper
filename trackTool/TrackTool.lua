@@ -72,14 +72,16 @@ function TrackTool:create(track)
 
         table.insert(buttons, {
             args = '+la',
-            size = 25,
-            color = colors.la,
+            size = 15,
+            color = colors.la:fade(0.8),
             onClick = function()
                 rea.transaction('create LA track', function()
                     self.track:createLATrack():focus()
                 end)
             end
         })
+
+        b = buttons
 
         return buttons
 
@@ -91,18 +93,24 @@ function TrackTool:create(track)
             local track = send:getTargetTrack()
 
             return track:isAux() and {
-                color = colors.aux:fade(0.8),
+                color = colors.aux,
                 args = track:getName():sub(5),
-                onClick = function()
-                    track:focus()
+                onClick = function(s, mouse)
+                    if mouse:isAltKeyDown() then
+                        rea.transaction('remove send', function()
+                            send:remove()
+                        end)
+                    else
+                        track:focus()
+                    end
                 end
             } or nil
         end)
 
         table.insert(buttons, {
             args = '+aux',
-            size = 25,
-            color = colors.aux,
+            size = 15,
+            color = colors.aux:fade(0.8),
             onClick = function()
                 local menu = Menu:create()
                 menu:addItem('create aux', function()
@@ -116,16 +124,16 @@ function TrackTool:create(track)
                 if _.size(auxs) then
                     menu:addSeperator()
                     _.forEach(auxs, function(aux)
-                        menu:addItem(aux:getName():sub(5), {
-
-                        })
+                        menu:addItem(aux:getName():sub(5), function()
+                            self.track:createSend(aux)
+                        end, 'add send')
                     end)
                 end
 
                 menu:show()
             end
         })
-
+        a = buttons
         return buttons
 
     end

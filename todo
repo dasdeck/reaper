@@ -1,7 +1,8 @@
 Ideas:
-    ☐ profiler
-        ☐ num components
-        ☐ num components in window
+
+    ✔ profiler @done(19-03-27 12:28)
+        ✔ num components @done(19-03-27 12:28)
+        ✔ num components in window @done(19-03-27 12:28)
     ☐  contextual strack
         ☐ show only if other track is selected
             drumbus (if fx bus / pad fx)
@@ -9,7 +10,8 @@ Ideas:
         ☐ get contexts
             on track selection change, change contexts
 
-    ☐ move eventloop outside window
+
+    ✔ move eventloop outside window @done(19-03-27 12:28)
         app
             keyboard
             app quit
@@ -17,6 +19,7 @@ Ideas:
             mouse
             paint
             option quit on close ?
+    ☐ drop sampel to tracklist creates one layer sample
 
     ☐ Selection set to have unified selection bhaviour
         ☐ set has drive by existing set

@@ -3,7 +3,11 @@ local function map(data, callback)
     local res = {}
     for k,v in pairs(data or {}) do
         local value, key = callback(v, k)
-        res[key or k] = value
+        if key then
+            res[key] = value
+        else
+            table.insert(res, value)
+        end
     end
     return res
 end
