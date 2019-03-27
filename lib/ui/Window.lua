@@ -234,11 +234,13 @@ function Window:evalMouse()
 
     if mouseUp and self.component:isMouseOver() then self:unfocus() end
 
+    local allComps = self.component:getAllChildren()
+
     if mouseMoved or capChanged or isFileDrop or wheelMove then
 
         local consumed = false
 
-        for k,comp in pairs(self.component:getAllChildren()) do
+        _.forEach(allComps, function(comp)
 
             comp:updateMousePos(mouse)
 
@@ -274,7 +276,10 @@ function Window:evalMouse()
                 if mouseUp then
 
                     if comp.onMouseUp then comp:onMouseUp(mouse) end
-                    if comp.mouse.down and comp.onClick then comp:onClick(mouse) end
+                    if comp.mouse.down and comp.onClick then
+                        -- rea.log('click')
+                        comp:onClick(mouse)
+                    end
                     if comp.onDrop and Component.dragging then comp:onDrop(mouse) end
 
                     comp.mouse.up = mouse.time
@@ -295,21 +300,17 @@ function Window:evalMouse()
                 consumed = consumed or not comp:canClickThrough()
 
             end
-        end
+        end)
 
     end
 
     self.mouse = mouse
 
     if not self.mouse:isButtonDown() then
-        for k,v in pairs(self.component:getAllChildren()) do
-            v.mouse.down = false
-        end
-        if self.dragComp then
-            self.dragComp:delete()
-            self.repaint = self.repaint or true
-            self.dragComp = nil
-        end
+        _.forEach(allComps, function(child)
+            if child.mouse.down then rea.log('up') end
+            child.mouse.down = false
+        end)
         Component.dragging = nil
     end
 

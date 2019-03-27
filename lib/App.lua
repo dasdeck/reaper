@@ -30,18 +30,22 @@ function App:defer()
             Window.currentWindow:defer()
         end
 
-        end, debug.traceback)
+    end, debug.traceback)
 
-        if not res and self.options.debug then
-            local context = {reaper.get_action_context()}
-            rea.logError({context, err})
+    if not res and self.options.debug then
+        local context = {reaper.get_action_context()}
+        rea.logPin('context', context)
+        rea.logPin('error', err)
+    else
+        if self.running then
+            reaper.defer(function()
+                self:defer()
+            end)
         end
 
-    if self.running then
-        reaper.defer(function()
-            self:defer()
-        end)
     end
+
+
 
 end
 
@@ -52,7 +56,8 @@ end
 
 function App:start(options)
 
-    options = options or {debug = true}
+    options = options or {}
+    options.debug = true
     self.running = true
     self.options = options
     App.current = self
@@ -73,7 +78,7 @@ function App:start(options)
                 log.data = self:getProfileData()
             end
 
-            rea.logOnly(log)
+            rea.logPin('profile', log)
 
         end
     end

@@ -18,7 +18,7 @@ function FXButton:create(fxSource)
     self.text.getToggleState = function()
         return fxSource:getFx()
     end
-    self.text.onClick = function()
+    self.text.onButtonClick = function()
         if Mouse.capture():isAltKeyDown() then
             if fxSource:getFx() then
                 rea.transaction('remove fx', function()
@@ -26,6 +26,8 @@ function FXButton:create(fxSource)
                 end)
             end
         else
+            -- rea.log('click')
+            -- rea.log(self.text.mouse.down)
             local fx = fxSource:getFx()
             if not fx then
                 rea.transaction('add fx', function()

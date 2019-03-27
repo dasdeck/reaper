@@ -2,6 +2,7 @@ local Track = require 'Track'
 local Mem = require 'Mem'
 local TrackState = require 'TrackState'
 
+local colors = require 'colors'
 local _ = require '_'
 local rea = require 'rea'
 
@@ -199,6 +200,7 @@ function Pad:getFx(create)
         track:setIcon('pads.png')
         track:setName(self:getName())
         track:setVisibility(false, true)
+        track:setColor(colors.fx)
         track:setType('pad')
         self:setFx(track)
 

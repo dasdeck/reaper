@@ -391,6 +391,19 @@ function Track:getMidiSlaves()
     end)
 end
 
+function Track:getColor()
+    local c = reaper.GetTrackColor(self.track)
+
+    local r, g, b = reaper.ColorFromNative(c)
+
+    return c > 0 and color.rgb(r / 255, g / 255, b / 255) or nil
+end
+
+function Track:setColor(c)
+    reaper.SetTrackColor(self.track, c:native())
+    return self
+end
+
 function Track:isRoutedTo(target)
 
 end

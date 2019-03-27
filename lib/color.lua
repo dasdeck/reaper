@@ -514,6 +514,11 @@ function color:with_alpha(a)
     return new(self.h, self.s, self.L, a)
 end
 
+function color:native()
+	local r,g,b = self:rgb()
+	return reaper.ColorToNative(math.floor(r * 255), math.floor(g * 255), math.floor(b * 255))
+end
+
 --module ---------------------------------------------------------------------
 
 local color_module = {

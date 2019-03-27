@@ -5,6 +5,7 @@ local Directory = require 'Directory'
 
 local Track = require 'Track'
 
+local colors = require 'colors'
 local rea = require 'rea'
 
 local DrumRack = class()
@@ -260,6 +261,7 @@ end
 function DrumRack:createFx()
     local fxTrack = Track.insert(self:getTrack():getIndex() - 1)
     fxTrack:setIcon(fxTrack:getIcon() or 'beats.png')
+    fxTrack:setColor(colors.fx)
     :setVisibility(false, true)
     if self:getLocked() == 1 then fxTrack:setLocked(true) end
     return fxTrack
