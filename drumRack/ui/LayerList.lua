@@ -28,8 +28,6 @@ function LayerList:update()
 
     -- self.layers = layers
 
-    -- rea.logPin('buildLayers', layers)
-
 
     self:deleteChildren()
 

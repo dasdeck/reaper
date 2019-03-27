@@ -64,7 +64,9 @@ function Layer:create(track, pad)
                 self.track:remove()
             end)
         else
-            self.track:focus()
+            rea.transaction('focus layer', function()
+                self.track:focus()
+            end)
         end
     end
 

@@ -89,8 +89,6 @@ function DrumRackUI:create(rack)
 
     setmetatable(self, DrumRackUI)
 
-    -- rea.logCount('DrumRackUI:create')
-
     self.rack = rack
 
     self.opts = self:addChildComponent(ButtonList:create(DrumRackOptions(rack), true))

@@ -19,7 +19,6 @@ Window.currentWindow = nil
 Project.watch.project:onChange(function()
     if Window.currentWindow then
         Window.currentWindow.repaint = 'all'
-        -- rea.logCount('global repaint')
     end
     Track.onStateChange()
 end)
@@ -91,8 +90,6 @@ function Window:render()
 
 end
 
-
-
 function Window:unfocus(options)
     -- reaper.SetCursorContext(1, 0)
 end
@@ -105,14 +102,12 @@ function Window:show(options)
     Window.currentWindow = self
     _.assign(self, options)
 
-
     local stored = State.global.get('window_' ..self.name, options, {'h','w', 'dock'})
     _.assign(self, stored)
 
     gfx.init(self.name, self.w, self.h, self.dock)
 
     if not options.focus then self:unfocus() end
-
 
 end
 
@@ -149,14 +144,11 @@ function Window:updateWindow()
         self.component:setSize(gfx.w, gfx.h)
     end
 
-
-
     local dock = gfx.dock(-1)
 
     if dock ~= self.dock then
         self.docked = dock > 0
         self.dock = self.docked and dock or self.dock
-
     end
 
     if self.options.persist then
@@ -179,7 +171,6 @@ function Window:toggleDock()
     end
 
     self:updateWindow()
-    -- self:restoreState()
 
 end
 
@@ -191,7 +182,9 @@ function Window:evalKeyboard()
         self:close()
     else
         while key > 0 do
-            rea.log('keycode:' .. tostring(key))
+            if self.options.debug then
+                rea.log('keycode:' .. tostring(key))
+            end
 
             if key == 324 and self.mouse:isShiftKeyDown() then
                 self:toggleDock()
@@ -223,10 +216,7 @@ function getDroppedFiles()
     return files
 end
 
-
 function Window:evalMouse()
-
-    -- if not  then return end
 
     local files = getDroppedFiles()
     local isFileDrop = _.size(files) > 0
@@ -335,7 +325,6 @@ function Window:defer()
     if rea.refreshUI(true) then
         self.paint = true
     end
-
 
 end
 

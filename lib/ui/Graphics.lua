@@ -72,7 +72,6 @@ function Graphics:drawImage(slot, x, y, scale)
     gfx.x = x
     gfx.y = y
 
-    -- rea.log({'img', gfx.dest})
     gfx.blit(slot, scale or 1, 0)
 
 end

@@ -10,7 +10,6 @@ local TransposeControll = require 'TransposeControll'
 local DirFlipper = require 'DirFlipper'
 local rea = require 'rea'
 
-local FXList = require 'FXList'
 
 local _ = require '_'
 
@@ -38,7 +37,7 @@ function TrackToolControlls:create(track)
         return track:getTrackTool():getParam(3) > 0
     end
 
-    self.fx = self:addChildComponent(FXList:create(track))
+    -- self.fx = self:addChildComponent(FXList:create(track))
 
     return self
 end
@@ -49,7 +48,7 @@ end
 
 function TrackToolControlls:resized()
 
-    local h  = 20
+    local h  = self.h / 3
 
     self.delay:setBounds(0, 0, self.w, h)
 
@@ -57,7 +56,8 @@ function TrackToolControlls:resized()
 
     self.globalTranspose:setBounds(0, self.transpose:getBottom(), self.w, h)
 
-    self.fx:setBounds(0, self.globalTranspose:getBottom(), self.w, 200)
+
+    -- self.fx:setBounds(0, self.globalTranspose:getBottom(), self.w, 200)
 
 end
 

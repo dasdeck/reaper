@@ -24,6 +24,7 @@ function TrackList:create(...)
     end
 
     Project.watch.project:onChange(updater)
+    Track.watch.selectedTracks:onChange(updater)
 
     TrackListFilter.onChange = updater
 

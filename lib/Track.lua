@@ -337,6 +337,39 @@ function Track:clone()
     return track
 end
 
+function Track:hasMedia()
+    return reaper.CountTrackMediaItems(self.track) > 0
+end
+
+function Track:isBusTrack()
+
+    local isDrumRack = self:getFx('DrumRack')
+    local isContentTrack = self:getInstrument() or self:hasMedia()
+    local recs = self:getReceives()
+    local hasBusRecs = (_.size(recs) == 0 or _.some(recs, function(rec)
+        return rec:isBusSend()
+    end))
+    local sends = self:getSends()
+    local hasMidiSends = _.some(sends, function(send)
+        return send:isMidi() and not send:isAudio()
+    end)
+    return hasBusRecs and not isContentTrack and not isDrumRack
+
+end
+
+function Track:createLATrack()
+    local la = Track.insert(self:getIndex())
+
+    la:setVisibility(false, true)
+            :setIcon(self:getIcon() or 'fx.png')
+            :setName(self:getName() .. ':la')
+            :createSend(self)
+                :setMidiIO(-1, -1)
+                :setSendMode(3)
+
+    return la
+end
+
 function Track:createMidiSlave()
 
     local slave = Track.insert(self:getIndex())
@@ -356,6 +389,10 @@ function Track:getMidiSlaves()
             return rec:getSourceTrack()
         end
     end)
+end
+
+function Track:isRoutedTo(target)
+
 end
 
 function Track:routeTo(target)

@@ -40,8 +40,6 @@ function Component:create(x, y, w, h)
 
     setmetatable(self, Component)
 
-    -- rea.log(self:__class())
-
     self:relayout()
 
     return self
@@ -55,14 +53,10 @@ function Component:getSlot(name, create)
 
         if not slot then
 
-            -- rea.logPin('newSlot', name)
-            -- rea.logPin('slots', _.filter(Component.slots, function(s) return s end))
             slot = _.some(Component.slots, function(used, i)
                 if not used then
                     Component.slots[i] = name
                     if create then
-                        -- rea.logPin('create', i)
-                        -- rea.logCount('create:' .. name)
                         create(i, name)
                     end
                     return i
@@ -70,8 +64,6 @@ function Component:getSlot(name, create)
             end)
 
             assert(slot, 'out of image slots')
-        -- else
-            -- rea.logCount('reusedSlot')
         end
 
         self.uislots[name] = slot

@@ -5,6 +5,19 @@ local paths = require 'paths'
 local rea = require 'rea'
 local _ = require '_'
 
+
+function Instrument.aux()
+    rea.transaction('add aux bus(es)', function()
+
+        local input = rea.prompt('aux')
+
+        if not input then return false end
+
+
+
+    end)
+end
+
 function Instrument.bang()
 
     rea.transaction('add instrument(s)', function()

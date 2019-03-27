@@ -15,8 +15,6 @@ function Image:create(file, scale, alpha)
         self:setAlpha(alpha)
     end
 
-    -- rea.logCount('img:')
-    -- rea.logPin('images', Image.images)
 
     if not Image.images[file] then
         Image.images[file] = 0
@@ -44,7 +42,6 @@ function Image:onDelete()
     Image.images[file] = Image.images[file] - 1
 
     if Image.images[file] == 0 then
-        -- rea.logCount('clear:' .. file)
         Component.slots[self.imgSlot] = false
     end
 
