@@ -1,6 +1,7 @@
 local Track = require 'Track'
 local Mem = require 'Mem'
 local TrackState = require 'TrackState'
+local Bus = require 'Bus'
 
 local colors = require 'colors'
 local _ = require '_'
@@ -179,12 +180,10 @@ function Pad:removeFx()
 end
 
 function Pad:createFx()
-    track = Track.insert(_.first(self:getLayers()):getIndex())
+    track = Bus.createBus(_.first(self:getLayers()):getIndex())
     track:setIcon('pads.png')
-    track:setName(self.rack:getTrack():getName() .. ':' .. self:getName() ..':'.. 'fx')
+    track:setName('pad' .. self:getName())
     track:setVisibility(false, true)
-    track:setColor(colors.fx)
-    track:setType(Track.typeMap.bus)
     return track
 end
 
@@ -272,6 +271,7 @@ function Pad:addLayer(path, name)
     track:setSelected(1)
 
     self:addTrack(newTrack)
+    return newTrack
 
 end
 

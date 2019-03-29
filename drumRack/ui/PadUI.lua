@@ -126,10 +126,19 @@ function PadUI:create(pad)
 
         if wasSelected then
             rea.transaction('select pad', function()
+
                 if pad:getFx() then
                     pad:getFx():focus()
-                elseif _.first(pad:getLayers()) then
-                    _.first(pad:getLayers()):focus()
+                else
+                    local firstLayer = _.first(pad:getLayers())
+                    if firstLayer then
+                        firstLayer:focus()
+                        if firstLayer:isSampler() and pad.rack.samplerIsOpen() then
+                            pad.rack.closeSampler()
+                            firstLayer:getInstrument():open()
+                        end
+                    end
+
                 end
             end)
         end
@@ -150,13 +159,16 @@ end
 
 
 
-
 function PadUI:onFilesDrop(files)
 
     rea.transaction('add layer', function()
         for v, k in pairs(files) do
-            local name = rea.prompt('name', _.last(k:split('/')))
-            self.pad:addLayer(k)
+            local layer = self.pad:addLayer(k)
+            if not layer:getName() then
+                local fileName = _.last(k:split('/'))
+                local name = rea.prompt('name', fileName)
+                layer:setName(name or fileName)
+            end
         end
     end)
 

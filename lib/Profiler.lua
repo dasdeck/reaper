@@ -1,4 +1,5 @@
 local _ = require '_'
+local rea = require 'rea'
 
 local timer = reaper.time_precise
 
@@ -16,20 +17,19 @@ function Profiler:create(libs)
 
     self.wrappedLibs = _.map(self.unwrappedLibs, function(lib, key)
         return _.map(lib, function(member, name)
-            name = key .. '.' .. name
+            local fullname = key .. '.' .. name
             if type(member) == 'function' then
                 return function(...)
 
-
                     self.profile.totalCalls = self.profile.totalCalls + 1
 
-                    local meth = self.profile.methods[name]
+                    local meth = self.profile.methods[fullname]
                     if not meth then
                         meth = {
                             time = 0,
                             calls = 0
                         }
-                        self.profile.methods[name] = meth
+                        self.profile.methods[fullname] = meth
                     end
 
                     local pre = timer()
@@ -43,11 +43,13 @@ function Profiler:create(libs)
                     end
 
                     return table.unpack(res)
-                end
+                end, name
 
             end
         end), key
     end)
+
+    -- rea.logPin(dump(self.unwrappedLibs))
 
     return self
 end
@@ -68,14 +70,16 @@ function Profiler:wrap()
     end)
 end
 
-function Profiler:run(func, loop)
+function Profiler:run(func, loop, reset)
 
     loop = loop or 100000
 
-    self.profile = {
-        totalCalls = 0,
-        methods = {}
-    }
+    if reset or not self.profile then
+        self.profile = {
+            totalCalls = 0,
+            methods = {}
+        }
+    end
 
     self:wrap()
 

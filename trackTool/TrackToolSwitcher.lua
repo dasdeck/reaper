@@ -26,6 +26,7 @@ function TrackToolSwitcher:create(...)
             self.history = self.history.next
             self:update()
         end
+        if track then track:touch() end
         -- end
     end)
 

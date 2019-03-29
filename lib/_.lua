@@ -1,14 +1,20 @@
 
+local function forEach(data, callback)
+    for k,v in pairs(data or {}) do
+        callback(v, k)
+    end
+end
+
 local function map(data, callback)
     local res = {}
-    for k,v in pairs(data or {}) do
+    forEach(data or {}, function(v, k)
         local value, key = callback(v, k)
         if key then
             res[key] = value
         else
             table.insert(res, value)
         end
-    end
+    end)
     return res
 end
 
@@ -19,11 +25,6 @@ local function assign(target, source)
     return target
 end
 
-local function forEach(data, callback)
-    for k,v in pairs(data or {}) do
-        callback(v, k)
-    end
-end
 
 local function size(collection)
     local i = 0

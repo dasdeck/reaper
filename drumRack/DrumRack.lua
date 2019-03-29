@@ -1,4 +1,5 @@
 local Pad = require 'Pad'
+local Bus = require 'Bus'
 local Mapper = require 'Mapper'
 local _ = require '_'
 local Directory = require 'Directory'
@@ -15,6 +16,8 @@ DrumRack.padPresetDir = Directory:create(reaper.GetResourcePath() .. '/TrackTemp
 DrumRack.fxName = 'DrumRack'
 DrumRack.maxNumPads = 16
 
+
+
 function DrumRack.launch()
 
     local id = reaper.NamedCommandLookup('drumRack.lua')
@@ -28,6 +31,24 @@ end
 function DrumRack.getAllRacks()
     local tracks = Track.getAllTracks()
     return _.filter(tracks, function(track) return track:getFx(DrumRack.fxName) end)
+end
+
+function DrumRack.closeSampler()
+    return _.forEach(DrumRack.getAllRacks(), function(rack)
+        return _.forEach(rack:getAllTracks(), function(track)
+            if track:getInstrument() and track:getInstrument():isSampler() then
+                track:getInstrument():close()
+            end
+        end)
+    end)
+end
+
+function DrumRack.samplerIsOpen()
+    return _.some(DrumRack.getAllRacks(), function(rack)
+        return _.some(rack:getAllTracks(), function(track)
+            return track:getInstrument() and track:getInstrument():isSampler() and track:getInstrument():isOpen()
+        end)
+    end)
 end
 
 function DrumRack.getAssociatedDrumRack(selected)
@@ -50,6 +71,7 @@ function DrumRack.init(track)
     track:setColor(colors.instrument)
 
     local rack = DrumRack:create(track)
+    rack:getFx(true)
     rack:setSelectedPad(1)
     return rack
 
@@ -149,9 +171,6 @@ function DrumRack:getAllTracks(includeMidi)
     return tracks
 end
 
-function DrumRack:samplerIsOpen()
-
-end
 
 function DrumRack:setSelectedPad(index)
     if self:getMapper() then
@@ -264,9 +283,9 @@ function DrumRack:setFx(track)
 end
 
 function DrumRack:createFx()
-    local fxTrack = self:getTrack():createSlave('fx', -1)
+    local fxTrack = Bus.createBus(self:getTrack():getIndex()-1)
     fxTrack:setIcon(fxTrack:getIcon() or 'beats.png')
-    fxTrack:setColor(colors.fx)
+    fxTrack:setName(self:getTrack():getName())
     :setVisibility(false, true)
     if self:getLocked() == 1 then fxTrack:setLocked(true) end
     return fxTrack

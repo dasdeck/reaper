@@ -24,6 +24,11 @@ local options = {
         key = 'la'
     },
     {
+        color = colors.fx,
+        args = 'b',
+        key = 'bus'
+    },
+    {
         args = '*',
         key = 'all'
     }

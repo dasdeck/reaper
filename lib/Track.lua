@@ -203,7 +203,7 @@ end
 
 function Track:getMetaData(extra)
     local suc, res = reaper.GetProjExtState(0, 'D3CK', self:getMetaKey())
-    return suc > 0 and Collection:create(res) or {}
+    return Collection:create(suc > 0 and res or {})
 end
 
 function Track:setMetaData(coll)
@@ -228,10 +228,26 @@ function Track:isAudioTrack()
     return instrument
 end
 
+function Track:isSampler()
+    return self:getInstrument() and self:getInstrument():isSampler()
+end
+
+function Track:touch()
+
+    rea.log('touch' .. tostring(self))
+    local selection = Track:getSelectedTracks()
+    self:setSelected()
+    reaper.Main_OnCommand(40914, 0) -- set as last touch
+    Track.setSelectedTracks(selection)
+
+    reaper.CSurf_OnTrackSelection(self.track)
+
+end
+
 function Track:focus()
     reaper.SetMixerScroll(self.track)
+    -- reaper.Main_OnCommand(reaper.NamedCommandLookup("_S&M_PASTSNDRCV1"),0)
     rea.refreshUI()
-
     return self
 end
 
@@ -371,7 +387,7 @@ function Track:getState(live)
 end
 
 function Track:__tostring()
-    return self:getName() .. ' :: ' .. tostring(self.track)
+    return self:getName() .. ' :: ' .. tostring(self.track) .. '::' .. self:getType()
 end
 
 function Track:setState(state)
@@ -400,19 +416,19 @@ function Track:hasMedia()
 end
 
 
-function Track:isBusTrack()
+function Track:isBus()
 
-    local isDrumRack = self:getFx('DrumRack')
-    local isContentTrack = self:getInstrument() or self:hasMedia()
-    local recs = self:getReceives()
-    local hasBusRecs = (_.size(recs) == 0 or _.some(recs, function(rec)
-        return rec:isBusSend()
-    end))
-    local sends = self:getSends()
+    -- local isDrumRack = self:getFx('DrumRack')
+    -- local isContentTrack = self:getInstrument() or self:hasMedia()
+    -- local recs = self:getReceives()
+    -- local hasBusRecs = (_.size(recs) == 0 or _.some(recs, function(rec)
+    --     return rec:isBusSend()
+    -- end))
+    -- local sends = self:getSends()
     -- local hasMidiSends = _.some(sends, function(send)
     --     return send:isMidi() and not send:isAudio()
     -- end)
-    return hasBusRecs and not isContentTrack and not isDrumRack
+    return self:getType() == Track.typeMap.bus
 
 end
 
@@ -501,25 +517,22 @@ end
 function Track:setOutput(target, la)
     local current = self:getOutput()
 
-    if target ~= current then
-
-        if la then
-            _.forEach(self:getLATracks(), function(la)
-                if la:getOutput() == la then
-                    la:setOutput(target, true)
-                end
-            end)
-        end
-
-        if not target then
-            self:setValue('toParent', true)
-        else
-            if not self:sendsTo(target) then
-                self:createSend(target, true)
+    if la then
+        _.forEach(self:getLATracks(), function(la)
+            if la:getOutput() == la then
+                la:setOutput(target, true)
             end
-        end
+        end)
     end
 
+    if not target then
+        self:removeSend(current)
+        self:setValue('toParent', true)
+    else
+        if not self:sendsTo(target) then
+            self:createSend(target, true)
+        end
+    end
 
     return self
 end

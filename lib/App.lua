@@ -64,12 +64,13 @@ function App:start(options)
     if options.profile then
 
         options.debug = true
+
         local def = self.defer
         profiler = Profiler:create({'gfx', 'reaper'})
 
         self.defer = function()
 
-            local log = profiler:run(function() def(self) end, 1)
+            local log = profiler:run(function() def(self) end, 1, options.profile == 'defer')
 
             if self.getProfileData then
                 log.data = self:getProfileData()

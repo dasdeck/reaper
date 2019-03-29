@@ -1,4 +1,9 @@
 DrumRack:
+    ☐ right drop link
+        ☐ indicate links
+    ☐ right click fx, use same bus
+    ☐ multi select pads ?
+
     ☐ move note filter logic to single tracks to hav 128
         ☐ id "zone" with custom midi event data
         ☐ optimize mit routing layer tracks?

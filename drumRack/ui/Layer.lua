@@ -83,7 +83,7 @@ function Layer:create(track, pad)
 end
 
 function Layer:isSampler()
-    return self.track:getInstrument():getParam('FILE0') ~= nil
+    return self.track:getInstrument():isSampler()
 end
 
 function Layer:paint(g)

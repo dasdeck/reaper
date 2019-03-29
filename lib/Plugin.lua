@@ -106,9 +106,7 @@ function Plugin:setIndex(index)
     return self
 end
 
-function Plugin:isOpen()
-    return reaper.TrackFX_GetOpen(self.track.track, self.index)
-end
+
 
 function Plugin:getName()
     local success, name = reaper.TrackFX_GetFXName(self.track.track, self.index, '')
@@ -137,9 +135,21 @@ function Plugin:remove()
     Plugin.plugins[self.guid] = nil
 end
 
+function Plugin:isSampler()
+    return self:getParam('FILE0') ~= nil
+end
+
 function Plugin:open(show)
     reaper.TrackFX_Show(self.track.track, self.index, 3)
     -- reaper.TrackFX_SetOpen(self.track.track, self.index, show == nil and true or show)
+end
+
+function Plugin:close()
+    reaper.TrackFX_Show(self.track.track, self.index, 2)
+end
+
+function Plugin:isOpen()
+    return reaper.TrackFX_GetOpen(self.track.track, self.index)
 end
 
 function Plugin:setParam(nameOrIndex, value)

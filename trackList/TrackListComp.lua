@@ -48,7 +48,11 @@ function TrackListComp:create(track)
 
     local icon = track:getIcon()
     self.icon = self:addChildComponent(icon and Image:create(icon, 'fit') or Component:create())
-
+    self.icon.onDblClick = function()
+        if track:getInstrument() then
+            track:getInstrument():open()
+        end
+    end
     return self
 
 end

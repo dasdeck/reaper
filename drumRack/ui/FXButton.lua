@@ -2,6 +2,10 @@ local TextButton = require 'TextButton'
 local IconButton = require 'IconButton'
 local Component = require 'Component'
 local Mouse = require 'Mouse'
+local Menu = require 'Menu'
+local Bus = require 'Bus'
+
+local _ = require '_'
 local rea = require 'rea'
 local colors = require 'colors'
 local icons = require 'icons'
@@ -18,13 +22,35 @@ function FXButton:create(fxSource)
     self.text.getToggleState = function()
         return fxSource:getFx()
     end
-    self.text.onButtonClick = function()
+    self.text.onButtonClick = function(s, mouse)
         if Mouse.capture():isAltKeyDown() then
             if fxSource:getFx() then
                 rea.transaction('remove fx', function()
                     fxSource:removeFx()
                 end)
             end
+        elseif mouse:wasRightButtonDown() then
+            local menu = Menu:create()
+            local current = fxSource:getFx()
+            local busses = Bus.getAllBusses()
+            if _.size(busses) > 0 then
+                local bussesMenu =  Menu:create()
+                _.forEach(busses, function(bus)
+                    bussesMenu:addItem(bus:getName(), {
+                        callback = function()
+                            fxSource:setFx(bus)
+                        end,
+                        checked = bus == current
+                    }, 'set bus')
+                end)
+                menu:addItem('bus', bussesMenu)
+            end
+
+            menu:addItem('create new bus', function()
+                fxSource:getFx(true)
+            end, 'create bus')
+            menu:show()
+
         else
             -- rea.log('click')
             -- rea.log(self.text.mouse.down)
@@ -43,8 +69,8 @@ function FXButton:create(fxSource)
     -- self.lock.isDisabled = function()
     --     return not fxSource:getFx()
     -- end
-    self.lock.onButtonClick = function()
-        self.text.onClick()
+    self.lock.onButtonClick = function(s, mouse)
+        self.text.onClick(s, mouse)
         if fxSource:getFx() then
             fxSource:getFx():setLocked(not fxSource:getFx():isLocked())
         end
@@ -55,6 +81,10 @@ function FXButton:create(fxSource)
     self.text.color = colors.fx
     self.lock.color = colors.fx
     return self
+end
+
+function FXButton:getDefaultName()
+    return 'bus'
 end
 
 function FXButton:paint(g)

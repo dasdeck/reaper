@@ -40,9 +40,8 @@ function Menu:show()
 
 end
 
-function Menu:renderItems(items, map)
+function Menu:renderItems(items, map, isSubMenu)
 
-    local isSubMenu = map ~= nil
     map = map or {}
     items = items or self.items
 
@@ -52,8 +51,10 @@ function Menu:renderItems(items, map)
         if item == false then --seperator
             table.insert(flat, '')
         elseif type(item.children) == 'table' then
-            local menu = '>' .. item.name .. '|' .. self:renderItems(item.children, map)
-            table.insert(flat, menu)
+            if _.size(item.children) > 0 then
+                local menu = '>' .. item.name .. '|' .. self:renderItems(item.children, map, true)
+                table.insert(flat, menu)
+            end
         else
             local name = item.name
             if item.getToggleState and item:getToggleState() or item.checked then

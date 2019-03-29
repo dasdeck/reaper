@@ -22,41 +22,53 @@ function TrackTool:create(track)
     self.track = track
 
     self.watchers:watch(Project.watch.project, function()
+        local current = track:getOutput()
+        self.outout.color = current and current:getColor() or colors.default
         self:update()
     end)
 
     self.outout = self:addChildComponent(TextButton:create('output'))
-    self.outout.onButtonClick = function(s, mouse)
+    local current = track:getOutput()
+    self.outout.color = current and current:getColor() or self.outout.color
+    self.outout.onClick = function(s, mouse)
         local menu = Menu:create()
         local busMenu = Menu:create()
         _.forEach(Track.getAllTracks(), function(otherTrack)
             -- local checked = false
-            if otherTrack:isBusTrack() then
+            if otherTrack ~= track and otherTrack:isBus() then
                 busMenu:addItem(otherTrack:getName() or otherTrack:getDefaultName(), {
                     callback = function()
+                        track:setOutput(otherTrack)
                     end,
-                    checked = track:getOutput() == otherTrack
+                    checked = current == otherTrack,
+                    transaction = 'change routing'
 
                 })
             end
         end)
         menu:addItem('bus', busMenu)
+        menu:addItem('master', {
+            checked = not current and track:getValue('toParent') > 0,
+            callback = function()
+                track:setOutput(nil)
+            end
+        }, 'change routing')
         menu:show()
     end
     self.outout.getText = function(s, mouse)
-        if track:getValue('toParent') > 0 then
-            return 'master'
+        local output = track:getOutput()
+        if not output then
+            if track:getValue('toParent') > 0 then
+                return 'master'
+            else
+                return '--'
+            end
         else
-            return _.some(track:getSends(), function(send)
-                local i, o = send:getAudioIO()
-                local t = send:getTargetTrack()
-                return i == 0 and o == 0 and ('> ' .. (t:getName() or t:getDefaultName()))
-            end)
+            return output:getName()
         end
     end
-
     self.outout.isDisabled = function()
-        return track:getValue('toParent') > 0
+        return not track:getOutput() and track:getValue('toParent') == 0
     end
 
     self.la = self:addChildComponent(ButtonList:create({}))
