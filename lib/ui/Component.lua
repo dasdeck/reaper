@@ -113,24 +113,11 @@ function Component:getAllChildren(results)
     return results
 end
 
-function Component:getComponentsUnderMouse()
-    local results = {}
-    for k, child in pairs(self:getAllChildren()) do
-        if self:interceptsMouse() and self:isMouseOver() then
-            table.insert(results, self)
-        end
-    end
-    return results
-end
-
 function Component:deleteChildren()
     _.forEach(self.children, function(comp)
         comp:delete()
     end)
 end
-
-
-
 
 function Component:interceptsMouse()
     return true
@@ -374,10 +361,10 @@ function Component:evaluate(g, dest, x, y)
 end
 
 function Component:evaluateChildren(g, dest, x, y)
-    for i, comp in pairs(self.children) do
+    _.forEach(self.children,function(comp)
         assert(comp.parent == self, 'comp has different parent')
         comp:evaluate(g, dest, x + comp.x, y + comp.y)
-    end
+    end)
 end
 
 function Component:addChildComponent(comp, key, doNotLayout)

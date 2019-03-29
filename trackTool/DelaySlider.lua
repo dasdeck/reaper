@@ -30,8 +30,7 @@ end
 
 function DelaySlider:setValue(val)
     local plugin = self:getPlugin(true)
-    if plugin then plugin:setIndex(0):setParam(0, val) end
-    self:repaint()
+    if plugin then plugin:setParam(0, val) end
 end
 
 return DelaySlider

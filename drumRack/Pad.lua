@@ -80,13 +80,13 @@ function Pad:refreshConnections()
     local fx = self:getFx()
     local layers = self:getLayers()
 
-    if fx then fx:routeTo(fxBus) end
+    if fx then fx:setOutput(fxBus) end
 
     _.forEach(layers, function(layer)
         if fx and fxBus then
             layer:removeSend(fxBus)
         end
-        layer:routeTo(fx or fxBus)
+        layer:setOutput(fx or fxBus)
     end)
     return self
 end
@@ -178,6 +178,16 @@ function Pad:removeFx()
 
 end
 
+function Pad:createFx()
+    track = Track.insert(_.first(self:getLayers()):getIndex())
+    track:setIcon('pads.png')
+    track:setName(self.rack:getTrack():getName() .. ':' .. self:getName() ..':'.. 'fx')
+    track:setVisibility(false, true)
+    track:setColor(colors.fx)
+    track:setType(Track.typeMap.bus)
+    return track
+end
+
 function Pad:getFx(create)
 
     local track = _.some(self.rack:getTrack():getSends(), function(send)
@@ -185,16 +195,9 @@ function Pad:getFx(create)
     end)
 
     if create and not track and (_.size(self:getLayers()) > 0) then
-
-        track = Track.insert(_.first(self:getLayers()):getIndex())
-        track:setIcon('pads.png')
-        track:setName(self.rack:getTrack():getName() .. ':' .. self:getName() ..':'.. 'fx')
-        track:setVisibility(false, true)
-        track:setColor(colors.fx)
-        track:setType('pad')
-        self:setFx(track)
-
+        self:setFx(self:createFx())
     end
+
     return track
 end
 
@@ -229,7 +232,7 @@ function Pad:addTrack(newTrack)
     end
 end
 
-function Pad:addLayer(path)
+function Pad:addLayer(path, name)
 
     local track = self.rack:getTrack()
 
@@ -248,8 +251,7 @@ function Pad:addLayer(path)
             reaper.Main_openProject(path)
             newTrack = Track.getSelectedTrack()
         else
-            reaper.InsertTrackAtIndex(index, true)
-            newTrack = Track:create(reaper.GetTrack(0, index))
+            newTrack = Track.insert():setName(name)
 
             local fx
             if reaper.file_exists(path) then

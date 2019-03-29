@@ -3,6 +3,7 @@ local Track = require 'Track'
 local DrumRack = require 'DrumRack'
 local paths = require 'paths'
 local rea = require 'rea'
+local colors = require 'colors'
 local _ = require '_'
 
 
@@ -12,7 +13,6 @@ function Instrument.aux()
         local input = rea.prompt('aux')
 
         if not input then return false end
-
 
 
     end)
@@ -30,6 +30,7 @@ function Instrument.bang()
             local layers = _.map(zone:split('&'), function(layer)
                 local splits = layer:trim():split(' ')
                 local track = Track.insert()
+                track:setColor(colors.instrument)
                 local name = splits[1]
 
                 track:getFx(name, true)

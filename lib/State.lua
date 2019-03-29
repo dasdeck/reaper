@@ -10,21 +10,21 @@ State.global = {
     set = function(key, value)
         if type(value) == 'table' then
             _.forEach(value, function (value, subkey)
-                reaper.SetExtState(cat, key .. '_' .. subkey, value, true)
+                State.global.set(key .. '_' .. subkey, value)
             end)
         else
-            reaper.SetExtState(cat, key, value, true)
+            reaper.SetExtState(cat, key, tostring(value), true)
         end
     end,
 
     get = function(key, default, multi)
-        default = default or {}
+        local res = {}
         if multi then
             _.forEach(multi, function(subkey)
                 local k = key .. '_' .. subkey
-                default[subkey] = State.global.get(k, default[subkey])
+                res[subkey] = State.global.get(k, default and default[subkey] or nil)
             end)
-            return default
+            return res
         else
             return reaper.HasExtState(cat, key) and reaper.GetExtState(cat, key) or default
         end

@@ -12,7 +12,7 @@ slider4:0<0,1,1>learn from key
 slider5:0<0,1,1>learn to key
 slider6:0<0,127,1>velo
 slider7:followMidi=0<0,1,1>follow midi
-slider8:instance=0<0,99999,1>instance
+slider8:active=0<0,99999,1>active
 slider9:0<0,2,1{manual,fixed time,hold}>hold mode
 slider10:0<0,100>hold time (%/1s)
 slider11:0<0,16,1>choke
@@ -34,7 +34,7 @@ from = 0;
 to = numPads;
 velos = to + numPads;
 holdModes = velos + numPads;
-holdTimes = holdMode + numPads;
+holdTimes = holdModes + numPads;
 holdTimers = holdTimes + numPads;
 chokeGroups = holdTimers + numPads;
 
@@ -62,7 +62,7 @@ function storePad(pad) (
 
 function setVelo(i, velo) (
   velos[i] = velo;
-  slider8 ? gmem[i] = velo;
+  gmem[i] = velo;
   (i+1) == slider1 ? (
     slider6 = velo;
   );
@@ -100,7 +100,6 @@ function sendPadNote(pad, velo, note) (
 
 function onNoteOn(pad, velo, note) (
   group = chokeGroups[pad];
-
   group ? (
     j = 0;
     loop(numPads,
@@ -131,6 +130,8 @@ function proccessNoteEvent(offset, msg1, msg23) (
   (
     note = msg23 & $x7F;
 
+    velo = (msg23/256)|0;
+
     learn(note);
 
     i = 0;
@@ -141,7 +142,7 @@ function proccessNoteEvent(offset, msg1, msg23) (
 
           followMidi ? slider1 = i+1;
 
-          isNoteOn ? onNoteOn(i, (msg23/256)|0, note);
+          isNoteOn ? onNoteOn(i,velo, note);
 
           isNoteOff ? onNoteOff(i, note);
 
@@ -152,7 +153,7 @@ function proccessNoteEvent(offset, msg1, msg23) (
 
           followMidi ? slider1 = i+1;
 
-          isNoteOn ? onNoteOn(i, (msg23/256)|0, note);
+          isNoteOn ? onNoteOn(i, velo, note);
 
           isNoteOff ? onNoteOff(i, note);
 
@@ -172,16 +173,15 @@ function injectNotes() (
   loop(numPads,
 
     index = numPads + i;
-    velo = gmem[index];
-    note = splitMode ? gmem[index + numPads] : 60;
-    //note = to[i];
-    velo != 0 ? (
-      velo == -1 ? onNoteOff(i, note) : onNoteOn(i, velo, note);
+    veloi = gmem[index];
+    notei = splitMode ? gmem[index + numPads] : 60;
+    veloi != 0 ? (
+      veloi == -1 ? onNoteOff(i, notei) : onNoteOn(i, veloi, notei);
       gmem[index] = 0;
     );
 
     holdTime = holdTimers[i];
-    holdTime == 0 ? sendPadNote(i, 0, note);
+    holdTime == 0 ? sendPadNote(i, 0, notei);
     holdTimers[i] = holdTime -1;
 
     i = i + 1;

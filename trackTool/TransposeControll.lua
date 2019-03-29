@@ -26,7 +26,7 @@ function TransposeControll:create(track)
     self.semDown = self:addChildComponent(TextButton:create('<'))
     self.semDown.onClick = function(s, mouse)
         rea.transaction('change transpose', function()
-            self.children.value:setValue(self.value:getValue() - (mouse:isAltKeyDown() and 12 or 1))
+            self.value:setValue(self.value:getValue() - (mouse:isAltKeyDown() and 12 or 1))
         end)
     end
     self.semUp = self:addChildComponent(TextButton:create('>'))

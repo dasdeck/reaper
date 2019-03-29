@@ -6,6 +6,8 @@ local rea = require 'rea'
 local _ = require '_'
 
 _.forEach(paths.scriptDir:childDir('apps'):getFiles(), function(file)
-    local res = Builder.build(file, {'boot', 'Builder'})
-    paths.distDir:childFile(_.last(file:split('/'))):setContent(res)
+    if not file:endsWith('build.lua') then
+        local res = Builder.build(file)
+        paths.distDir:childFile(_.last(file:split('/'))):setContent(res)
+    end
 end)

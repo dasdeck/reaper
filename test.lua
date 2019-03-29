@@ -46,10 +46,20 @@ local data2 = {
     b = 'b'
 }
 
--- local coll = Collection:create(data)
+local coll = Collection:create(data)
 -- print(_.size(data))
 -- print(_.size(data2))
 -- print(_.size(coll))
+
+coll['test'] = 'test'
+-- coll:set('test', 'test')
+-- local test = coll:get('test')
+
+print(tostring(coll['type']))
+print(tostring(coll['test']))
+print(tostring(coll))
+
+local coll2 = Collection:create('{"test" : "test"}')
 
 
 
@@ -114,7 +124,6 @@ local trackState = readFile('./TrackState')
 local chainContent = trackState:match('(<FXCHAIN.-\n>)\n>')
 local pluginsText = chainContent:match('<FXCHAIN.-(<.*)>'):trim():sub(1, -2)
 local plugins = pluginsText:gmatchall('<(.-\n)(.-)>([^<]*)')
--- print(pluginsText)
 
 function getName(val)
     local i = 1
@@ -143,6 +152,6 @@ local a = obj:__instanceOf(Class3)
 local b = obj2:__instanceOf(Class3)
 local c = obj2:__instanceOf(Class2)
 local d = obj2:__instanceOf(Class1)
-print(dump(plugins))
+-- print(dump(plugins))
 -- print(dump(plugins))
 

@@ -107,8 +107,7 @@ local function pick(data, list)
     local res = {}
 
     for k,v in pairs(list or {}) do
-        local val = data[v]
-        if val ~= nil then res[v] = val end
+        res[v] = data[v]
     end
 
     return res

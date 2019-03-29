@@ -1,8 +1,14 @@
 Ideas:
 
+    ☐ bussing
+        ☐ add bus in output selector
+            ☐ move la to bus as well
+    ☐ tracklist filters are radio buttons ba default
+
     ✔ profiler @done(19-03-27 12:28)
         ✔ num components @done(19-03-27 12:28)
         ✔ num components in window @done(19-03-27 12:28)
+
     ☐  contextual strack
         ☐ show only if other track is selected
             drumbus (if fx bus / pad fx)

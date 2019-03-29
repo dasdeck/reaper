@@ -1,4 +1,9 @@
+local Track = require 'Track'
+local Menu = require 'Menu'
+local TrackStateButton = require 'TrackStateButton'
 
+local _ = require '_'
+local rea = require 'rea'
 local TrackUI = class()
 
 function TrackUI.click(track, mouse)
@@ -7,6 +12,14 @@ function TrackUI.click(track, mouse)
         local menu = Menu:create()
         menu:addItem(TrackStateButton:create(track, 'tcp', 'T'):getMenuEntry())
         menu:addItem(TrackStateButton:create(track, 'mcp', 'M'):getMenuEntry())
+        menu:addItem('rename', function()
+            local name = rea.prompt('name', track:getName())
+            if name then
+                rea.transaction('rename track', function()
+                    track:setName(name)
+                end)
+            end
+        end)
         menu:show()
 
         return
@@ -20,7 +33,7 @@ function TrackUI.click(track, mouse)
             if mouse:isShiftKeyDown() and _.size(tracks) > 0 then
                 _.forEach(tracks, function(track) track:remove() end)
             else
-                track:remove()
+                track:remove(true)
             end
         end)
 

@@ -11,6 +11,7 @@ slider2:0<0,2,{midi,audio,both}>mode
 slider3:transpose = 0<-128,128,1>transpose
 slider4:globalTranspose = 1<0,1,1>global transpose
 
+
 @init
 
   pdc_midi = 1.0;

@@ -7,7 +7,8 @@ local Aux = class(Track)
 function Aux.createAux(name)
     local track = Track.insert()
     track:setColor(colors.aux)
-    track:setName('aux:' .. name)
+    track:setType('aux')
+    track:setName(name)
     track:setVisibility(false, true)
     return track
 end

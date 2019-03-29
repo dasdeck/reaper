@@ -13,13 +13,13 @@ function WatcherManager:create()
 end
 
 function WatcherManager:watch(watcher, callback)
+
     if getmetatable(watcher) ~= Watcher then
         watcher = Watcher:create(watcher)
         table.insert(self.watchers, watcher)
-    else
-
-        table.insert(self.offs, watcher:onChange(callback))
     end
+
+    table.insert(self.offs, watcher:onChange(callback))
 end
 
 function WatcherManager:clear()

@@ -21,7 +21,7 @@ function DrumRackUI.drumRackButton(mouse)
         local name = rea.prompt('name')
         if name then
             local track = Track.insert()
-            track:setName(name:len() and name or 'drumrack'):choose()
+            track:setName(name:len() > 0 and name or 'drumrack'):choose()
             return DrumRack.init(track)
         end
     end
@@ -103,6 +103,9 @@ function DrumRackUI:create(rack)
         self:update()
     end
     self.watchers:watch(Project.watch.project, change)
+    self.watchers:watch(function()
+        return self.rack:getSelectedPad()
+    end, change)
     change()
 
     return self

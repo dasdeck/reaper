@@ -13,7 +13,9 @@ function Project.getStates()
 
     local state = true
     local i = 0
+
     local res = {}
+
     while state do
         local success, key, value = reaper.EnumProjExtState(0, 'D3CK', i)
         i = i + 1
@@ -28,6 +30,7 @@ function Project.getStates()
         local track = Track.getTrackMap()[trackId]
         return not track or not track:exists()
     end)
+
     return res
 end
 
@@ -59,6 +62,17 @@ end
 function Project:focus()
     reaper.SelectProjectInstance(self.proj)
     return self
+end
+
+function Project:getState()
+    local i = 0
+    local state = {}
+    while true do
+        local suc, key, val = reaper.EnumProjExtState(0, 'D3CK', i)
+        if not suc then return state end
+        state[key] = val
+        i = i + 1
+    end
 end
 
 return Project

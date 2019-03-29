@@ -7,6 +7,7 @@ addScope('drumRack')
 local Project = require 'Project'
 local DrumRack = require 'DrumRack'
 local Image = require 'Image'
+local Label = require 'Label'
 local Track = require 'Track'
 local Window = require 'Window'
 local Watcher = require 'Watcher'
@@ -15,18 +16,22 @@ local _ = require '_'
 local Project = require 'Project'
 local Track = require 'Track'
 local paths = require 'paths'
+local WindowApp = require 'WindowApp'
 
-local track = Track:getSelectedTrack()
+local label = Label:create('debug', 0,0, 600, 300)
+label.content.just = 0
 
-if track then
-  local state = track:getState(true)
+label.getText = function()
+  return dump({
+    dirty = reaper.IsProjectDirty(0),
+    redo = reaper.Undo_CanRedo2(0),
+    undo = reaper.Undo_CanUndo2(0),
+    state = Project.getState()
+  })
+end
 
-  rea.log(state)
-  local newState = paths.binDir:childFile('state'):getContent()
-  track:setState(newState)
-  rea.log(newState)
 
-  local state = track:getState(true)
-
-  rea.log(state)
+WindowApp:create('debug', label):start()
+Window.currentWindow.onDefer = function(self)
+  self.repaint = true
 end

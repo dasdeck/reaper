@@ -221,7 +221,10 @@ end
 local function transaction(name, action)
     reaper.Undo_BeginBlock()
     local res = action()
-    if res ~= false then reaper.Undo_EndBlock(name, -1) end
+    if res ~= false then
+        reaper.Undo_EndBlock(name, -1)
+        reaper.SetCursorContext(1, 0)
+    end
 end
 
 local function ensureTrack(name, options)

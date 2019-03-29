@@ -7,6 +7,7 @@ local Project = require 'Project'
 local FXList = require 'FXList'
 local Menu = require 'Menu'
 local Aux = require 'Aux'
+local AuxUI = require 'AuxUI'
 
 local colors = require 'colors'
 local rea = require 'rea'
@@ -90,20 +91,9 @@ function TrackTool:create(track)
     self.aux = self:addChildComponent(ButtonList:create({}))
     self.aux.getData = function()
         local buttons = _.map(self.track:getSends(), function(send)
-            local track = send:getTargetTrack()
-
-            return track:isAux() and {
-                color = colors.aux,
-                args = track:getName():sub(5),
-                onClick = function(s, mouse)
-                    if mouse:isAltKeyDown() then
-                        rea.transaction('remove send', function()
-                            send:remove()
-                        end)
-                    else
-                        track:focus()
-                    end
-                end
+            return send:getTargetTrack():isAux() and {
+                proto = AuxUI,
+                args = send
             } or nil
         end)
 
@@ -124,7 +114,7 @@ function TrackTool:create(track)
                 if _.size(auxs) then
                     menu:addSeperator()
                     _.forEach(auxs, function(aux)
-                        menu:addItem(aux:getName():sub(5), function()
+                        menu:addItem(aux:getName(), function()
                             self.track:createSend(aux)
                         end, 'add send')
                     end)
@@ -136,6 +126,25 @@ function TrackTool:create(track)
         a = buttons
         return buttons
 
+    end
+
+    self.type = self:addChildComponent(TextButton:create(''))
+    self.type.getText = function()
+        return track:getType() or '--'
+    end
+    self.type.onButtonClick = function()
+        local currentType = track:getType()
+        local menu = Menu:create()
+        _.forEach(Track.types, function(type)
+            menu:addItem(type, {
+                checked = type == currentType,
+                callback = function()
+                    track:setType(type)
+                end,
+                transaction = 'set track type'
+            })
+        end)
+        menu:show()
     end
 
     self:update()
@@ -169,6 +178,7 @@ function TrackTool:resized()
     self.outout:setBounds(0,self.controlls:getBottom(), self.w, 20)
     self.la:setBounds(0,self.outout:getBottom(), self.w, self.la.h)
     self.aux:setBounds(0,self.la:getBottom(), self.w, self.aux.h)
+    self.type:setBounds(0,self.aux:getBottom(), self.w, self.aux.h)
 end
 
 return TrackTool

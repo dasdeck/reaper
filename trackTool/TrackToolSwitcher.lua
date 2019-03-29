@@ -20,19 +20,19 @@ function TrackToolSwitcher:create(...)
     self.watchers:watch(Track.watch.focusedTrack, function()
 
         local track = Track.getFocusedTrack(true)
-        if track then
-            if self.history.track ~= track then
-                self.history.next = {prev = self.history, track = track}
-                self.history = self.history.next
-                self:update()
-            end
+        -- if track then
+        if self.history.track ~= track then
+            self.history.next = {prev = self.history, track = track}
+            self.history = self.history.next
+            self:update()
         end
+        -- end
     end)
 
     self.nav = self:addChildComponent(ButtonList:create({
         {
             proto = function()
-                local enabled = self.history.prev and self.history.prev.track:exists()
+                local enabled = self.history.prev and self.history.prev.track and self.history.prev.track:exists()
                 local button = TextButton:create('<')
                 button.disabled = not enabled
                 if enabled then
@@ -51,7 +51,7 @@ function TrackToolSwitcher:create(...)
         },
         {
             proto = function()
-                local enabled = self.history.next and self.history.next.track:exists()
+                local enabled = self.history.next and self.history.next.track and self.history.next.track:exists()
                 local button = TextButton:create('>')
                 button.disabled = not enabled
                 if enabled then

@@ -24,6 +24,8 @@ end
 
 function Slider:onDrag()
     self:setValue(self.valueDown + (self.yDown - gfx.mouse_y)    / 100)
+    -- rea.logCount('drags')
+    self:repaint(true)
 end
 
 function Slider:onMouseWheel(mouse)

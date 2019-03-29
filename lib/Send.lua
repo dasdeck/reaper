@@ -60,6 +60,14 @@ function Send:isMuted()
     return reaper.BR_GetSetTrackSendInfo(self.track, self.cat, self.index, 'B_MUTE', false, 0) > 0
 end
 
+function Send:getVolume()
+    return reaper.GetTrackSendInfo_Value(self.track, self.cat, self.index, 'D_VOL')
+end
+
+function Send:setVolume(gain)
+    reaper.SetTrackSendInfo_Value(self.track, self.cat, self.index, 'D_VOL', gain)
+end
+
 function Send:isAudio()
     return self:getAudioIO() ~= -1
 end

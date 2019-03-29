@@ -76,15 +76,23 @@ function Graphics:drawImage(slot, x, y, scale)
 
 end
 
-function Graphics:drawText(text, x, y, w, h)
+function Graphics:drawText(text, x, y, w, h, just)
     self:loadColors()
     gfx.x = self.x + x
     gfx.y = self.y + y
 
-    gfx.drawstr(text, 1 | 4 | 256, gfx.x + w , gfx.y + h)
+    if just == nil then
+        just = 0
+    elseif just == 1 then
+        just = 1
+    elseif just == 2 then
+        just = 2
+    end
+
+    gfx.drawstr(text, just | 4 | 256, gfx.x + w , gfx.y + h)
 end
 
-function Graphics:drawFittedText(text, x, y, w, h, ellipes)
+function Graphics:drawFittedText(text, x, y, w, h, ellipes, just)
     ellipes = ellipes or '...'
 
     local elLen = gfx.measurestr(ellipes)
@@ -99,7 +107,7 @@ function Graphics:drawFittedText(text, x, y, w, h, ellipes)
         text = text .. ellipes
     end
 
-    self:drawText(text, x, y, w, h)
+    self:drawText(text, x, y, w, h, just)
 
 end
 

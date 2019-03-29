@@ -25,6 +25,7 @@ function TrackList:create(...)
 
     self.watchers:watch(Project.watch.project, updater)
     self.watchers:watch(Track.watch.selectedTracks, updater)
+    self.watchers:watch(Track.watch.focusedTrack, updater)
 
     TrackListFilter.onChange = updater
 
@@ -50,12 +51,16 @@ function TrackList:getData()
         local opt = {
             proto = TrackListComp,
             args = track,
-            size = 20
+            -- size = 20
         }
 
-        if TrackListFilter.inst.getToggleState() and (track:getInstrument() or track:getFx('DrumRack')) then
+        local type = track:getType()
+
+        if TrackListFilter.all.getToggleState() then
             table.insert(tracks, opt)
-        elseif TrackListFilter.aux.getToggleState() then
+        elseif TrackListFilter.inst.getToggleState() and (track:getInstrument() or track:getFx('DrumRack')) then
+            table.insert(tracks, opt)
+        elseif TrackListFilter[type] and TrackListFilter[type].getToggleState()then
             table.insert(tracks, opt)
         end
     end)

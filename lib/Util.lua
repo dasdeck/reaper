@@ -103,7 +103,15 @@ function class(...)
     return class
 end
 
+local log2 = math.log(2)
+local log10 = math.log(10)
 
+function linToDB(x)
+    return math.log(x) * 20 / log10
+end
+function dbToLin(x)
+    return 10 ^ (x / 20)
+end
 
 function writeFile(path, content)
     local file, err = io.open(path, "w")

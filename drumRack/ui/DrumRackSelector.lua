@@ -55,8 +55,15 @@ end
 
 function DrumRackSelector:setDrumRack(rack)
     if self.drumrack then self.drumrack:delete() end
-    self.drumrack = rack and self:addChildComponent(DrumRackUI:create(rack)) or nil
+    self.drumrack = nil
+    if rack then
+        self.drumrack = self:addChildComponent(DrumRackUI:create(rack))
+        if rack:getFx() then
+            rack:getFx():focus()
+            rack:setSelectedPad(0)
+        end
 
+    end
     self.button:setVisible(not self.drumrack)
     self:repaint()
 

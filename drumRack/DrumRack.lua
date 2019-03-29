@@ -47,6 +47,7 @@ function DrumRack.init(track)
     track:setName(track:getName() or 'drumrack')
     track:setValue('toParent', false)
     track:getFx(DrumRack.fxName, true)
+    track:setColor(colors.instrument)
 
     local rack = DrumRack:create(track)
     rack:setSelectedPad(1)
@@ -146,6 +147,10 @@ function DrumRack:getAllTracks(includeMidi)
     end
 
     return tracks
+end
+
+function DrumRack:samplerIsOpen()
+
 end
 
 function DrumRack:setSelectedPad(index)

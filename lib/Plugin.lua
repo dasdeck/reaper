@@ -138,7 +138,8 @@ function Plugin:remove()
 end
 
 function Plugin:open(show)
-    reaper.TrackFX_SetOpen(self.track.track, self.index, show == nil and true or show)
+    reaper.TrackFX_Show(self.track.track, self.index, 3)
+    -- reaper.TrackFX_SetOpen(self.track.track, self.index, show == nil and true or show)
 end
 
 function Plugin:setParam(nameOrIndex, value)

@@ -76,10 +76,6 @@ function PadUI.showMenu(pad)
 
 end
 
-function PadUI:onDelete()
-    self.watcher:close()
-end
-
 function PadUI:create(pad)
 
     local self = Component:create()
@@ -87,9 +83,7 @@ function PadUI:create(pad)
     self.pad = pad
     self.rack = pad.rack
 
-
-    self.watcher = Watcher:create(function() return self.pad:getVelocity() end)
-    self.watcher:onChange(function() self:repaint() end)
+    self.watchers:watch(function() return self.pad:getVelocity() end, function() self:repaint() end)
 
     self.padButton = self:addChildComponent(TextButton:create(''))
 
@@ -155,10 +149,13 @@ function PadUI:create(pad)
 end
 
 
+
+
 function PadUI:onFilesDrop(files)
 
     rea.transaction('add layer', function()
         for v, k in pairs(files) do
+            local name = rea.prompt('name', _.last(k:split('/')))
             self.pad:addLayer(k)
         end
     end)

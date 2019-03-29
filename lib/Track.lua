@@ -13,7 +13,18 @@ local Track = class()
 
 -- static --
 
-Track.metaMatch = 'TRACK:({.*})'
+Track.typeMap = {
+    aux = 'aux',
+    bus = 'bus',
+    instrument = 'instrument',
+    audio = 'audio',
+    la = 'la'
+}
+
+Track.types = _.map(Track.typeMap, function(type) return type end)
+table.sort(Track.types)
+
+Track.metaMatch = 'TRACK:({.*}):META'
 
 function Track.getSelectedTrack()
     if nil == Track.selectedTrack then
@@ -28,6 +39,12 @@ function Track.onStateChange()
     _.forEach(Track.getAllTracks(), function(track)
         track:defer()
     end)
+end
+
+function Track.getMetaData()
+
+    local Project = require 'Project'
+
 end
 
 function Track.deferAll()
@@ -162,7 +179,7 @@ function Track:defer()
 end
 
 function Track:isAux()
-    return self:getName() and self:getName():startsWith('aux:')
+    return self:getType() == 'aux'
 end
 
 function Track:exists()
@@ -180,18 +197,30 @@ function Track:isMidiTrack()
     return not instrument
 end
 
-function Track:getMetaKey(extra)
-    return 'TRACK:'..self.guid..':META:' .. extra
+function Track:getMetaKey()
+    return 'TRACK:'..self.guid..':META'
+end
+
+function Track:getMetaData(extra)
+    local suc, res = reaper.GetProjExtState(0, 'D3CK', self:getMetaKey())
+    return suc > 0 and Collection:create(res) or {}
+end
+
+function Track:setMetaData(coll)
+    reaper.SetProjExtState(0, 'D3CK', self:getMetaKey(), tostring(coll))
+    return track
 end
 
 function Track:setMeta(name, value)
-    reaper.SetProjExtState(0, 'D3CK', self:getMetaKey(name), value)
+    local data = self:getMetaData()
+    data[name] = value
+    self:setMetaData(data)
     return self
 end
 
-function Track:getMeta(name, value)
-    local suc, res = reaper.GetProjExtState(0, 'D3CK', self:getMetaKey(name))
-    return suc > 0 and res or nil
+
+function Track:getMeta(name)
+    return self:getMetaData()[name]
 end
 
 function Track:isAudioTrack()
@@ -206,8 +235,9 @@ function Track:focus()
     return self
 end
 
-function Track:isFocused()
-    return reaper.GetMixerScroll() == self.track
+function Track:isFocused(slaves)
+    return slaves and _.some(self:getSlaves(), function(slave) return slave:isFocused(true) end)
+    or reaper.GetMixerScroll() == self.track
 end
 
 function Track:isSelected()
@@ -304,9 +334,17 @@ function Track:getInstrument()
     return inst >= 0 and Plugin:create(self, inst) or nil
 end
 
-function Track:remove()
+function Track:remove(slaves)
+
+    if slaves then
+        _.forEach(self:getSlaves(), function(slave)
+            slave:remove(slaves)
+        end)
+    end
+
     reaper.DeleteTrack(self.track)
     Track.trackMap[self.guid] = nil
+
     Track.deferAll()
 end
 
@@ -338,7 +376,7 @@ end
 
 function Track:setState(state)
     self.state = state
-    reaper.SetTrackStateChunk(self.track, state:__tostring(), false)
+    reaper.SetTrackStateChunk(self.track, tostring(state), false)
     return self
 end
 
@@ -361,12 +399,6 @@ function Track:hasMedia()
     return reaper.CountTrackMediaItems(self.track) > 0
 end
 
-function Track:getOutput()
-    local toParent = self:getValue('toParent') > 0
-    return not toParent and _.some(self:getSends(), function(send)
-        return send:getMode() == 0 and send:getTargetTrack()
-    end)
-end
 
 function Track:isBusTrack()
 
@@ -386,7 +418,8 @@ end
 
 function Track:getLATracks()
     return _.map(self:getSends(), function(send)
-        return send:getMode() == 3 and send:getTargetTrack() or nil
+        local track = send:getTargetTrack()
+        return send:getMode() == 3 and track:getType() == Track.typeMap.la and track or nil
     end)
 end
 
@@ -399,7 +432,7 @@ function Track:createLATrack()
     local la = Track.insert(self:getIndex())
 
     la:setVisibility(false, true)
-            :routeTo(self:getOutput())
+            :setOutput(self:getOutput())
             :setColor(colors.la)
             :setIcon(self:getIcon() or 'fx.png')
             :setName(self:getName() .. ':la')
@@ -416,6 +449,7 @@ function Track:isSlave()
 end
 
 function Track:getSlaves()
+    return self:getLATracks()
 end
 
 function Track:getMaster()
@@ -456,18 +490,37 @@ function Track:setColor(c)
     return self
 end
 
-function Track:isRoutedTo(target)
-
+function Track:getOutput()
+    local toParent = self:getValue('toParent') > 0
+    return not toParent and _.some(self:getSends(), function(send)
+        return send:getMode() == 0 and send:getTargetTrack()
+    end) or nil
 end
 
-function Track:routeTo(target)
-    if not target then
-        self:setValue('toParent', true)
-    else
-        if not self:sendsTo(target) then
-            self:createSend(target, true)
+
+function Track:setOutput(target, la)
+    local current = self:getOutput()
+
+    if target ~= current then
+
+        if la then
+            _.forEach(self:getLATracks(), function(la)
+                if la:getOutput() == la then
+                    la:setOutput(target, true)
+                end
+            end)
+        end
+
+        if not target then
+            self:setValue('toParent', true)
+        else
+            if not self:sendsTo(target) then
+                self:createSend(target, true)
+            end
         end
     end
+
+
     return self
 end
 
@@ -539,7 +592,9 @@ function Track:setType(type)
 end
 
 function Track:getType()
-    return self:getMeta('type')
+    local type = self:getMeta('type')
+
+    return type or self:getInstrument() and Track.typeMap.instrument
 end
 
 function Track:autoName()

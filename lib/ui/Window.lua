@@ -100,10 +100,13 @@ function Window:show(options)
     options.persist = options.persist == nil and true or options.persist
 
     Window.currentWindow = self
-    _.assign(self, options)
+    self.options = options
+    -- _.assign(self, options)
 
-    local stored = State.global.get('window_' ..self.name, options, {'h','w', 'dock'})
+    local stored = State.global.get('window_' ..self.name, options, {'h','w', 'dock', 'docked'})
+    -- rea.logPin('a', stored)
     _.assign(self, stored)
+    -- rea.logPin('b', self.dock)
 
     gfx.init(self.name, self.w, self.h, self.dock)
 
@@ -152,8 +155,10 @@ function Window:updateWindow()
     end
 
     if self.options.persist then
-
-        State.global.set('window_' .. self.name, _.pick(self, {'dock', 'docked'}))
+        local docks = _.pick(self, {'dock', 'docked'})
+        -- rea.logPin('dock', self.dock)
+        -- rea.logPin('docks', docks)
+        State.global.set('window_' .. self.name, docks)
         State.global.set('window_' .. self.name .. '_h', gfx.h)
         State.global.set('window_' .. self.name .. '_w', gfx.w)
 
@@ -236,6 +241,9 @@ function Window:evalMouse()
 
     local allComps = self.component:getAllChildren()
 
+    self.lastUpTime = mouseUp and mouse.time or self.lastUpTime
+    self.lastDownTime = mouseDown and mouse.time or self.lastDownTime
+
     if mouseMoved or capChanged or isFileDrop or wheelMove then
 
         local consumed = false
@@ -267,7 +275,7 @@ function Window:evalMouse()
 
                 if mouseDown then
                     comp.mouse.down = mouse.time
-                    if comp.onDblClick and comp.mouse.up and (mouse.time - comp.mouse.up < 0.1) then
+                    if comp.onDblClick and self.lastUpTime and (mouse.time - self.lastUpTime < 0.35) then
                         comp:onDblClick(mouse)
                     end
                     if comp.onMouseDown then comp:onMouseDown(mouse) end
@@ -277,12 +285,11 @@ function Window:evalMouse()
 
                     if comp.onMouseUp then comp:onMouseUp(mouse) end
                     if comp.mouse.down and comp.onClick then
-                        -- rea.log('click')
                         comp:onClick(mouse)
                     end
                     if comp.onDrop and Component.dragging then comp:onDrop(mouse) end
 
-                    comp.mouse.up = mouse.time
+                    comp.mouse.up = true
                     comp.mouse.down = false
                 end
 
@@ -308,10 +315,13 @@ function Window:evalMouse()
 
     if not self.mouse:isButtonDown() then
         _.forEach(allComps, function(child)
-            if child.mouse.down then rea.log('up') end
+            -- if child.mouse.down then rea.log('up') end
             child.mouse.down = false
         end)
-        Component.dragging = nil
+        if Component.dragging then
+            self.repaint = self.repaint or true
+            Component.dragging = nil
+        end
     end
 
 end
@@ -325,6 +335,10 @@ function Window:defer()
 
     if rea.refreshUI(true) then
         self.paint = true
+    end
+
+    if self.onDefer then
+        self:onDefer()
     end
 
 end
