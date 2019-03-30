@@ -70,7 +70,7 @@ function FXButton:create(fxSource)
     --     return not fxSource:getFx()
     -- end
     self.lock.onButtonClick = function(s, mouse)
-        self.text.onClick(s, mouse)
+        self.text.onButtonClick(s, mouse)
         if fxSource:getFx() then
             fxSource:getFx():setLocked(not fxSource:getFx():isLocked())
         end

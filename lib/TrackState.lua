@@ -89,6 +89,11 @@ function TrackState:__tostring()
     return self.text
 end
 
+function TrackState:withAutoRecArm(enabled)
+    local value = tostring(enabled and 1 or 0)
+    return TrackState:create(self.text:gsub('AUTO_RECARM %d', 'AUTO_RECARM ' .. value))
+end
+
 function TrackState:withoutAuxRec(index)
     local rec = index and tostring(index) or '%d'
     return TrackState:create(self.text:gsub('AUXRECV '..rec..' (.-)\n', ''))

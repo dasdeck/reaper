@@ -29,7 +29,7 @@ function Project.getStates()
         local trackId = key:match(Track.metaMatch)
         local track = Track.getTrackMap()[trackId]
         return not track or not track:exists()
-    end)
+    end, true)
 
     return res
 end

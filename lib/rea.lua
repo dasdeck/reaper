@@ -223,7 +223,7 @@ local function transaction(name, action)
     local res = action()
     if res ~= false then
         reaper.Undo_EndBlock(name, -1)
-        reaper.SetCursorContext(1, 0)
+        -- reaper.SetCursorContext(1, 0)
     end
 end
 

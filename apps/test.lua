@@ -16,17 +16,11 @@ local Project = require 'Project'
 local Track = require 'Track'
 local paths = require 'paths'
 
-local track = Track:getSelectedTrack()
-
-if track then
-  local state = track:getState(true)
-
-  rea.log(state)
-  local newState = paths.binDir:childFile('state'):getContent()
-  track:setState(newState)
-  rea.log(newState)
-
-  local state = track:getState(true)
-
-  rea.log(state)
+function test()
+  local context = {reaper.get_action_context()}
+  
+  
+  rea.logPin('context', context)
+  reaper.defer(test)
 end
+reaper.defer(test)

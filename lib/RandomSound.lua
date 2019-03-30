@@ -1,100 +1,126 @@
 
-local ini = require 'ini'
+
 local _ = require '_'
 local Menu = require 'Menu'
 local rea = require 'rea'
 local TextButton = require 'TextButton'
+local ButtonList = require 'ButtonList'
+local Label = require 'Label'
 local Component = require 'Component'
-
+local DataBase = require 'DataBase'
+local State = require 'State'
+local DataBaseEntryUI = require 'DataBaseEntryUI'
 local RandomSound = class()
 
-function RandomSound.getDataBases()
-    local reaperIni = ini.load(reaper.get_ini_file())
 
-    local basepath = reaper.GetResourcePath() .. '/MediaDB/'
-    local favorite = 'ShortcutT'
-    local res = {}
+RandomSound = class(Component)
 
-    _.forEach(reaperIni.reaper_sexplorer, function(value, key)
-        if key:startsWith(favorite) then
 
-            local index = key:sub(1 + favorite:len())
-            filenameKey = 'Shortcut' .. index
-            local filename = reaperIni.reaper_sexplorer[filenameKey]
 
-            table.insert(res, {name = value, filename = basepath .. filename})
-        end
-    end)
+function RandomSound:create(text)
 
-    return res
-end
-
-function RandomSound.chooseDatabase()
-
-    local menu = Menu:create()
-    _.forEach(RandomSound.getDataBases(), function(value)
-        menu:addItem(value.name, function() return value.filename, value.name end )
-    end)
-
-    return RandomSound.readDBFile(menu:show())
-
-end
-
-function RandomSound.readDBFile(fileName)
-
-    if not fileName then return end
-
-    local file = io.open(fileName, 'r')
-    local res = {}
-    local entry = nil
-    if file then
-        for line in file:lines() do
-
-            if line:startsWith('FILE') then
-                local path = line:sub(tostring('FILE'):len() + 2):split(' ', '"')[1]:unquote()
-                entry = {
-                    path = path,
-                }
-                table.insert(res, entry)
-            elseif line:startsWith('DATA') then
-                entry.data = {}
-                local dataString = line:sub(tostring('DATA'):len() + 2 ):trim()
-                local data = dataString:split(' ', '"')
-                _.forEach(data, function(val, key)
-                    local keyVal = val:unquote():split(':')
-                    local key = keyVal[1]:trim()
-                    local val = keyVal[2] and keyVal[2]:trim() or ''
-
-                    entry.data[key] = val
-                end)
-            end
-        end
+    local self = Component:create()
+    self.next = self:addChildComponent(TextButton:create('>'))
+    self.next.onButtonClick = function(s, mouse)
+        self:randomize()
     end
 
-    return res
+    self.filter = self:addChildComponent(Label:create(State.global.get('randomsound_filter', '(all)')))
+    self.filter.onClick = function(s, mouse)
 
-end
+        if mouse:wasRightButtonDown() then
+            local menu = Menu:create()
+            menu:addItem('db', self:chooseDatabase())
+            menu:show()
+        elseif mouse:isAltKeyDown() then
+            self.filter.content.text = ''
+        else
+            local newFilter = rea.prompt('filter', self.filter.content.text)
+            if newFilter then
+                self.filter.content.text = newFilter
+                self:randomize()
+            end
+        end
+        self.filter.content:repaint()
+        State.global.set('randomsound_filter', self.filter.content.text)
+    end
 
-RandomSound.Button = class(TextButton)
+    self.historyList = self:addChildComponent(ButtonList:create())
+    self.historyList.getData = function()
+        local history = self.history
+        local entries = {}
+        while history and #entries < 10 do
+            table.insert(entries, history.entry)
+            history = history.prev
+        end
+        return _.map(entries, function(entry)
+            return {
+                args = _.last(entry.path:split('/')),
+                getToggleState = function()
+                    return entry == self.current
+                end,
+                onClick = function()
+                    self:setCurrent(entry)
+                end
+            }
+        end)
+    end
 
-function RandomSound.Button:create(text)
-
-    local self = TextButton:create(text or '?')
-    setmetatable(self, RandomSound.Button)
+    self.db = DataBase.getDefaultDataBase()
+    setmetatable(self, RandomSound)
     return self
 
 end
 
-function RandomSound.Button:onButtonClick(mouse)
+function RandomSound:resized()
+    local h = 20
+    self.filter:setBounds(0, 0, self.w - h, h)
+    self.next:setBounds(self.filter:getRight(),0,h, h)
+    self.historyList:setBounds(0,self.next:getBottom(), self.w, self.historyList.h)
 
-    if not self.db or mouse:wasRightButtonDown() then
-        self.db = RandomSound.chooseDatabase()
+    if self.editor then
+        self.editor:setBounds(0, self.h - h*4, self.w, h*4)
     end
+end
+
+function RandomSound:chooseDatabase(menu)
+
+    menu = menu or Menu:create()
+    _.forEach(DataBase.getDataBases(), function(value)
+        menu:addItem(value.name, {
+            checked = self.db and self.db.path,
+            callback = function()
+                DataBase.setDefaultDataBase(value.filename)
+                self.db = DataBase:create(value.filename)
+            end})
+    end)
+
+    return menu
+
+end
+
+function RandomSound:setCurrent(entry, play)
+    play = play == nil and true or play
+    self.current = entry
+    self.historyList:updateList()
+    reaper.OpenMediaExplorer(entry.path, play)
+    if self.current then
+        if self.editor then self.editor:delete() end
+        self.editor = self:addChildComponent(DataBaseEntryUI:create(self.current))
+    end
+end
+
+
+
+
+function RandomSound:randomize()
 
     if self.db then
-        local index = math.random(1, _.size(self.db))
-        local entry = self.db[index]
-        reaper.OpenMediaExplorer(entry.path, true)
+        local entry = self.db:getRandomEntry(self.filter.content.text)
+        if entry then
+            self.history = {prev = self.history, entry = entry}
+            self:setCurrent(entry, true)
+        end
     end
 
 end

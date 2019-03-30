@@ -7,4 +7,5 @@ addScope('drumRack')
 local TrackList = require 'TrackList'
 local WindowApp = require 'WindowApp'
 
-WindowApp:create('tracklist', TrackList:create(0,0, 200, 600)):start()
+WindowApp:create('tracklist', TrackList:create(0,0, 200, 600)):start({
+profile = false})

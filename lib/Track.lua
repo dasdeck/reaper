@@ -66,8 +66,8 @@ function Track.getTrackMap()
     return Track.trackMap
 end
 
-function Track.getFocusedTrack()
-    if nil == Track.focusedTrack then
+function Track.getFocusedTrack(live)
+    if nil == Track.focusedTrack or live then
         local track = reaper.GetMixerScroll()
         Track.focusedTrack = track and Track:create(track)
     end
@@ -88,8 +88,11 @@ function Track.getSelectedTracks(live)
     return Track.selectedTracks
 end
 
-function Track.setSelectedTracks(tracks)
-    _.forEach(Track.getAllTracks(), function(track) track:setSelected(false) end)
+function Track.setSelectedTracks(tracks, add)
+    if not add then
+        _.forEach(Track.getAllTracks(), function(track) track:setSelected(false) end)
+    end
+
     _.forEach(tracks, function(track)
         if track:exists() then
             track:setSelected(true)
@@ -165,6 +168,10 @@ function Track:onChange(listener)
     table.insert(self.listeners, listener)
 end
 
+function Track:setAutoRecArm(enabled)
+    self:setState(self:getState():withAutoRecArm(enabled))
+end
+
 function Track:triggerChange(message)
     _.forEach(self.listeners, function(listener)
         listener(message)
@@ -235,12 +242,14 @@ end
 function Track:touch()
 
     rea.log('touch' .. tostring(self))
-    local selection = Track:getSelectedTracks()
-    self:setSelected()
+    local selection = Track.getSelectedTracks()
+    self:setSelected(1)
+    Track.deferAll()
+    rea.log(Track.getSelectedTracks().data)
     reaper.Main_OnCommand(40914, 0) -- set as last touch
-    Track.setSelectedTracks(selection)
+    Track.setSelectedTracks(selection, true)
 
-    reaper.CSurf_OnTrackSelection(self.track)
+    --reaper.CSurf_OnTrackSelection(self.track)
 
 end
 
@@ -271,8 +280,12 @@ end
 function Track:setSelected(select)
     if select == 1 then
         reaper.SetOnlyTrackSelected(self.track)
-    else
-        reaper.SetTrackSelected(self.track, select == nil and true or select)
+        return self
+    end
+
+    select = select == nil and true or select
+    if select ~= self:isSelected() then
+        reaper.SetTrackSelected(self.track, select)
     end
     return self
 end
@@ -287,6 +300,8 @@ Track.stringMap = {
 }
 
 Track.valMap = {
+    vol = 'D_VOL',
+    pan = 'D_PAN',
     arm = 'I_RECARM',
     toParent = 'B_MAINSEND',
     lock = 'C_LOCK',
@@ -295,6 +310,14 @@ Track.valMap = {
     mute = 'B_MUTE',
     solo = 'I_SOLO'
 }
+
+function Track:getPan()
+    return self:getValue('pan')
+end
+
+function Track:setPan(volume)
+    self:setValue('pan', math.max(-1, math.min(1,volume)))
+end
 
 function Track:getDefaultName()
     return 'Track ' .. tostring(self:getIndex())
@@ -311,6 +334,14 @@ function Track:setLocked(locked)
     self:setState(self:getState():withLocking(locked))
 
     return self
+end
+
+function Track:getVolume()
+    return linToDB(self:getValue('vol'))
+end
+
+function Track:setVolume(volume)
+    self:setValue('vol', dbToLin(volume))
 end
 
 function Track:isLocked()

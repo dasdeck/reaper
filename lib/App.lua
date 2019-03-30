@@ -4,6 +4,7 @@ local Plugin = require 'Plugin'
 local Watcher = require 'Watcher'
 local Profiler = require 'Profiler'
 local rea = require 'rea'
+local _ = require '_'
 
 local App = class()
 
@@ -66,17 +67,24 @@ function App:start(options)
         options.debug = true
 
         local def = self.defer
+
         profiler = Profiler:create({'gfx', 'reaper'})
 
         self.defer = function()
 
             local log = profiler:run(function() def(self) end, 1, options.profile == 'defer')
 
+
+            local rank = _.map(log.calls.methods, function(meth) return meth end)
+            table.sort(rank, function (a,b)
+                return a.time > b.time
+            end)
+
             if self.getProfileData then
                 log.data = self:getProfileData()
             end
 
-            rea.logPin('profile', log)
+            rea.logPin('profile', rank)
 
         end
     end

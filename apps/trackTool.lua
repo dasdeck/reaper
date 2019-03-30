@@ -16,5 +16,7 @@ if not TrackToolJSFX:exists() then
   TrackToolJSFX:setContent(paths.scriptDir:childFile('jsfx/TrackTool'):getContent())
   reaper.MB('plugin installed, restart script', 'restart', 0)
 else
-  WindowApp:create('tracktool', TrackToolSwitcher:create(0,0,200, 600)):start()
+  WindowApp:create('tracktool', TrackToolSwitcher:create(0,0,200, 600)):start({
+  profile = false
+  })
 end

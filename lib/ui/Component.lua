@@ -45,7 +45,7 @@ function Component:create(x, y, w, h)
     return self
 end
 
-function Component:getSlot(name, create)
+function Component:getSlot(name, create, error)
 
     if not self.uislots[name] then
 
@@ -63,7 +63,12 @@ function Component:getSlot(name, create)
                 end
             end)
 
-            assert(slot, 'out of image slots')
+            if error then
+                error()
+                return self:getSlot(name, create)
+            else
+                assert(slot, 'out of image slots')
+            end
         end
 
         self.uislots[name] = slot
@@ -87,15 +92,14 @@ function Component:triggerDeletion()
 
     self.watchers:clear()
 
-    self:freeSlot()
+    self:freeSlots()
     if self.onDelete then self:onDelete() end
     _.forEach(self.children, function(comp)
         comp:triggerDeletion()
     end)
 end
 
-
-function Component:freeSlot()
+function Component:freeSlots()
     _.forEach(self.uislots, function(slot)
         Component.slots[slot] = false
     end)

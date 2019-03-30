@@ -10,20 +10,20 @@ local Instrument = require 'Instrument'
 local _ = require '_'
 
 return {
-    {
-        args = '+inst',
-        onClick = function()
-            Instrument.bang()
-        end
-    },
-    {
-        args = '+drm',
-        onClick = function(self, mouse)
-            DrumRackUI.drumRackButton(mouse)
-        end
-    },
+    -- {
+    --     args = '+inst',
+    --     onClick = function()
+    --         Instrument.bang()
+    --     end
+    -- },
+    -- {
+    --     args = '+drm',
+    --     onClick = function(self, mouse)
+    --         DrumRackUI.drumRackButton(mouse)
+    --     end
+    -- },
     {
         args = '?',
-        proto = RandomSound.Button
+        proto = RandomSound
     },
 }

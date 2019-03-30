@@ -23,7 +23,19 @@ function Image:create(file, scale, alpha)
     Image.images[file] = Image.images[file] + 1
 
     self.file = file
-    self.imgSlot = self:getSlot(file, gfx.loadimg)
+    self.imgSlot = self:getSlot(file, gfx.loadimg, function()
+        _.forEach(Image.images, function(count, file)
+            assert(count >= 0)
+            if count == 0 then
+                _.forEach(Component.slots, function(name, index)
+                    if name == file then
+                        Component.slots[index] = false
+                    end
+                end)
+            end
+        end)
+    end)
+
     self.uislots[file] = nil
 
     local w, h = gfx.getimgdim(self.imgSlot)
@@ -41,9 +53,9 @@ function Image:onDelete()
 
     Image.images[file] = Image.images[file] - 1
 
-    if Image.images[file] == 0 then
-        Component.slots[self.imgSlot] = false
-    end
+    -- if Image.images[file] == 0 then
+    --     Component.slots[self.imgSlot] = false
+    -- end
 
     -- assert(Image.images[file] >= 0, 'image tracking failed')
 end

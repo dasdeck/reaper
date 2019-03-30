@@ -9,6 +9,7 @@ function Profiler:create(libs)
     local self = {
         libs = libs
     }
+    Profiler.instance = self
     setmetatable(self, Profiler)
 
     self.unwrappedLibs = _.map(libs, function(name)
@@ -27,7 +28,8 @@ function Profiler:create(libs)
                     if not meth then
                         meth = {
                             time = 0,
-                            calls = 0
+                            calls = 0,
+                            name = fullname
                         }
                         self.profile.methods[fullname] = meth
                     end
@@ -36,10 +38,10 @@ function Profiler:create(libs)
                     local res = {member(...)}
 
                     meth.calls = meth.calls + 1
-                    meth.time = meth.time + timer() - pre
+                    meth.time = meth.time + (timer() - pre) * 1000
 
                     meth.__tostring = function(self)
-                        return tostring(self.calls) .. ', ' .. tostring(self.time)
+                        return fullname .. ':' .. tostring(self.calls) .. ', ' .. tostring(self.time)
                     end
 
                     return table.unpack(res)
@@ -70,15 +72,19 @@ function Profiler:wrap()
     end)
 end
 
+function Profiler:reset()
+    self.profile = {
+        totalCalls = 0,
+        methods = {}
+    }
+end
+
 function Profiler:run(func, loop, reset)
 
     loop = loop or 100000
 
     if reset or not self.profile then
-        self.profile = {
-            totalCalls = 0,
-            methods = {}
-        }
+        self:reset()
     end
 
     self:wrap()

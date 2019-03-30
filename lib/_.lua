@@ -96,10 +96,19 @@ local function indexOf(data, needle)
     end)
 end
 
-local function filter(data, callback)
+local function filter(data, callback, array)
+
     local res = {}
-    for k,v in pairs(data or {}) do
-        if callback(v, k) then res[k] = v end
+    if array then
+        forEach(data, function(row, key)
+            if callback(row, key) then
+                table.insert(res, row)
+            end
+        end)
+    else
+        for k,v in pairs(data or {}) do
+            if callback(v, k) then res[k] = v end
+        end
     end
     return res
 end

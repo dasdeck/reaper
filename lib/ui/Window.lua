@@ -3,6 +3,7 @@ local Component = require 'Component'
 local State = require 'State'
 local Track = require 'Track'
 local Plugin = require 'Plugin'
+local Profiler = require 'Profiler'
 local Project = require 'Project'
 local Watcher = require 'Watcher'
 local Graphics = require 'Graphics'
@@ -100,7 +101,7 @@ function Window:show(options)
     options.persist = options.persist == nil and true or options.persist
 
     Window.currentWindow = self
-    self.options = options
+    _.assign(self.options, options)
     -- _.assign(self, options)
 
     local stored = State.global.get('window_' ..self.name, options, {'h','w', 'dock', 'docked'})
@@ -143,18 +144,20 @@ end
 
 function Window:updateWindow()
 
-    if  self.component.h ~= gfx.h or self.component.w ~= gfx.w then
+    local sizeChanged = self.component.h ~= gfx.h or self.component.w ~= gfx.w
+    if sizeChanged then
         self.component:setSize(gfx.w, gfx.h)
     end
 
     local dock = gfx.dock(-1)
 
-    if dock ~= self.dock then
+    local dockChanged = dock ~= self.dock
+    if dockChanged then
         self.docked = dock > 0
         self.dock = self.docked and dock or self.dock
     end
 
-    if self.options.persist then
+    if self.options.persist and (dockChanged or sizeChanged) then
         local docks = _.pick(self, {'dock', 'docked'})
         -- rea.logPin('dock', self.dock)
         -- rea.logPin('docks', docks)
@@ -188,11 +191,15 @@ function Window:evalKeyboard()
     else
         while key > 0 do
             if self.options.debug then
-                rea.log('keycode:' .. tostring(key))
+                rea.logPin('lastkey', 'keycode:' .. tostring(key))
             end
 
             if key == 324 and self.mouse:isShiftKeyDown() then
                 self:toggleDock()
+            end
+
+            if Profiler.instance and key == 336 and self.mouse:isShiftKeyDown() then
+                Profiler.instance:reset()
             end
 
             _.forEach(self.component:getAllChildren(), function(comp)

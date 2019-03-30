@@ -193,6 +193,7 @@ function PadUI:onDrop(mouse)
                 local menu = Menu:create()
                 menu:addItem('flip pads', function() self.pad:flipPad(pad) end, 'flip pad')
                 menu:addItem('copy pad', function() self.pad:copyPad(pad) end, 'copy pad')
+
                 menu:show()
             else
                 rea.transaction('flip pads', function()

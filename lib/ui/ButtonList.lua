@@ -11,7 +11,7 @@ function ButtonList:create(data, layout, proto, ...)
 
     local self = Component:create(...)
     self.layout = layout
-    self.data = data
+    self.data = data or {}
     self.proto = proto or TextButton
     setmetatable(self, ButtonList)
     self:updateList()

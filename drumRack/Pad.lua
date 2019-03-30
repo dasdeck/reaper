@@ -226,6 +226,8 @@ function Pad:addTrack(newTrack)
         newTrack:focus()
         newTrack:setType('layer')
         newTrack:autoName()
+        newTrack:setAutoRecArm(false)
+        newTrack:setValue('arm', 0)
 
         self:refreshConnections()
     end
