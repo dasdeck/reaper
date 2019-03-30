@@ -20,6 +20,11 @@ function string:escaped()
     return self:gsub("([^%w])", "%%%1")
 end
 
+function string:quote(char)
+    char = char or '"'
+    return char .. self .. char
+end
+
 function string:forEachChar(callback)
     for i=1, #self do
         if callback(self:byte(i), i) == false then return end

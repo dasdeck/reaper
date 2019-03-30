@@ -7,6 +7,8 @@ local Project = require 'Project'
 local FXList = require 'FXList'
 local Menu = require 'Menu'
 local Aux = require 'Aux'
+local Bus = require 'Bus'
+local La = require 'La'
 local AuxUI = require 'AuxUI'
 
 local colors = require 'colors'
@@ -22,38 +24,48 @@ function TrackTool:create(track)
     self.track = track
 
     self.watchers:watch(Project.watch.project, function()
-        local current = track:getOutput()
-        self.outout.color = current and current:getColor() or colors.default
+        self.currentOutput = track:getOutput()
+        self.outout.color = self.currentOutput and self.currentOutput:getColor() or colors.default
         self:update()
     end)
 
     self.outout = self:addChildComponent(TextButton:create('output'))
-    local current = track:getOutput()
-    self.outout.color = current and current:getColor() or self.outout.color
+    self.currentOutput = track:getOutput()
+    self.outout.color = self.currentOutput and self.currentOutput:getColor() or self.outout.color
     self.outout.onClick = function(s, mouse)
-        local menu = Menu:create()
-        local busMenu = Menu:create()
-        _.forEach(Track.getAllTracks(), function(otherTrack)
-            -- local checked = false
-            if otherTrack ~= track and otherTrack:isBus() then
-                busMenu:addItem(otherTrack:getName() or otherTrack:getDefaultName(), {
-                    callback = function()
-                        track:setOutput(otherTrack)
-                    end,
-                    checked = current == otherTrack,
-                    transaction = 'change routing'
 
-                })
-            end
-        end)
-        menu:addItem('bus', busMenu)
-        menu:addItem('master', {
-            checked = not current and track:getValue('toParent') > 0,
-            callback = function()
-                track:setOutput(nil)
-            end
-        }, 'change routing')
-        menu:show()
+        if mouse:wasRightButtonDown() then
+            local menu = Menu:create()
+            local busMenu = Menu:create()
+            _.forEach(Track.getAllTracks(), function(otherTrack)
+                -- local checked = false
+                if otherTrack ~= track and otherTrack:isBus() then
+                    busMenu:addItem(otherTrack:getName() or otherTrack:getDefaultName(), {
+                        callback = function()
+                            track:setOutput(otherTrack)
+                        end,
+                        checked = self.currentOutput == otherTrack,
+                        transaction = 'change routing'
+
+                    })
+                end
+
+            end)
+            busMenu:addSeperator()
+            busMenu:addItem('new bus', function()
+                track:setOutput(Bus.createBus(), true)
+            end, 'add bus')
+            menu:addItem('bus', busMenu)
+            menu:addItem('master', {
+                checked = not self.currentOutput and track:getValue('toParent') > 0,
+                callback = function()
+                    track:setOutput(nil)
+                end
+            }, 'change routing')
+            menu:show()
+        elseif self.currentOutput then
+            self.currentOutput :focus()
+        end
     end
     self.outout.getText = function(s, mouse)
         local output = track:getOutput()
@@ -89,7 +101,7 @@ function TrackTool:create(track)
             color = colors.la:fade(0.8),
             onClick = function()
                 rea.transaction('create LA track', function()
-                    self.track:createLATrack():focus()
+                    La.createLa(self.track):focus()
                 end)
             end
         })

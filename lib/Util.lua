@@ -185,7 +185,9 @@ function assertDebug(cond, text)
     if cond then assert(false, (text or '') .. debug.traceback()) end
 end
 
-
+function table.clone(org)
+    return {table.unpack(org)}
+  end
 
 
 function toboolean(val)

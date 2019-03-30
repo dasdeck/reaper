@@ -12,7 +12,7 @@ local _ = require '_'
 
 local TrackListComp = class(Component)
 
-function TrackListComp:create(track)
+function TrackListComp:create(track, hideChildren)
 
     local self = Component:create()
     setmetatable(self, TrackListComp)
@@ -31,7 +31,7 @@ function TrackListComp:create(track)
     end
 
     self.h = 20
-    if track:isFocused(true) then
+    if track:isFocused(true) and not hideChildren then
         self.slaves = self:addChildComponent(ButtonList:create({}))
         self.slaves.getData = function()
             return _.map(track:getSlaves(), function(slave)

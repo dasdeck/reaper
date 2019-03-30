@@ -17,7 +17,7 @@ function DataBaseEntryUI:create(entry)
 
     if not self.entry.rating then
 
-        if self.entry.data.u[1] and self.entry.data.u[1]:isNumber() then
+        if self.entry.data.u[1] and self.entry.data.u[1]:isNumeric() then
             self.entry.rating = tonumber(self.entry.data.u[1])
             self.entry.data.u[1] = nil
         else
@@ -34,6 +34,7 @@ function DataBaseEntryUI:create(entry)
             end,
             onClick = function(s, mouse)
                 entry.rating = (not mouse:isAltKeyDown()) and i or 0
+                entry.db:store()
                 self:repaint(true)
             end
         })

@@ -1,7 +1,6 @@
 Ideas:
     ☐ split mode drop keyboard ui
     ☐ pad-mode per zone
-    ☐
     ☐ bussing
         ☐ add bus in output selector
             ☐ move la to bus as well
@@ -47,4 +46,6 @@ Ideas:
         ☐ remove iconbutton in favour of general button
 
 Bugx:
+    ✔ fix solo mode (in place) @done(19-03-30 14:47)
+    ☐ hide sub tracks in * filter
     ☐ random sound if db file is missing

@@ -122,6 +122,7 @@ end
 function Track.insert(index)
     index = index == nil and reaper.CountTracks(0) or index
     reaper.InsertTrackAtIndex(index, true)
+    Track.deferAll()
     return Track.get(index)
 end
 
@@ -241,11 +242,11 @@ end
 
 function Track:touch()
 
-    rea.log('touch' .. tostring(self))
+    -- rea.log('touch' .. tostring(self))
     local selection = Track.getSelectedTracks()
     self:setSelected(1)
     Track.deferAll()
-    rea.log(Track.getSelectedTracks().data)
+    -- rea.log(Track.getSelectedTracks().data)
     reaper.Main_OnCommand(40914, 0) -- set as last touch
     Track.setSelectedTracks(selection, true)
 
@@ -470,26 +471,6 @@ function Track:getLATracks()
     end)
 end
 
-function Track:createLATrack()
-
-    if not self:getName() then
-        self:setName(self:getDefaultName())
-    end
-
-    local la = Track.insert(self:getIndex())
-
-    la:setVisibility(false, true)
-            :setOutput(self:getOutput())
-            :setColor(colors.la)
-            :setIcon(self:getIcon() or 'fx.png')
-            :setName(self:getName() .. ':la')
-
-    self:createSend(la)
-                :setMidiBusIO(-1, -1)
-                :setMode(3)
-
-    return la
-end
 
 function Track:isSlave()
     return self:getName():includes(':')

@@ -49,8 +49,9 @@ function TrackList:getData()
      _.forEach(Track.getAllTracks(), function(track)
 
         local opt = {
-            proto = TrackListComp,
-            args = track,
+            proto = function()
+                return TrackListComp:create(track, TrackListFilter.all.getToggleState())
+            end
             -- size = 20
         }
 

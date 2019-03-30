@@ -1,4 +1,5 @@
 local State = require 'State'
+local File = require 'File'
 local _ = require '_'
 local ini = require 'ini'
 local rea = require 'rea'
@@ -37,15 +38,18 @@ end
 
 function DataBase:create(path)
     local self = {
+        paths = {},
         path = path
     }
+    self.file = File:create(path)
+
     setmetatable(self, DataBase)
-    self.db = self:readDBFile(path)
+    self.entries = self:readDBFile(path)
     return self
 end
 
 function DataBase:getRandomEntry(filter)
-    local entries = self.db
+    local entries = self.entries
     if filter and filter:len() > 0 then
         entries = _.filter(entries, function(entry)
             return entry.path:includes(filter)
@@ -60,9 +64,39 @@ function DataBase:getRandomEntry(filter)
     end
 end
 
+function DataBase:store()
+    local paths = _.join(_.map(self.paths, function(path)
+        return 'PATH "' .. path .. '"'
+    end), '\n')
+
+    local entries = _.join(_.map(self.entries, function(entry)
+        local file = 'FILE "' .. entry.path .. '" ' .. _.join(entry.sizes, ' ')
+        if entry.data then
+            file = file .. '\nDATA ' .. _.join(_.map(entry.data, function(data, key)
+                if key == 'u' and entry.rating then
+                    local tags = table.clone(data)
+                    table.insert(tags, 1, entry.rating)
+                    data = tags
+                end
+                local res = key .. ':' .. _.join(data, ' ')
+                if _.size(data) > 1 then
+                    -- assert(false, dump(data))
+                    return res:quote()
+                else
+                    return res
+                end
+            end), ' ')
+        end
+        return file
+    end), '\n')
+
+    -- rea.log(paths .. '\n' .. entries)
+    self.file:setContent(paths .. '\n' .. entries)
+end
+
 function DataBase:getTags()
     local tags = {}
-    _.forEach(self.db, function(entry)
+    _.forEach(self.entries, function(entry)
         if entry.data and entry.data.u then
             _.forEach(entry.data.u, function(tag, i)
                 if not tag:isNumeric() then
@@ -84,11 +118,16 @@ function DataBase:readDBFile(fileName)
     if file then
         for line in file:lines() do
 
-            if line:startsWith('FILE') then
-                local path = line:sub(tostring('FILE'):len() + 2):split(' ', '"')[1]:trim():unquote()
+            if line:startsWith('PATH') then
+                table.insert(self.paths, line:sub(tostring('PATH'):len() + 2):trim():unquote())
+            elseif line:startsWith('FILE') then
+                local parts = line:sub(tostring('FILE'):len() + 2):split(' ', '"')
+                local path = parts[1]:trim():unquote()
+                local sizes = {parts[2],parts[3],parts[4]}
                 entry = {
                     db = self,
                     path = path,
+                    sizes = sizes
                 }
                 table.insert(res, entry)
             elseif line:startsWith('DATA') then
