@@ -103,6 +103,10 @@ function class(...)
     return class
 end
 
+function instanceOf(obj, Class)
+    return obj and obj.__instanceOf and obj:__instanceOf(Class)
+end
+
 local log2 = math.log(2)
 local log10 = math.log(10)
 

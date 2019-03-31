@@ -97,6 +97,7 @@ end
 
 function Window:show(options)
 
+    self.open = true
     options = options or {}
     options.persist = options.persist == nil and true or options.persist
 
@@ -116,9 +117,11 @@ function Window:show(options)
 end
 
 function Window:close()
-    self.open = false
-    gfx.quit()
-    if self.onClose then self:onClose() end
+    if self.open then
+        self.open = false
+        gfx.quit()
+        if self.onClose then self:onClose() end
+    end
 end
 
 function Window:restoreState()
@@ -187,6 +190,7 @@ function Window:evalKeyboard()
     local key = gfx.getchar()
 
     if key == -1 then
+        rea.log('no chars left')
         self:close()
     else
         while key > 0 do
@@ -334,6 +338,8 @@ function Window:evalMouse()
 end
 
 function Window:defer()
+
+    if not self.open then return end
 
     self:updateWindow()
     self:render()

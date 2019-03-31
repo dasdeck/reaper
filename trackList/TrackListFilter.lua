@@ -1,10 +1,12 @@
 local State = require 'State'
 local Track = require 'Track'
+local PluginListApp = require 'PluginListApp'
 
 local Menu = require 'Menu'
 local Bus = require 'Bus'
 local _ = require '_'
 local colors = require 'colors'
+local rea = require 'rea'
 
 local TrackListFilters = {
     onChange = function() end
@@ -14,7 +16,15 @@ local options = {
     {
         color = colors.instrument,
         args = 'i',
-        key = 'inst'
+        key = 'inst',
+        onDblClick = function()
+            local pluginList = PluginListApp:create()
+            pluginList:show()
+            pluginList.onClick = function(a, val)
+                rea.log(val)
+                pluginList:close()
+            end
+        end
     },
     {
         color = colors.aux,
@@ -64,6 +74,7 @@ _.forEach(options, function(option)
     option.getToggleState = function(self)
         return State.global.get('tracklist_filter_' .. option.key, false) == 'true'
     end
+
     option.onClick = function(self, mouse)
         local state = true --not option.getToggleState()
         if option.onRightClick and mouse:wasRightButtonDown() then

@@ -144,7 +144,7 @@ local function getFiles(dir, filter)
     return files
 end
 
-local function getDir(dir, filter)
+local function getDirectories(dir, filter)
 
     local files = {}
 
@@ -335,6 +335,7 @@ local rea = {
     logError = logError,
     logCount = logCount,
     getFiles = getFiles,
+    getDirectories = getDirectories,
     profile = profile,
     logOnly = logOnly,
     refreshUI = refreshUI,

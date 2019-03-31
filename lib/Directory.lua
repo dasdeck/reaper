@@ -6,7 +6,13 @@ local Directory = class()
 
 function Directory:create(dir, filter)
 
-    assert(type(dir) == 'string')
+    if instanceOf(dir, Directory)then
+        dir = dir.dir
+        filter = dir.filter
+    end
+
+    local type = type(dir)
+    assert(type == 'string', type .. ':' .. dir)
 
     local self = {}
     setmetatable(self, Directory)
@@ -39,6 +45,10 @@ function Directory:findFiles(pattern)
         return (file:lower() == pattern:lower()) or file:lower():match(pattern:lower())
     end
     return rea.findFiles(self.dir, {}, filter)
+end
+
+function Directory:__tostring()
+    return self.dir
 end
 
 function Directory:listAsMenu(selected)
@@ -87,9 +97,12 @@ function Directory:indexOf(needle)
 end
 
 
-
 function Directory:getFiles()
     return rea.getFiles(self.dir, self.filter)
+end
+
+function Directory:getDirectories()
+    return rea.getDirectories(self.dir, self.filter)
 end
 
 return Directory

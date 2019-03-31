@@ -11,12 +11,16 @@ function Watcher.deferAll()
     end)
 end
 
-function Watcher:create(callback)
+function Watcher:create(callback, onstart)
     local self = {
         listeners = {},
         lastValue = nil,
         callback = callback
     }
+    if onstart == false then
+        self.lastValue = callback()
+    end
+
     setmetatable(self, Watcher)
     table.insert(Watcher.watchers, self)
 

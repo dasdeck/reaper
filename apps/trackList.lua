@@ -3,6 +3,7 @@ package.path = debug.getinfo(1,"S").source:match[[^@?(.*[\/])[^\/]-$]] .. "../?.
 require 'boot'
 addScope('trackList')
 addScope('drumRack')
+addScope('pluginList')
 
 local TrackList = require 'TrackList'
 local WindowApp = require 'WindowApp'

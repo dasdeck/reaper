@@ -2,32 +2,19 @@ package.path = debug.getinfo(1,"S").source:match[[^@?(.*[\/])[^\/]-$]] .. "../?.
 
 require 'boot'
 addScope('pluginList')
+local rea = require 'rea'
+local PluginListApp = require 'PluginListApp'
 
-local App = require 'App'
+-- rea.log(package)
+
 local Mem = require 'Mem'
 local Watcher = require 'Watcher'
 local Window = require 'Window'
-local PluginList = require 'PluginList'
-local rea = require 'rea'
+local PluginGrid = require 'PluginGrid'
+local paths = require 'paths'
 
-local name = 'pluginlist'
 
-local app = App:create('pluginlist')
 
-local pluginListMem = Mem:create(app.name)
-
-local window = Window:create(app.name, PluginList:create(0, 0, 170, 100))
-
-Watcher:create(function() return pluginListMem:get() end):onChange(function(state)
-
-  if state == 1 then
-    window:show()
-  else
-    window:close()
-
-  end
-end)
-
-pluginListMem:set(0, 1)
-
-app:start()
+PluginListApp:create():start({
+  profile = false
+})

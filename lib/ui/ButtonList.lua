@@ -64,6 +64,12 @@ function ButtonList:updateList()
             end
         end
 
+        if value.onDblClick then
+            comp.onDblClick = function()
+                value.onDblClick()
+            end
+        end
+
         if value.isDisabled then
             comp.isDisabled = function()
                 return value:isDisabled(value)
@@ -71,6 +77,9 @@ function ButtonList:updateList()
         end
 
         local CompSize = value.size or (comp[size] > 0 and comp[size]) or self.getDefaultCompSize()
+        if CompSize < 0 then
+            CompSize = -CompSize * self[size]
+        end
         self:addChildComponent(comp)
         self[size] = self[size] + CompSize
     end
@@ -120,7 +129,11 @@ function ButtonList:resized()
             child[dimI] = self[dimI]
             child[pI] = self[pI]
             child[p] = off
-            child[dim] = data and data.size or child[dim] > 0 and child[dim] or size
+            local s = data and data.size or child[dim] > 0 and child[dim] or size
+            if s < 0 then
+                s = -s * self[dim]
+            end
+            child[dim] = s
             off = off + child[dim]
             i = i + 1
             child:relayout()

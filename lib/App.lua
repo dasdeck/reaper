@@ -1,8 +1,12 @@
 local Window = require 'Window'
 local Track = require 'Track'
+local Mem = require 'Mem'
 local Plugin = require 'Plugin'
 local Watcher = require 'Watcher'
+local WatcherManager = require 'WatcherManager'
 local Profiler = require 'Profiler'
+local State = require 'State'
+
 local rea = require 'rea'
 local _ = require '_'
 
@@ -11,8 +15,12 @@ local App = class()
 function App:create(name)
     local self = {}
     assert(type(name) == 'string', 'app must have a name')
-
+    self.state = State:create(name)
+    State.app = self.state
+    self.mem = Mem:create(name)
+    Mem.app = self.mem
     self.name = name
+    self.watchers = WatcherManager:create()
 
     setmetatable(self, App)
 

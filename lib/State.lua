@@ -1,9 +1,9 @@
 local _ = require '_'
 local rea = require 'rea'
 
-local State = {}
-local cat = 'D3CK'
+local State = class()
 
+local cat = 'D3CK'
 
 State.global = {
 
@@ -30,5 +30,20 @@ State.global = {
         end
     end
 }
+
+function State:create(scope)
+    local self = {}
+    self.scope = scope
+    setmetatable(self, State)
+    return self
+end
+
+function State:set(key, value)
+    State.global.set(self.scope .. '_' .. key, value)
+end
+
+function State:get(key, default)
+    return State.global.get(self.scope .. '_' .. key, default)
+end
 
 return State

@@ -4,6 +4,7 @@ local Image = require 'Image'
 local Watcher = require 'Watcher'
 local Mem = require 'Mem'
 local TextBox = require 'TextBox'
+local State = require 'State'
 
 local paths = require 'paths'
 local _ = require '_'
@@ -12,11 +13,11 @@ local rea = require 'rea'
 local PluginList = class(Component)
 
 
-function PluginList:create(...)
+function PluginList:create(dir, ...)
 
-    Mem.write('pluginlist', 0, 1)
 
     local self = Component:create(...)
+    self.dir = dir
     setmetatable(self, PluginList)
     self:update()
     return self
@@ -24,28 +25,19 @@ end
 
 function PluginList:update()
 
-
-    local filter = self.filter and self.filter:remove()
-    if not filter then
-        filter = TextBox:create('vcl', 0,0, 200, 25)
-        filter.onChange = function()
-            self:update()
-        end
-    end
-
     self:deleteChildren()
 
-    self.filter = self:addChildComponent(filter)
-
-
-    local dir = paths.scriptDir:childDir('images', function(path)
-        return path:endsWith('.png')
-    end)
-
-    _.forEach(dir:findFiles(function(path)
-        return path:lower():endsWith('.png') and (self.filter:getText():len() == 0 or path:lower():match(self.filter:getText()))
+    _.forEach(self.dir:findFiles(function(path)
+        return path:lower():endsWith('.png')
     end), function(file)
-        self:addChildComponent(Image:create(file, 'fit'))
+        local child = self:addChildComponent(Image:create(file, 'fit'))
+
+        function child.onClick(mouse)
+            -- State.app:set('clicks', tostring(tonumber(State.global.get('pluginlist_clicks', 0))+1))
+            State.app:set('lastclicked', file:sub(self.dir.dir:len() + 1))
+            Mem.app:set(1, Mem.app:get(1) + 1)
+        end
+
     end)
 
     self:resized()
