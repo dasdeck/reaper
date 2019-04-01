@@ -127,7 +127,7 @@ function ButtonList:resized()
             local data = dataList[i]
 
             child[dimI] = self[dimI]
-            child[pI] = self[pI]
+            child[pI] = 0--self[pI]
             child[p] = off
             local s = data and data.size or child[dim] > 0 and child[dim] or size
             if s < 0 then

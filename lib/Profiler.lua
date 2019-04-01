@@ -1,19 +1,44 @@
+local _require = require
+local loadedLibs = {}
+
+require = function(lib)
+    local res = _require(lib)
+    if type(res) == 'table' and lib ~= 'Profiler' then
+        loadedLibs[lib] = res
+    end
+
+    return res
+end
+
 local _ = require '_'
 local rea = require 'rea'
 
 local timer = reaper.time_precise
 
-local Profiler = class()
+local Profiler = {}
+Profiler.__index = Profiler
+
+function Profiler.getLib(name)
+    return loadedLibs[name] or _G[name]
+end
 
 function Profiler:create(libs)
+
+    libs = libs or {}
+    libs = _.concat(libs, _.map(loadedLibs, function(e, name) return name end))
+
+    rea.log({
+        profiling = libs
+    })
     local self = {
         libs = libs
     }
+
     Profiler.instance = self
     setmetatable(self, Profiler)
 
     self.unwrappedLibs = _.map(libs, function(name)
-        return _G[name], name
+        return Profiler.getLib(name), name
     end)
 
     self.wrappedLibs = _.map(self.unwrappedLibs, function(lib, key)
@@ -24,42 +49,75 @@ function Profiler:create(libs)
 
                     self.profile.totalCalls = self.profile.totalCalls + 1
 
-                    local meth = self.profile.methods[fullname]
-                    if not meth then
-                        meth = {
-                            time = 0,
-                            calls = 0,
-                            name = fullname
-                        }
-                        self.profile.methods[fullname] = meth
-                    end
+                    local meth = self:getSlot(fullname)
+                    local methPlus = self:getSlot(self:getStackAddress() .. ':' .. fullname, meth.children)
+
+                    self.profile:push(meth)
 
                     local pre = timer()
+
                     local res = {member(...)}
 
-                    meth.calls = meth.calls + 1
-                    meth.time = meth.time + (timer() - pre) * 1000
+                    local t = (timer() - pre) * 1000
 
-                    meth.__tostring = function(self)
-                        return fullname .. ':' .. tostring(self.calls) .. ', ' .. tostring(self.time)
-                    end
+                    methPlus.calls = methPlus.calls + 1
+                    methPlus.time = methPlus.time + t
+
+                    meth.calls = meth.calls + 1
+                    meth.time = meth.time + t
+
+                    self.profile:pop()
 
                     return table.unpack(res)
                 end, name
-
+            else
+                return member
             end
         end), key
     end)
 
-    -- rea.logPin(dump(self.unwrappedLibs))
-
     return self
+end
+
+function Profiler:getStackAddress()
+    local pos = self.profile.tree
+
+    local res = ''
+
+    while pos do
+        res = (pos.method.name) .. '::' .. res
+        pos = pos.caller
+    end
+    return res
+end
+
+function Profiler:getSlot(name, parent)
+    parent = parent or self.profile.methods
+    local meth = parent[name]
+    if not meth then
+        meth = {
+            time = 0,
+            calls = 0,
+            name = name,
+            children = {},
+            __tostring = function(self)
+                local header = name .. ':' .. tostring(self.calls) .. ', ' .. tostring(self.time)
+                if _.size(self.children) > 0 then
+                    header = header .. '\n' .. _.join(_.map(self.children, function(child) return child.__tostring(child) end), '\n')
+                end
+                return header
+            end
+        }
+
+        parent[name] = meth
+    end
+    return meth
 end
 
 function Profiler:unWrap()
     _.forEach(self.unwrappedLibs, function(lib, libName)
         _.forEach(lib, function(func, name)
-            _G[libName][name] = func
+            Profiler.getLib(libName)[name] = func
         end)
     end)
 end
@@ -67,7 +125,7 @@ end
 function Profiler:wrap()
     _.forEach(self.wrappedLibs, function(lib, libName)
         _.forEach(lib, function(func, name)
-            _G[libName][name] = func
+            Profiler.getLib(libName)[name] = func
         end)
     end)
 end
@@ -75,7 +133,23 @@ end
 function Profiler:reset()
     self.profile = {
         totalCalls = 0,
-        methods = {}
+        methods = {},
+        tree = {
+            method = {name = 'ROOT'},
+            children = {}
+        },
+        push = function(self, method)
+            local next = {
+                caller = self.tree,
+                method = method,
+                children = {}
+            }
+            table.insert(self.tree.children, next)
+            self.tree = next
+        end,
+        pop = function(self)
+            self.tree = self.tree.caller
+        end
     }
 end
 
@@ -102,7 +176,6 @@ function Profiler:run(func, loop, reset)
         time = time * 1000,
         calls = self.profile
     }
-
 
 end
 

@@ -1,6 +1,7 @@
 local Component = require 'Component'
 local Track = require 'Track'
 local TrackToolControlls = require 'TrackToolControlls'
+local TrackStateButton = require 'TrackStateButton'
 local TextButton = require 'TextButton'
 local ButtonList = require 'ButtonList'
 local Project = require 'Project'
@@ -171,6 +172,9 @@ function TrackTool:create(track)
         menu:show()
     end
 
+    self.mute = self:addChildComponent(TrackStateButton:create(track, 'mute', 'M'))
+    self.solo = self:addChildComponent(TrackStateButton:create(track, 'solo', 'S'))
+
     self:update()
 
     return self
@@ -198,11 +202,14 @@ end
 
 function TrackTool:resized()
 
+    local h = 20
     self.controlls:setBounds(0, 0, self.w, 60)
-    self.outout:setBounds(0,self.controlls:getBottom(), self.w, 20)
+    self.outout:setBounds(0,self.controlls:getBottom(), self.w, h)
     self.la:setBounds(0,self.outout:getBottom(), self.w, self.la.h)
     self.aux:setBounds(0,self.la:getBottom(), self.w, self.aux.h)
     self.type:setBounds(0,self.aux:getBottom(), self.w, self.aux.h)
+    self.mute:setBounds(0,self.type:getBottom(), self.w/2, h)
+    self.solo:setBounds(self.mute:getRight(),self.type:getBottom(), self.w/2, h)
 end
 
 return TrackTool

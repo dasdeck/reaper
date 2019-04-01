@@ -1,11 +1,12 @@
+local Profiler = require 'Profiler'
 local Window = require 'Window'
 local Track = require 'Track'
 local Mem = require 'Mem'
 local Plugin = require 'Plugin'
 local Watcher = require 'Watcher'
 local WatcherManager = require 'WatcherManager'
-local Profiler = require 'Profiler'
 local State = require 'State'
+local json = require 'json'
 
 local rea = require 'rea'
 local _ = require '_'
@@ -16,15 +17,19 @@ function App:create(name)
     local self = {}
     assert(type(name) == 'string', 'app must have a name')
     self.state = State:create(name)
-    State.app = self.state
+
     self.mem = Mem:create(name)
-    Mem.app = self.mem
     self.name = name
     self.watchers = WatcherManager:create()
 
     setmetatable(self, App)
 
+
     return self
+end
+
+function App:delete()
+    self.watchers:clear()
 end
 
 function App:defer()
@@ -67,6 +72,8 @@ function App:start(options)
     self.running = true
     self.options = options
     App.current = self
+    State.app = self.state
+    Mem.app = self.mem
 
     if self.onStart then self:onStart() end
 
@@ -76,7 +83,7 @@ function App:start(options)
 
         local def = self.defer
 
-        profiler = Profiler:create({'gfx', 'reaper'})
+        local profiler = Profiler:create({'gfx', 'reaper'})
 
         self.defer = function()
 
@@ -88,11 +95,26 @@ function App:start(options)
                 return a.time > b.time
             end)
 
+            local limitedRank = {}
+            for i=1,5 do
+                local sub = _.map(rank[i].children, function(meth) return meth end)
+                table.sort(sub, function (a,b)
+                    return a.time > b.time
+                end)
+                rank[i].children = sub
+                table.insert(limitedRank, rank[i])
+            end
+
+
             if self.getProfileData then
                 log.data = self:getProfileData()
             end
 
-            rea.logPin('profile', rank)
+            rea.logPin('profile', limitedRank)
+
+            -- tree = log.calls.tree
+            -- local tree = dump(log.calls.tree)
+            -- rea.logPin('tree', )
 
         end
     end

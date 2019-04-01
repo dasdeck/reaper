@@ -52,12 +52,6 @@ function Image:onDelete()
     local file = self.file
 
     Image.images[file] = Image.images[file] - 1
-
-    -- if Image.images[file] == 0 then
-    --     Component.slots[self.imgSlot] = false
-    -- end
-
-    -- assert(Image.images[file] >= 0, 'image tracking failed')
 end
 
 function Image:paint(g)

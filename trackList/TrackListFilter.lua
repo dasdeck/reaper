@@ -18,18 +18,20 @@ local options = {
         args = 'i',
         key = 'inst',
         onDblClick = function()
-            local pluginList = PluginListApp:create()
-            pluginList:show()
-            pluginList.onClick = function(a, val)
-                rea.log(val)
-                pluginList:close()
-            end
+            PluginListApp.pick(PluginListApp.cats.instruments,function(res)
+                -- rea.log(res)
+            end)
         end
     },
     {
         color = colors.aux,
         args = 'a',
-        key = 'aux'
+        key = 'aux',
+        onDblClick = function()
+            PluginListApp.pick(PluginListApp.cats.effects,function(res)
+                -- rea.log(res)
+            end)
+        end
     },
     {
         color = colors.la,

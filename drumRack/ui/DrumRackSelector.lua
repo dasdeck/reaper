@@ -65,7 +65,7 @@ function DrumRackSelector:setDrumRack(rack)
 
     end
     self.button:setVisible(not self.drumrack)
-    self:repaint()
+    self:relayout()
 
 end
 

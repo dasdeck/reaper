@@ -16,24 +16,16 @@ end
 
 function Graphics:setFromComponent(comp, slot)
 
-    -- if self.usebuffers then
-
         self.dest = slot
         self.a = 1
         gfx.mode = 0
         gfx.setimgdim(self.dest, -1, -1)
         gfx.setimgdim(self.dest, comp.w, comp.h)
-        -- self.x = 0
-        -- self.y = 0
         gfx.dest = self.dest
-
-    -- end
-
-    -- comp:paint(self)
-
-    -- self.x = comp:getAbsoluteX()
-    -- self.y = comp:getAbsoluteY()
-    -- self.alphaOffset = comp:getAlpha()
+        gfx.x = 0
+        gfx.y = 0
+        self.x = 0
+        self.y = 0
 
 end
 

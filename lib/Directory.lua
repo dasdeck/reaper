@@ -51,6 +51,10 @@ function Directory:__tostring()
     return self.dir
 end
 
+function Directory:__eq(b)
+    return self.dir == b.dir
+end
+
 function Directory:listAsMenu(selected)
 
     local menu = Menu:create()

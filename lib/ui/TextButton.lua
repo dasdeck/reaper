@@ -7,11 +7,9 @@ local rea = require 'rea'
 local TextButton = class(Label)
 
 function TextButton:create(content, ...)
-
     local self = Label:create(content, ...)
     setmetatable(self, TextButton)
     return self
-
 end
 
 function TextButton:getToggleStateInt()
@@ -31,7 +29,6 @@ function TextButton:onMouseLeave()
 end
 
 function TextButton:getColor()
-
     local state = self:getToggleStateInt()
     local c = ((self:isMouseDown() or state > 0) and self.color)
                 or (self:isMouseOver() and self.color:fade(0.8))

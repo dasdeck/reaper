@@ -1,9 +1,9 @@
+local Profiler = require 'Profiler'
 local Mouse = require 'Mouse'
 local Component = require 'Component'
 local State = require 'State'
 local Track = require 'Track'
 local Plugin = require 'Plugin'
-local Profiler = require 'Profiler'
 local Project = require 'Project'
 local Watcher = require 'Watcher'
 local Graphics = require 'Graphics'
@@ -32,14 +32,14 @@ function Window.openComponent(name, component, options)
 
 end
 
-function Window:create(name, component)
+function Window:create(name, component, options)
     local self = {
         name = name,
         mouse = Mouse.capture(),
         state = {},
         repaint = true,
         g = Graphics:create(),
-        options = {debug = true},
+        options = options or {},
         paints = 0
     }
     setmetatable(self, Window)
@@ -56,9 +56,9 @@ end
 
 function Window:render()
 
+    gfx.update()
     if self.repaint or Component.dragging then
 
-        gfx.update()
         gfx.clear = 0
 
         self.component:evaluate(self.g)
@@ -103,14 +103,11 @@ function Window:show(options)
 
     Window.currentWindow = self
     _.assign(self.options, options)
-    -- _.assign(self, options)
 
-    local stored = State.global.get('window_' ..self.name, options, {'h','w', 'dock', 'docked'})
-    -- rea.logPin('a', stored)
+    local stored = State.global.get('window_' ..self.name, options, {'x','y', 'h','w', 'dock', 'docked'})
     _.assign(self, stored)
-    -- rea.logPin('b', self.dock)
 
-    gfx.init(self.name, self.w, self.h, self.dock)
+    gfx.init(self.name, self.w, self.h, self.dock, self.x, self.y)
 
     if not options.focus then self:unfocus() end
 
@@ -126,33 +123,21 @@ end
 
 function Window:restoreState()
 
-    if self.options.persist then
+    self.docked = State.global.get('window_' .. self.name .. '_docked')
+    self.dock = State.global.get('window_' .. self.name .. '_dock')
 
-        self.docked = State.global.get('window_' .. self.name .. '_docked')
-
-        if docked then
-            self.docked = true
-            self.dock = State.global.get('window_' .. self.name .. '_dock')
-            gfx.dock(self.dock)
-        else
-            gfx.dock(0)
-        end
-
-        self.component.h = State.global.get('window_' .. self.name .. '_h')
-        self.component.w = State.global.get('window_' .. self.name .. '_w')
-
+    if self.docked then
+        gfx.dock(self.dock)
+    else
+        gfx.dock(0)
     end
 
+    self.component:setSize(State.global.get('window_' .. self.name .. '_w'), State.global.get('window_' .. self.name .. '_h'))
 end
 
 function Window:updateWindow()
 
-    local sizeChanged = self.component.h ~= gfx.h or self.component.w ~= gfx.w
-    if sizeChanged then
-        self.component:setSize(gfx.w, gfx.h)
-    end
-
-    local dock = gfx.dock(-1)
+    local dock, x, y, w, h = gfx.dock(-1, 0 ,0 ,0 ,0)
 
     local dockChanged = dock ~= self.dock
     if dockChanged then
@@ -160,13 +145,52 @@ function Window:updateWindow()
         self.dock = self.docked and dock or self.dock
     end
 
-    if self.options.persist and (dockChanged or sizeChanged) then
+    local heightChanged = self.component.h ~= gfx.h
+    local widthChanged = self.component.w ~= gfx.w
+    local sizeChanged = heightChanged or widthChanged
+
+    if sizeChanged then
+
+        local h = gfx.h
+        local w = gfx.w
+
+        local reinit = false
+        if self.options.hFromComponent or self.options.wFromComponent then
+            if self.options.hFromComponent and heightChanged then
+                self.component.h = math.max(100, self.component.h)
+                h = self.component.h
+                reinit = true
+            end
+            if self.options.wFromComponent and widthChanged then
+                self.component.w = math.max(100, self.component.w)
+                w = self.component.w
+                reinit = true
+            end
+        end
+
+        if reinit then
+            rea.log('init')
+            gfx.quit()
+            gfx.init(self.name, w, h, self.dock, self.x, self.y)
+            self.repaint = 'all'
+        else
+            self.component:setSize(gfx.w, gfx.h)
+        end
+    end
+
+    local posChanged = self.x ~= x or self.y ~= y
+    if posChanged then
+        self.x = x
+        self.y = y
+    end
+
+    if self.options.persist and (dockChanged or sizeChanged or posChanged) then
         local docks = _.pick(self, {'dock', 'docked'})
-        -- rea.logPin('dock', self.dock)
-        -- rea.logPin('docks', docks)
         State.global.set('window_' .. self.name, docks)
         State.global.set('window_' .. self.name .. '_h', gfx.h)
         State.global.set('window_' .. self.name .. '_w', gfx.w)
+        State.global.set('window_' .. self.name .. '_x', x)
+        State.global.set('window_' .. self.name .. '_y', y)
 
     end
 
@@ -180,6 +204,8 @@ function Window:toggleDock()
     else
         gfx.dock(self.dock)
     end
+    rea.log(self.docked)
+    rea.log(self.dock)
 
     self:updateWindow()
 
@@ -190,7 +216,6 @@ function Window:evalKeyboard()
     local key = gfx.getchar()
 
     if key == -1 then
-        rea.log('no chars left')
         self:close()
     else
         while key > 0 do
@@ -204,6 +229,10 @@ function Window:evalKeyboard()
 
             if Profiler.instance and key == 336 and self.mouse:isShiftKeyDown() then
                 Profiler.instance:reset()
+            end
+
+            if self.options.closeOnEsc and key == 27 then
+                self:close()
             end
 
             _.forEach(self.component:getAllChildren(), function(comp)
@@ -248,8 +277,6 @@ function Window:evalMouse()
     local mouseDown = (not self.mouse:isButtonDown()) and mouse:isButtonDown()
     local mouseUp = self.mouse:isButtonDown() and (not mouse:isButtonDown())
 
-    if mouseUp and self.component:isMouseOver() then self:unfocus() end
-
     local allComps = self.component:getAllChildren()
 
     self.lastUpTime = mouseUp and mouse.time or self.lastUpTime
@@ -279,6 +306,11 @@ function Window:evalMouse()
 
             comp.mouse.over = isOver
 
+            if comp == self.component and not isOver then
+                -- rea.logCount('optimize')
+                return false
+            end
+            -- rea.logCount('evalMouse')
             local useComp = comp:wantsMouse() and (isOver or (mouseDragged and comp.mouse.down))
             if not consumed and useComp then
 

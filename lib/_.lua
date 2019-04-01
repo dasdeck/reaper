@@ -1,7 +1,7 @@
 
 local function forEach(data, callback)
     for k,v in pairs(data or {}) do
-        callback(v, k)
+        if callback(v, k) == false then return end
     end
 end
 
@@ -146,6 +146,12 @@ local function empty(table)
     return size(table) == 0
 end
 
+local function concat(a, b)
+    local res = table.clone(a)
+    forEach(b, function(val) table.insert(res, val) end)
+    return res
+end
+
 local function removeValue(table, needle)
     forEach(table, function(value, key)
         if value == needle then
@@ -155,6 +161,7 @@ local function removeValue(table, needle)
 end
 
 return {
+    concat = concat,
     indexOf = indexOf,
     reverse = reverse,
     removeValue = removeValue,

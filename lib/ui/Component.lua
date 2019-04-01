@@ -108,11 +108,11 @@ end
 function Component:getAllChildren(results)
     results = results or {}
 
+    table.insert(results, self)
+
     for k, child in rpairs(self.children) do
         child:getAllChildren(results)
     end
-
-    table.insert(results, self)
 
     return results
 end
@@ -310,7 +310,6 @@ function Component:resized()
     end)
 end
 
-
 function Component:evaluate(g, dest, x, y)
 
     x = x or 0
@@ -322,12 +321,15 @@ function Component:evaluate(g, dest, x, y)
     self.isCurrentlyVisible = self:isVisible()
     if not self.isCurrentlyVisible then return end
 
+
     if self.needsLayout and self.resized then
         self:resized()
         self.needsLayout = false
     end
 
     local doPaint = (self.paint or self.paintOverChildren) and (self.needsPaint or self:getWindow().repaint == 'all')
+
+    local alpha = self:getAlpha()
 
     if self.paint then
         local pslot = self:getSlot('component:' .. tostring(self.id) .. ':paint')
@@ -339,7 +341,7 @@ function Component:evaluate(g, dest, x, y)
         gfx.dest = dest
         gfx.x = x
         gfx.y = y
-        gfx.a = self:getAlpha()
+        gfx.a = alpha
         gfx.blit(pslot, 1, 0)
 
     end
@@ -355,7 +357,7 @@ function Component:evaluate(g, dest, x, y)
         end
 
         gfx.dest = dest
-        gfx.a = self:getAlpha()
+        gfx.a = alpha
         gfx.x = x
         gfx.y = y
         gfx.blit(poslot, 1, 0)
@@ -390,7 +392,5 @@ function Component:remove()
     end
     return self
 end
-
-
 
 return Component

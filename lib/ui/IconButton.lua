@@ -13,7 +13,7 @@ function IconButton:create(icon)
 
     self.icon = self:addChildComponent(Image:create(icon, 'fit'))
     self.icon.getAlpha = function()
-        return self:getToggleStateInt() == 2 and 0.5 or 1
+        return (self:getToggleStateInt() == 2 and 0.5 or 1) * Component.getAlpha(self)
     end
 
     setmetatable(self, IconButton)

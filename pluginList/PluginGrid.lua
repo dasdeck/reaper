@@ -10,44 +10,51 @@ local rea = require 'rea'
 local PluginGrid = class(Component)
 
 function PluginGrid:create(dir)
-
-    dir = Directory:create(dir)
-    ratio = ratio or 1
-    -- rea.log(dir.dir)
     local self = Component:create()
     setmetatable(self, PluginGrid)
 
-    self.title = self:addChildComponent(TextButton:create(_.last(dir.dir:split('/'))))
-    local subdirectories = dir:getDirectories()
-    -- rea.log(subdirectories)
-    if _.size(subdirectories) > 0 then
-
-        self.subgrids = self:addChildComponent(ButtonList:create(_.map(subdirectories, function(subdir)
-            return {
-                proto = function()
-                    local subgrid = PluginGrid:create(subdir)
-                    return subgrid
-                end
-            }
-        end), true))
-
-        local totalSubLists = self:getNumLists()
-        -- rea.log(totalSubLists)
-
-        _.forEach(self.subgrids.children, function(grid, i)
-
-            local data = self.subgrids.data[i]
-            local numLists = grid:getNumLists()
-            data.size = -numLists/totalSubLists
-            -- rea.log(self.w)
-        end)
-
-
-    else
-        self.list = self:addChildComponent(PluginList:create(dir))
-    end
+    self:setDir(dir)
 
     return self
+end
+
+function PluginGrid:setDir(dir)
+
+    dir = Directory:create(dir)
+    self.h = 1000
+    if self.dir ~= dir then
+
+        -- rea.log('dirset:' .. tostring(dir))
+        self:deleteChildren()
+
+        self.title = self:addChildComponent(TextButton:create(_.last(dir.dir:split('/'))))
+
+        local subdirectories = dir:getDirectories()
+        if _.size(subdirectories) > 0 then
+
+            self.subgrids = self:addChildComponent(ButtonList:create(_.map(subdirectories, function(subdir)
+                return {
+                    proto = function()
+                        local subgrid = PluginGrid:create(subdir)
+                        return subgrid
+                    end
+                }
+            end), true))
+
+            local totalSubLists = self:getNumLists()
+
+            _.forEach(self.subgrids.children, function(grid, i)
+                local data = self.subgrids.data[i]
+                local numLists = grid:getNumLists()
+                data.size = -numLists/totalSubLists
+            end)
+            self.w = totalSubLists * 160
+
+        else
+            self.list = self:addChildComponent(PluginList:create(dir))
+        end
+        self.dir = dir
+    end
 end
 
 function PluginGrid:getNumLists()
@@ -61,13 +68,29 @@ function PluginGrid:getNumLists()
 end
 
 function PluginGrid:resized()
+
     local h = 20
-    self.title:setBounds(0,0,self.w, h)
+    -- self.title:setBounds(0,0,self.w, h)
     if self.subgrids then
-        self.subgrids:setBounds(0,30, self.w, h)
+        self.subgrids:setBounds(0, self.title:getBottom(), self.w, h)
     else
-        self.list:setBounds(0, self.title:getBottom(), self.w, h)
+        self.list:setBounds(0, self.title:getBottom(), self.w, self.list.h)
     end
+
+    -- self.h = (self.subgrids or self.list):getBottom()
 end
+
+-- function PluginGrid:paintOverChildren(g)
+--     rea.log({
+--         self.parent and self.parent.dir,
+--         self.dir,
+--         self.y,
+--         self:getAbsoluteY()
+--     })
+
+--     local r = 1--math.random(100) / 100
+--     g:setColor(r,r,r,1)
+--     g:rect(0,0,self.w,self.h)
+-- end
 
 return PluginGrid

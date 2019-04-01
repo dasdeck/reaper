@@ -2,6 +2,7 @@ local TextButton = require 'TextButton'
 local Track = require 'Track'
 local Component = require 'Component'
 local Project = require 'Project'
+local colors = require 'colors'
 local rea = require 'rea'
 
 local TrackStateButton = class(TextButton)
@@ -18,7 +19,8 @@ function TrackStateButton:create(track, key, content, values)
     self.values = values or transitions[key]
     self.track = track
     self.key = key
-    -- self.watchers:watch(Project.watch.project, function() self:repaint() end)
+    self.color = colors[key]
+
     setmetatable(self, TrackStateButton)
     return self
 end
@@ -34,7 +36,6 @@ function TrackStateButton:onClick()
 
         state = (self.values and self.values[state]) or (state  == 0 and 1 or 0)
 
-        --== 0 and 1 or 0
         self.track:setValue(self.key, state)
         rea.refreshUI()
     end)
@@ -43,7 +44,5 @@ end
 function TrackStateButton:getText()
     return self.content.text or self.key
 end
-
-
 
 return TrackStateButton
