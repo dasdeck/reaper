@@ -59,8 +59,8 @@ function PadUI.showMenu(pad)
     end
     addMenu:addItem('empty track', function() pad:addLayer() end, 'add empty track')
     addMenu:addItem('instrument', function()
-        local success, name = reaper.GetUserInputs("name", 1, "name", "")
-        if success then
+        local name = rea.prompt("name")
+        if name then
             pad:addLayer(name)
         end
     end, 'add instrument pad')

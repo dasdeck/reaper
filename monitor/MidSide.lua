@@ -2,6 +2,7 @@ local Plugin = require 'Plugin'
 local Component = require 'Component'
 local ButtonList = require 'ButtonList'
 local Track = require 'Track'
+local rea = require 'rea'
 
 local ms = Track.master:getFx('MSSolo', false, true)
 
@@ -20,8 +21,10 @@ function MS:isSelected(i, preset)
 end
 
 function MS:onItemClick(i, preset)
-    local selected = preset[1]
-    ms:setParam(param, selected)
+    rea.transaction('set monitoring channel', function()
+        local selected = preset[1]
+        ms:setParam(param, selected)
+    end)
 end
 
 function MS:create()

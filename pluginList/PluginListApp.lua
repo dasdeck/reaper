@@ -59,13 +59,6 @@ end
 
 function PluginListApp:onStart()
 
-    self.window = Window:create(self.name, PluginGrid:create(self.state:get('dir', paths.imageDir)), {
-        closeOnEsc = true,
-        wFromComponent = true
-    })
-    self.window.onClose = function()
-        self:close()
-    end
 
     if tonumber(self.state:get('window_open', 0)) > 0 then
         self:show()
@@ -87,11 +80,24 @@ function PluginListApp:setCategory(cat)
     end
 end
 
+function PluginListApp:getWindow()
+    if not self.window and self.running then
+        self.window = Window:create(self.name, PluginGrid:create(self.state:get('dir', paths.imageDir)), {
+            closeOnEsc = true,
+            wFromComponent = true
+        })
+        self.window.onClose = function()
+            self:close()
+        end
+    end
+    return self.window
+end
+
 function PluginListApp:show()
     self.state:set('window_open', 1)
     self.mem:set(0, 1)
 
-    if self.window then
+    if self:getWindow() then
         self.window.component:setDir(self.state:get('dir', paths.imageDir))
         self.window:show()
     end
@@ -102,7 +108,7 @@ function PluginListApp:close()
     self.state:set('window_open', 0)
     self.mem:set(0, 0)
     if self.onClose then self:onClose() end
-    if self.window then
+    if self:getWindow() then
         self.window:close()
     end
     return self

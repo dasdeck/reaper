@@ -8,6 +8,7 @@ local Slider = class(Label)
 function Slider:create(...)
 
     local self = Label:create('', ...)
+    self.pixelsPerValue = 100
     setmetatable(self, Slider)
     return self
 
@@ -18,27 +19,40 @@ function Slider:canClickThrough()
 end
 
 function Slider:onMouseDown()
+
+    reaper.Undo_BeginBlock()
+
     self.valueDown = self:getValue()
     self.yDown = gfx.mouse_y
 end
 
+function Slider:onMouseUp()
+    if self.valueDown and self.valueDown ~= self:getValue() then
+        reaper.Undo_EndBlock('slider change', -1)
+    end
+end
+
 function Slider:onDrag()
-    self:setValue(self.valueDown + (self.yDown - gfx.mouse_y)    / 100)
+    self:setValue(self.valueDown + (self.yDown - gfx.mouse_y) / self.pixelsPerValue)
     -- rea.logCount('drags')
     self:repaint(true)
 end
 
 function Slider:onMouseWheel(mouse)
-    if mouse.mouse_wheel > 0 then
-        self:setValue(self:getValue() + 1)
-    else
-        self:setValue(self:getValue() - 1)
-    end
+    rea.transaction('slider change', function()
+        if mouse.mouse_wheel > 0 then
+            self:setValue(self:getValue() + 1)
+        else
+            self:setValue(self:getValue() - 1)
+        end
+        self:repaint(true)
+    end)
 end
 
 function Slider:onClick(mouse)
     if mouse:isCommandKeyDown() then
         self:setValue(self:getDefaultValue())
+        self:repaint(true)
     end
 end
 
@@ -60,10 +74,16 @@ function Slider:paint(g)
 end
 
 function Slider:onDblClick()
-    local success, value = reaper.GetUserInputs("value", 1, "value", self:getValue())
-    local val = tonumber(value)
-    if success and tostring(val) == value then
-        self:setValue(val)
+    local value = rea.prompt("value", self:getValue())
+    if value and value:trim():isNumeric() then
+
+        local newval = tonumber(value)
+        if self:getValue() ~= newval then
+            rea.transaction('slider change', function()
+                self:setValue(newval)
+                self:repaint(true)
+            end)
+        end
     end
 end
 

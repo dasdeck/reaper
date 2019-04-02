@@ -85,12 +85,15 @@ end
 
 function TrackToolSwitcher:update()
 
+
     if self.trackTool then
         self.trackTool:delete()
     end
 
     if self:getTrack() then
         self.trackTool = self:addChildComponent(TrackTool:create(self:getTrack()))
+    else
+        self:relayout()
     end
 
     self.nav:updateList()

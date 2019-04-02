@@ -6,6 +6,7 @@ local DelaySlider = class(Slider)
 function DelaySlider:create(track)
     local self = Slider:create()
     self.track = track
+    self.pixelsPerValue = 5
     setmetatable(self, DelaySlider)
     return self
 end

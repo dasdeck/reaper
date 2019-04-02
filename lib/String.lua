@@ -13,7 +13,7 @@ function string:endsWith(ending)
 end
 
 function string:isNumeric()
-    return self:match('[0-9]+.[0-9]*')
+    return self:match('[0-9]+.-[0-9]*')
 end
 
 function string:escaped()

@@ -121,10 +121,6 @@ function Plugin:getImage()
     return paths.imageDir:findFile(self:getCleanName():escaped())
 end
 
-function Plugin:setName()
-
-end
-
 function Plugin:setPreset(nameOrIndex)
     reaper.TrackFX_SetPreset(self.track.track, self.index, nameOrIndex)
 end

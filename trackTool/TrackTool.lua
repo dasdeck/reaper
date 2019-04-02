@@ -11,6 +11,7 @@ local Aux = require 'Aux'
 local Bus = require 'Bus'
 local La = require 'La'
 local AuxUI = require 'AuxUI'
+local Mouse = require 'Mouse'
 
 local colors = require 'colors'
 local rea = require 'rea'
@@ -25,7 +26,9 @@ function TrackTool:create(track)
     self.track = track
 
     self.watchers:watch(Project.watch.project, function()
-        self:update()
+        if not Mouse.capture():isButtonDown() then
+            self:update()
+        end
     end)
 
     -- self:update()
@@ -36,6 +39,7 @@ end
 function TrackTool:update()
     self:deleteChildren()
 
+    rea.log('tracktool update')
     local track = self.track
 
     self.outout = self:addChildComponent(TextButton:create('output'))
@@ -115,8 +119,6 @@ function TrackTool:update()
             end
         })
 
-        b = buttons
-
         return buttons
 
     end
@@ -145,7 +147,6 @@ function TrackTool:update()
 
             end
         })
-        a = buttons
         return buttons
 
     end

@@ -681,8 +681,8 @@ end
 
 function Track:getFx(name, force, rec)
     if name == false then
-        local success, input = reaper.GetUserInputs("name", 1, "name", "")
-        if success then
+        local input = rea.prompt("name")
+        if input then
             name = input
         end
     end

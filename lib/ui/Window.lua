@@ -57,7 +57,7 @@ end
 function Window:render()
 
     if self.repaint or Component.dragging then
-
+        gfx.dest = -1
         gfx.update()
         gfx.clear = 0
 
@@ -306,7 +306,8 @@ function Window:evalMouse()
 
             comp.mouse.over = isOver
 
-            if comp == self.component and not isOver and not isFileDrop then
+            local insideOnlyAction = (mouseMoved and not mouseDragged) or wheelMove
+            if comp == self.component and not isOver and insideOnlyAction then
                 return false
             end
 
@@ -346,8 +347,9 @@ function Window:evalMouse()
                     comp:onDrag(mouse)
                 end
 
-                consumed = consumed or not comp:canClickThrough()
-
+                if not mouseDragged then
+                    consumed = consumed or not comp:canClickThrough()
+                end
             end
         end)
 
