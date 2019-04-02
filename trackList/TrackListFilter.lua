@@ -1,9 +1,12 @@
 local State = require 'State'
 local Track = require 'Track'
 local PluginListApp = require 'PluginListApp'
+local Instrument = require 'Instrument'
 
 local Menu = require 'Menu'
 local Bus = require 'Bus'
+local Aux = require 'Aux'
+local AuxUI = require 'AuxUI'
 local _ = require '_'
 local colors = require 'colors'
 local rea = require 'rea'
@@ -20,6 +23,13 @@ local options = {
         onDblClick = function()
             PluginListApp.pick(PluginListApp.cats.instruments,function(res)
                 -- rea.log(res)
+                local instrument = Instrument.createInstrument(res)
+                if instrument then
+                    instrument:setSelected(1)
+                    instrument:setArmed(1)
+                    instrument:focus()
+                    instrument:getInstrument():open()
+                end
             end)
         end
     },
@@ -28,9 +38,7 @@ local options = {
         args = 'a',
         key = 'aux',
         onDblClick = function()
-            PluginListApp.pick(PluginListApp.cats.effects,function(res)
-                -- rea.log(res)
-            end)
+            AuxUI.pickAndCreate()
         end
     },
     {

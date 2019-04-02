@@ -69,6 +69,7 @@ function DrumRack.init(track)
     track:setValue('toParent', false)
     track:getFx(DrumRack.fxName, true)
     track:setColor(colors.instrument)
+    track:setArmed(1)
 
     local rack = DrumRack:create(track)
     rack:getFx(true)

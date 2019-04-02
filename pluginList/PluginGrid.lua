@@ -77,20 +77,8 @@ function PluginGrid:resized()
         self.list:setBounds(0, self.title:getBottom(), self.w, self.list.h)
     end
 
-    -- self.h = (self.subgrids or self.list):getBottom()
+    self.h = gfx.h --(self.subgrids or self.list):getBottom()
 end
 
--- function PluginGrid:paintOverChildren(g)
---     rea.log({
---         self.parent and self.parent.dir,
---         self.dir,
---         self.y,
---         self:getAbsoluteY()
---     })
-
---     local r = 1--math.random(100) / 100
---     g:setColor(r,r,r,1)
---     g:rect(0,0,self.w,self.h)
--- end
 
 return PluginGrid

@@ -20,6 +20,7 @@ function PluginList:create(dir, ...)
     setmetatable(self, PluginList)
     self:update()
     return self
+
 end
 
 function PluginList:update()
@@ -32,16 +33,13 @@ function PluginList:update()
         local child = self:addChildComponent(Image:create(file, 'fit'))
 
         function child.onClick(mouse)
-            -- State.app:set('clicks', tostring(tonumber(State.global.get('pluginlist_clicks', 0))+1))
             State.app:set('lastclicked', file:sub(self.dir.dir:len() + 2, -5))
             Mem.app:set(1, Mem.app:get(1) + 1)
         end
 
     end)
 
-    self:resized()
-
-    self:repaint()
+    self:relayout()
 end
 
 function PluginList:resized()
@@ -53,6 +51,7 @@ function PluginList:resized()
             child:fitToWidth(self.w - padding * 2)
             y = y + child.h + 2 * padding
         end)
+        self.h = y
     end
 end
 

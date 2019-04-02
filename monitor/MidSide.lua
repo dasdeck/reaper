@@ -7,9 +7,9 @@ local ms = Track.master:getFx('MSSolo', false, true)
 
 local param = 0
 local labels = {
-  {0, args = 'L/R'},
-  {1, args = 'M'},
-  {2, args = 'S'}
+  {0, args = 'L/R', size = -1/3},
+  {1, args = 'M', size = -1/3},
+  {2, args = 'S', size = -1/3}
 }
 
 local MS = class(ButtonList)

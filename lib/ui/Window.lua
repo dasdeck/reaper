@@ -56,9 +56,9 @@ end
 
 function Window:render()
 
-    gfx.update()
     if self.repaint or Component.dragging then
 
+        gfx.update()
         gfx.clear = 0
 
         self.component:evaluate(self.g)
@@ -169,7 +169,7 @@ function Window:updateWindow()
         end
 
         if reinit then
-            rea.log('init')
+            -- rea.log('init')
             gfx.quit()
             gfx.init(self.name, w, h, self.dock, self.x, self.y)
             self.repaint = 'all'
@@ -204,8 +204,8 @@ function Window:toggleDock()
     else
         gfx.dock(self.dock)
     end
-    rea.log(self.docked)
-    rea.log(self.dock)
+    -- rea.log(self.docked)
+    -- rea.log(self.dock)
 
     self:updateWindow()
 
@@ -306,11 +306,10 @@ function Window:evalMouse()
 
             comp.mouse.over = isOver
 
-            if comp == self.component and not isOver then
-                -- rea.logCount('optimize')
+            if comp == self.component and not isOver and not isFileDrop then
                 return false
             end
-            -- rea.logCount('evalMouse')
+
             local useComp = comp:wantsMouse() and (isOver or (mouseDragged and comp.mouse.down))
             if not consumed and useComp then
 

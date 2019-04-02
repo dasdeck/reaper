@@ -23,7 +23,7 @@ function Bus.fromTracks(tracks, topLevelOnly)
 
     tracks = topLevelOnly and Bus.filterTopLevelTracks(tracks) or tracks
 
-    if _.size(track) > 0 then
+    if _.size(tracks) > 0 then
         local bus = Bus.createBus()
         _.forEach(tracks,
         function(track)
@@ -36,6 +36,8 @@ end
 function Bus.createBus(index, name)
 
     local track = Track.insert(index)
+    track:addFx(name)
+    track:iconize()
     track:setType(Track.typeMap.bus)
     track:setName(name or ('Bus ' .. tostring(_.size(Bus.getAllBusses()))))
     track:setColor(colors.fx)

@@ -3,6 +3,7 @@ local Component = require 'Component'
 local PluginList = require 'PluginList'
 local FXListItem = require 'FXListItem'
 local TextButton = require 'TextButton'
+local PluginListApp = require 'PluginListApp'
 
 local colors = require 'colors'
 local rea = require 'rea'
@@ -18,14 +19,22 @@ function FXList:create(track)
     end)
 
     self.add = self:addChildComponent(TextButton:create('+fx',0,0,100,25))
-    self.add.onButtonClick = function()
-        local name = rea.prompt('name')
-        if name then
-            rea.transaction('add fx', function()
-                local index = reaper.TrackFX_AddByName(track.track, name, false, -1)
-                if index >= 0 then
+    self.add.onButtonClick = function(s, mouse)
 
-                end
+        if mouse:isAltKeyDown() then
+            local name = rea.prompt('name')
+            if name then
+                rea.transaction('add fx', function()
+                    local plug = track:addFx(name)
+                    if plug then plug:open() end
+                end)
+            end
+        else
+            PluginListApp.pick(PluginListApp.cats.effects, function(name)
+                rea.transaction('add fx', function()
+                    local plug = track:addFx(name)
+                    if plug then plug:open() end
+                end)
             end)
         end
     end

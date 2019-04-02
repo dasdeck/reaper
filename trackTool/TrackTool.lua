@@ -25,10 +25,18 @@ function TrackTool:create(track)
     self.track = track
 
     self.watchers:watch(Project.watch.project, function()
-        self.currentOutput = track:getOutput()
-        self.outout.color = self.currentOutput and self.currentOutput:getColor() or colors.default
         self:update()
     end)
+
+    -- self:update()
+
+    return self
+end
+
+function TrackTool:update()
+    self:deleteChildren()
+
+    local track = self.track
 
     self.outout = self:addChildComponent(TextButton:create('output'))
     self.currentOutput = track:getOutput()
@@ -112,13 +120,15 @@ function TrackTool:create(track)
         return buttons
 
     end
+    self.la:updateList()
 
     self.aux = self:addChildComponent(ButtonList:create({}))
     self.aux.getData = function()
         local buttons = _.map(self.track:getSends(), function(send)
             return send:getTargetTrack():isAux() and {
                 proto = AuxUI,
-                args = send
+                args = send,
+                size = 20
             } or nil
         end)
 
@@ -126,32 +136,20 @@ function TrackTool:create(track)
             args = '+aux',
             size = 15,
             color = colors.aux:fade(0.8),
-            onClick = function()
-                local menu = Menu:create()
-                menu:addItem('create aux', function()
-
-                    track:createSend(Aux.createAux('new'))
-
-                end, 'create aux')
-
-                local auxs = Aux.getAuxTracks()
-
-                if _.size(auxs) then
-                    menu:addSeperator()
-                    _.forEach(auxs, function(aux)
-                        menu:addItem(aux:getName(), function()
-                            self.track:createSend(aux)
-                        end, 'add send')
-                    end)
+            onClick = function(s, mouse)
+                if mouse:wasRightButtonDown() then
+                    AuxUI.pickAndCreate(track)
+                else
+                    AuxUI.pickOrCreateMenu(track)
                 end
 
-                menu:show()
             end
         })
         a = buttons
         return buttons
 
     end
+    self.aux:updateList()
 
     self.type = self:addChildComponent(TextButton:create(''))
     self.type.getText = function()
@@ -175,17 +173,7 @@ function TrackTool:create(track)
     self.mute = self:addChildComponent(TrackStateButton:create(track, 'mute', 'M'))
     self.solo = self:addChildComponent(TrackStateButton:create(track, 'solo', 'S'))
 
-    self:update()
-
-    return self
-end
-
-function TrackTool:update()
-    -- self:deleteChildren()
-    self.la:updateList()
-    self.aux:updateList()
-
-    if self.controlls then self.controlls:delete() end
+    self.fx = self:addChildComponent(FXList:create(track))
 
     if self.track:getTrackTool() then
         self.controlls = self:addChildComponent(TrackToolControlls:create(self.track))
@@ -207,9 +195,13 @@ function TrackTool:resized()
     self.outout:setBounds(0,self.controlls:getBottom(), self.w, h)
     self.la:setBounds(0,self.outout:getBottom(), self.w, self.la.h)
     self.aux:setBounds(0,self.la:getBottom(), self.w, self.aux.h)
-    self.type:setBounds(0,self.aux:getBottom(), self.w, self.aux.h)
+
+    self.type:setBounds(0,self.aux:getBottom(), self.w, h)
+
     self.mute:setBounds(0,self.type:getBottom(), self.w/2, h)
     self.solo:setBounds(self.mute:getRight(),self.type:getBottom(), self.w/2, h)
+
+    self.fx:setBounds(0,self.mute:getBottom(),self.w, self.fx.h)
 end
 
 return TrackTool

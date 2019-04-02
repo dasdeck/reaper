@@ -1,6 +1,7 @@
 local Slider = require 'Slider'
 
 local rea = require 'rea'
+local paths = require 'paths'
 
 local Plugin = class()
 
@@ -26,7 +27,6 @@ function Plugin.getByGUID(track, guid)
         if reaper.TrackFX_GetFXGUID(track, i) == guid then return i end
     end
 end
-
 --
 
 function Plugin:create(track, index)
@@ -45,6 +45,8 @@ function Plugin:create(track, index)
 
     return Plugin.plugins[guid]
 end
+
+
 
 function Plugin:resolveIndex(nameOrIndex)
     if type(nameOrIndex) == 'string' then
@@ -106,8 +108,6 @@ function Plugin:setIndex(index)
     return self
 end
 
-
-
 function Plugin:getName()
     local success, name = reaper.TrackFX_GetFXName(self.track.track, self.index, '')
     return success and name
@@ -115,6 +115,10 @@ end
 
 function Plugin:getCleanName()
     return self:getName():gsub('%(.-%)', ''):gsub('.-: ', ''):trim()
+end
+
+function Plugin:getImage()
+    return paths.imageDir:findFile(self:getCleanName():escaped())
 end
 
 function Plugin:setName()

@@ -46,7 +46,7 @@ function TrackListComp:create(track, hideChildren)
         self.h = self.h + self.slaves.h
     end
 
-    local icon = track:getIcon()
+    local icon = track:getImage()
     self.icon = self:addChildComponent(icon and Image:create(icon, 'fit') or Component:create())
     self.icon.onDblClick = function()
         if track:getInstrument() then
@@ -71,7 +71,7 @@ function TrackListComp:resized()
     self.name:setBounds(self.icon:getRight(), 0, self.w - h, h)
 
     if self.slaves then
-        self.slaves:setBounds(0, self.name:getBottom(), self.w, h)
+        self.slaves:setBounds(self.icon:getRight()/2, self.name:getBottom(), self.w, h)
     end
     -- self.h = self.slaves:getBottom()
 end

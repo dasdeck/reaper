@@ -1,7 +1,7 @@
 DrumRack:
     ✘ right drop link @cancelled(19-03-29 21:32)
         ✘ indicate links @cancelled(19-03-29 21:32)
-    ☐ right click fx, use same bus
+    ✔ right click fx, use same bus @done(19-04-02 12:03)
     ☐ multi select pads ?
 
     ☐ move note filter logic to single tracks to hav 128
@@ -14,8 +14,8 @@ DrumRack:
         ☐ differnt jsfx for different types?
         ☐ types only by meta data?
 
-    ☐ add/move tools to rack
-        ☐ show when no rack selected
+    ✔ add/move tools to rack @done(19-04-02 12:03)
+        ✔ show when no rack selected @done(19-04-02 12:03)
 
     ✔ separate model and UI @done(19-03-19 06:48)
     ☐ auto sort tracks in mixer
@@ -27,8 +27,9 @@ DrumRack:
     ✔ connect pad fx via (muted) midi connections @done(19-03-18 10:00)
 
     meta
-    ☐ clean up wised track meta info @meta
-    ☐ save track meta in preset (remove on load) @meta
+    ✘ clean up wised track meta info @meta @cancelled(19-04-02 12:03)
+    ☐ move track meta to track_EXT
+    ✘ save track meta in preset (remove on load) @meta @cancelled(19-04-02 12:04)
         look
         do when project is not dirty and no undo states
 

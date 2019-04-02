@@ -158,6 +158,11 @@ function Track:create(track)
     return wrapper
 end
 
+function Track:iconize()
+    self:setIcon(self:getImage())
+end
+
+
 function Track:createSlave(name, indexOffset)
     local t = Track.insert(self:getIndex() + indexOffset)
     self:setName(self:getName() or self:getDefaultName())
@@ -167,6 +172,16 @@ end
 
 function Track:onChange(listener)
     table.insert(self.listeners, listener)
+end
+
+function Track:setArmed(arm)
+    if arm == 1 then
+        _.forEach(Track.getAllTracks(), function(track)
+            track:setArmed(track == self)
+        end)
+    else
+        self:setValue('arm', arm)
+    end
 end
 
 function Track:setAutoRecArm(enabled)
@@ -679,7 +694,15 @@ function Track:getFx(name, force, rec)
 end
 
 function Track:addFx(name, input)
-    return reaper.TrackFX_AddByName(self.track, name, input or false, 1)
+    if not name then return end
+    local res = reaper.TrackFX_AddByName(self.track, name, input or false, 1)
+    if res >= 0 then
+        return Plugin:create(self, res)
+    end
+end
+
+function Track:getImage()
+    return self:getIcon() or _.some(self:getFxList(), function(fx) return fx:getImage()end)
 end
 
 function Track:createSend(target, sendOnly)

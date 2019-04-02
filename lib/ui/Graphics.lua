@@ -19,6 +19,11 @@ function Graphics:setFromComponent(comp, slot)
         self.dest = slot
         self.a = 1
         gfx.mode = 0
+
+        assert(comp.w > 0)
+        assert(comp.h > 0)
+        assert(slot >= 0)
+
         gfx.setimgdim(self.dest, -1, -1)
         gfx.setimgdim(self.dest, comp.w, comp.h)
         gfx.dest = self.dest
@@ -63,6 +68,9 @@ function Graphics:drawImage(slot, x, y, scale)
     self:loadColors()
     gfx.x = x
     gfx.y = y
+
+    assert(scale > 0)
+    assert(scale < 50)
 
     gfx.blit(slot, scale or 1, 0)
 

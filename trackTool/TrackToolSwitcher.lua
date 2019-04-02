@@ -48,7 +48,8 @@ function TrackToolSwitcher:create(...)
                     end
                 end
                 return button
-            end
+            end,
+            size = -0.5
         },
         {
             proto = function()
@@ -67,7 +68,8 @@ function TrackToolSwitcher:create(...)
                     end
                 end
                 return button
-            end
+            end,
+            size = -0.5
 
         }
     }, true))

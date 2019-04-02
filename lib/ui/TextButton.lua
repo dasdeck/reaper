@@ -21,11 +21,11 @@ function TextButton:getToggleStateInt()
 end
 
 function TextButton:onMouseEnter()
-    self:repaint()
+    self:repaint(true)
 end
 
 function TextButton:onMouseLeave()
-    self:repaint()
+    self:repaint(true)
 end
 
 function TextButton:getColor()
@@ -42,7 +42,7 @@ function TextButton:onClick(mouse)
     if self.onButtonClick and self:isVisible() and not self:isDisabled() then
         self:onButtonClick(mouse)
     end
-    self:repaint()
+    self:repaint(true)
 end
 
 function TextButton:canClickThrough()

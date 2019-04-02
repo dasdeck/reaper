@@ -7,15 +7,24 @@ local colors = require 'colors'
 local _ = require '_'
 
 
-function Instrument.aux()
-    rea.transaction('add aux bus(es)', function()
+function Instrument.createInstrument(name)
+    local track
+    rea.transaction('add instrument', function()
 
-        local input = rea.prompt('aux')
-
-        if not input then return false end
-
+        track = Track.insert()
+        track:setName(name)
+        track:setType(Track.typeMap.instrument)
+        track:setColor(colors.instrument)
+        local res = track:addFx(name)
+        if not res then
+            track:remove()
+            track = nil
+            return false
+        end
+        track:iconize()
 
     end)
+    return track
 end
 
 function Instrument.bang()
@@ -25,6 +34,7 @@ function Instrument.bang()
         local input = rea.prompt('instrument')
 
         if not input then return false end
+
 
         local zones = _.map(input:split('|'), function(zone)
             local layers = _.map(zone:split('&'), function(layer)

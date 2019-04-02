@@ -58,7 +58,8 @@ function DrumRackSelector:setDrumRack(rack)
     self.drumrack = nil
     if rack then
         self.drumrack = self:addChildComponent(DrumRackUI:create(rack))
-        if rack:getFx() then
+        if rack:getFx() and rack:getTrack():isSelected() then
+
             rack:getFx():focus()
             rack:setSelectedPad(0)
         end

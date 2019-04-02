@@ -1,4 +1,8 @@
 Ideas:
+    ☐ move la track to other track
+    ☐ move fx to other tracks (incl pos)
+
+    ☐ master tool
     ☐ split mode drop keyboard ui
     ☐ pad-mode per zone
     ☐ bussing
@@ -46,6 +50,13 @@ Ideas:
         ☐ remove iconbutton in favour of general button
 
 Bugx:
+
     ✔ fix solo mode (in place) @done(19-03-30 14:47)
-    ☐ hide sub tracks in * filter
+    ✔ hide sub tracks in * filter @done(19-04-02 09:49)
     ☐ random sound if db file is missing
+    ☐ arm midi track on creation
+    ✔ show fx on insertion @done(19-04-02 09:50)
+    ☐ midi track track color
+    ☐ fix tracktool relaod while dragging sliders
+    ✔ bus all @done(19-04-02 10:13)
+    ☐ solo LA on create

@@ -6,18 +6,20 @@ local paths = require 'paths'
 local colors = require 'colors'
 local rea = require 'rea'
 
-local FXListItem = class(Image, Label)
+local FXListItem = class(Component)
 
 function FXListItem:create(plugin)
 
-    local name = plugin:getCleanName()
-    local filename = name .. '.png'
-    local file = paths.imageDir:findFile(filename)
+    local file = plugin:getImage()
+    local comp = file and Image:create(file, 'fit', 1) or Label:create(plugin:getCleanName(), 0,0,200,40)
 
-    local self = file and Image:create(file, 'fit', 1) or Label:create(name, 0,0,200,40)
+    local self = Component:create(0,0, comp.w, comp.h)
     setmetatable(self, FXListItem)
+
     self.fx = plugin
-    self.file = file
+    --
+    self.comp = self:addChildComponent(comp)
+
     return self
 
 end
@@ -33,22 +35,14 @@ function FXListItem:onClick(mouse)
 end
 
 function FXListItem:onDblClick(mouse)
-
     self.fx:open()
-
 end
 
 function FXListItem:onDrag()
     Component.dragging = self
 end
 
-function FXListItem:paint(g)
-
-    if self.file then
-        Image.paint(self, g)
-    else
-        Label.paint(self, g)
-    end
+function FXListItem:paintOverChildren(g)
 
     if Component.dragging and Component.dragging.fx and Component.dragging.fx ~= self.fx then
         if self.mouse.y < (self.h / 2) then

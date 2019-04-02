@@ -17,8 +17,6 @@ for i = 1, 1023 do
     Component.slots[i] = false
 end
 
-
-
 function Component:create(x, y, w, h)
 
     local self = {
@@ -241,7 +239,7 @@ function Component:setVisible(vis)
 end
 
 function Component:isVisible()
-    return self.visible and (not self.parent or self.parent:isVisible()) and self:getAlpha() > 0
+    return self.visible and (self.w > 0 or self.h > 0) and (not self.parent or self.parent:isVisible()) and self:getAlpha() > 0
 end
 
 function Component:updateMousePos(mouse)
@@ -321,6 +319,9 @@ function Component:evaluate(g, dest, x, y)
     self.isCurrentlyVisible = self:isVisible()
     if not self.isCurrentlyVisible then return end
 
+    local alpha = self:getAlpha()
+    local area = self.w * self.h * alpha
+    local hasVisibleArea = area > 0
 
     if self.needsLayout and self.resized then
         self:resized()
@@ -329,9 +330,8 @@ function Component:evaluate(g, dest, x, y)
 
     local doPaint = (self.paint or self.paintOverChildren) and (self.needsPaint or self:getWindow().repaint == 'all')
 
-    local alpha = self:getAlpha()
 
-    if self.paint then
+    if self.paint and hasVisibleArea then
         local pslot = self:getSlot('component:' .. tostring(self.id) .. ':paint')
         if doPaint then
             g:setFromComponent(self, pslot)
@@ -348,7 +348,7 @@ function Component:evaluate(g, dest, x, y)
 
     self:evaluateChildren(g, dest, x, y)
 
-    if self.paintOverChildren then
+    if self.paintOverChildren and hasVisibleArea then
 
         local poslot = self:getSlot('component:' .. tostring(self.id) .. ':paintOverChildren')
         if doPaint then
