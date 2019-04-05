@@ -3,14 +3,13 @@ package.path = debug.getinfo(1,"S").source:match[[^@?(.*[\/])[^\/]-$]] .. "../?.
 require 'boot'
 addScope('trackTool')
 addScope('drumRack')
-addScope('drumRack/ui')
 addScope('pluginList')
 
 local TrackToolSwitcher = require 'TrackToolSwitcher'
 local WindowApp = require 'WindowApp'
 local Builder = require 'Builder'
 local rea = require 'rea'
-local paths = require 'paths'
+local paths = require 'paths' 
 
 local TrackToolJSFX = paths.effectsDir:childFile('TrackTool')
 if not TrackToolJSFX:exists() then

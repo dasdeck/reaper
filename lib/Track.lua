@@ -4,21 +4,25 @@ local Plugin = require 'Plugin'
 local Watcher = require 'Watcher'
 local Collection = require 'Collection'
 local TrackState = require 'TrackState'
-
+local Mem = require 'Mem'
 local color = require 'color'
 local colors = require 'colors'
 local _ = require '_'
 
 local Track = class()
 
+
 -- static --
+
+Track.mem = Mem:create('track')
 
 Track.typeMap = {
     aux = 'aux',
     bus = 'bus',
     instrument = 'instrument',
     audio = 'audio',
-    la = 'la'
+    la = 'la',
+    output = 'output'
 }
 
 Track.types = _.map(Track.typeMap, function(type) return type end)
@@ -41,11 +45,7 @@ function Track.onStateChange()
     end)
 end
 
-function Track.getMetaData()
 
-    local Project = require 'Project'
-
-end
 
 function Track.deferAll()
 
@@ -67,12 +67,14 @@ function Track.getTrackMap()
 end
 
 function Track.getFocusedTrack(live)
-    if nil == Track.focusedTrack or live then
-        local track = reaper.GetMixerScroll()
-        Track.focusedTrack = track and Track:create(track)
-    end
 
-    return Track.focusedTrack
+    return Track.get(Track.mem:get(0) - 1)
+    -- if nil == Track.focusedTrack or live then
+    --     local track = reaper.GetMixerScroll()
+    --     Track.focusedTrack = track and Track:create(track)
+    -- end
+
+    -- return Track.focusedTrack
 end
 
 function Track.getSelectedTracks(live)
@@ -115,8 +117,8 @@ end
 --function Track.getUniqueName()
 
 function Track.get(index)
-    local track = (index >= 0) and reaper.GetTrack(0, index);
-    return track and Track:create(track)
+    local track = Track.getAllTracks()[index+1]
+    return track and track:exists() and track
 end
 
 function Track.insert(index)
@@ -174,6 +176,16 @@ function Track:onChange(listener)
     table.insert(self.listeners, listener)
 end
 
+function Track.disarmAll()
+    _.forEach(Track.getAllTracks(), function(track)
+        track:setArmed(false)
+    end)
+end
+
+function Track:isArmed()
+    return self:getValue('arm') ~= 0
+end
+
 function Track:setArmed(arm)
     if arm == 1 then
         _.forEach(Track.getAllTracks(), function(track)
@@ -207,17 +219,31 @@ end
 
 function Track:exists()
 
-    return _.find(Track.getAllTracks(true), self)
+    return reaper.ValidatePtr2(0, self.track, 'MediaTrack*')
+    -- return _.find(Track.getAllTracks(true), self)
     -- body
+end
+
+function Track:wantsAudioControlls()
+    return self:getType() == Track.typeMap.output or self:getType() == Track.typeMap.aux or self:getType() == Track.typeMap.bus
 end
 
 function Track:isLA()
     return self:getName() and self:getName():endsWith(':la')
 end
 
+function Track:isAudioTrack()
+    local instrument = self:getInstrument()
+    if instrument and (not instrument:canDoMultiOut() or not instrument:isMultiOut()) then
+        return true
+    end
+end
+
 function Track:isMidiTrack()
     local instrument = self:getInstrument()
-    return not instrument
+    return not instrument and self:getValue('toParent')  == 0 and not _.some(self:getSends(), function(send)
+        return send:isAudio()
+    end)
 end
 
 function Track:getMetaKey()
@@ -226,11 +252,14 @@ end
 
 function Track:getMetaData(extra)
     local suc, res = reaper.GetProjExtState(0, 'D3CK', self:getMetaKey())
-    return Collection:create(suc > 0 and res or {})
+    res = suc and res or {}
+    local res = self:getValue('d3ck', {})
+    return Collection:create(res)
 end
 
 function Track:setMetaData(coll)
     reaper.SetProjExtState(0, 'D3CK', self:getMetaKey(), tostring(coll))
+    self:setValue('d3ck', tostring(coll))
     return track
 end
 
@@ -271,6 +300,7 @@ end
 
 function Track:focus()
     reaper.SetMixerScroll(self.track)
+    Track.mem:set(0, self:getIndex())
     -- reaper.Main_OnCommand(reaper.NamedCommandLookup("_S&M_PASTSNDRCV1"),0)
     rea.refreshUI()
     return self
@@ -312,10 +342,14 @@ end
 
 Track.stringMap = {
     name = 'P_NAME',
-    icon = 'P_ICON'
+    icon = 'P_ICON',
+    d3ck = 'P_EXT:D3CK'
 }
 
 Track.valMap = {
+    chans = 'I_NCHAN',
+    height = 'I_HEIGHTOVERRIDE',
+    hlock = 'B_HEIGHTLOCK',
     vol = 'D_VOL',
     pan = 'D_PAN',
     arm = 'I_RECARM',
@@ -331,8 +365,25 @@ function Track:getPan()
     return self:getValue('pan')
 end
 
+function Track:getInlineUI()
+    if self:getType() == Track.typeMap.instrument then
+        if self:getInstrument() then
+            local FXListItem = require 'FXListItem'
+            return FXListItem:create(self:getInstrument())
+        end
+    end
+end
+
 function Track:setPan(volume)
-    self:setValue('pan', math.max(-1, math.min(1,volume)))
+    self:setValue('pan', round(math.max(-1, math.min(1,volume)), 100))
+end
+
+function Track:isMuted()
+    return self:getValue('mute') == 1
+end
+
+function Track:setMuted(mute)
+    self:setValue('mute', (mute == true or mute == nil) and 1 or 0)
 end
 
 function Track:getDefaultName()
@@ -346,9 +397,7 @@ function Track:getName()
 end
 
 function Track:setLocked(locked)
-
     self:setState(self:getState():withLocking(locked))
-
     return self
 end
 
@@ -357,17 +406,17 @@ function Track:getVolume()
 end
 
 function Track:setVolume(volume)
-    self:setValue('vol', dbToLin(volume))
+    self:setValue('vol', dbToLin(round(volume, 100)))
 end
 
 function Track:isLocked()
     return self:getState():isLocked()
 end
 
-function Track:getValue(key)
+function Track:getValue(key, default)
     if Track.stringMap[key] then
         local res, val = reaper.GetSetMediaTrackInfo_String(self.track, Track.stringMap[key], '', false)
-        return res and val or nil
+        return res and val or default
     elseif Track.valMap[key] then
         return reaper.GetMediaTrackInfo_Value(self.track, Track.valMap[key])
     end
@@ -633,7 +682,6 @@ end
 
 function Track:getType()
     local type = self:getMeta('type')
-
     return type or self:getInstrument() and Track.typeMap.instrument
 end
 

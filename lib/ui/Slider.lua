@@ -9,6 +9,7 @@ function Slider:create(...)
 
     local self = Label:create('', ...)
     self.pixelsPerValue = 100
+    self.wheelscale = 1
     setmetatable(self, Slider)
     return self
 
@@ -41,19 +42,21 @@ end
 function Slider:onMouseWheel(mouse)
     rea.transaction('slider change', function()
         if mouse.mouse_wheel > 0 then
-            self:setValue(self:getValue() + 1)
+            self:setValue(self:getValue() + 1 * self.wheelscale)
         else
-            self:setValue(self:getValue() - 1)
+            self:setValue(self:getValue() - 1 * self.wheelscale)
         end
         self:repaint(true)
     end)
 end
 
 function Slider:onClick(mouse)
-    if mouse:isCommandKeyDown() then
-        self:setValue(self:getDefaultValue())
-        self:repaint(true)
+    if mouse:wasRightButtonDown() then
+        self:promptValue()
     end
+    -- if mouse:isCommandKeyDown() then
+
+    -- end
 end
 
 function Slider:getColor(full)
@@ -62,18 +65,49 @@ function Slider:getColor(full)
     return c
 end
 
+function Slider:resetValue()
+    rea.transaction('reset slider', function()
+        self:setValue(self:getDefaultValue())
+        self:repaint(true)
+    end)
+end
+
 function Slider:paint(g)
 
     Label.paint(self, g)
-
     g:setColor(self:getColor(true))
-
     local padding = 0
     g:roundrect(padding ,padding , self.w - 2 * padding, self.h - 2*padding, 5, false)
 
 end
 
-function Slider:onDblClick()
+function Slider:paintOverChildren(g)
+
+    local min = self:getMin()
+    local max = self:getMax()
+    if min and max then
+        g:setColor(1,0,0,0.5)
+
+        local range = max - min
+
+        local center = (self.bipolar and ((self.bipolar - min) / range) or 0) * self.w
+
+        local valueRelative = (self:getValue() - min) / range
+
+        if self.h > self.w then
+            local h = self.h * valueRelative
+            g:rect(0, self.h - h, self.w, h, true)
+        else
+            local x = math.floor(self.w * valueRelative)
+            local w = math.abs(x - center)
+            x = math.min(center, x)
+            g:rect(x, 0, w, self.h, true)
+        end
+    end
+
+end
+
+function Slider:promptValue()
     local value = rea.prompt("value", self:getValue())
     if value and value:trim():isNumeric() then
 
@@ -85,6 +119,10 @@ function Slider:onDblClick()
             end)
         end
     end
+end
+
+function Slider:onDblClick()
+    self:resetValue()
 end
 
 function Slider:setValue(val)
@@ -100,6 +138,12 @@ end
 
 function Slider:getDefaultValue()
     return 0
+end
+
+function Slider:getMax()
+end
+
+function Slider:getMin()
 end
 
 return Slider

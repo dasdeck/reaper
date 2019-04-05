@@ -107,9 +107,12 @@ function Window:show(options)
     local stored = State.global.get('window_' ..self.name, options, {'x','y', 'h','w', 'dock', 'docked'})
     _.assign(self, stored)
 
+    gfx.quit()
     gfx.init(self.name, self.w, self.h, self.dock, self.x, self.y)
 
-    if not options.focus then self:unfocus() end
+    if self.onShow then self:onShow() end
+
+    if options.unfocus then self:unfocus() end
 
 end
 

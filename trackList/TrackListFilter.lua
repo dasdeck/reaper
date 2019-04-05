@@ -28,7 +28,7 @@ local options = {
                     instrument:setSelected(1)
                     instrument:setArmed(1)
                     instrument:focus()
-                    instrument:getInstrument():open()
+                    instrument:getInstrument():open(true)
                 end
             end)
         end
@@ -47,7 +47,7 @@ local options = {
         key = 'la'
     },
     {
-        color = colors.fx,
+        color = colors.bus,
         args = 'b',
         key = 'bus',
         onRightClick = function()

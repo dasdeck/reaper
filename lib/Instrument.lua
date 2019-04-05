@@ -15,8 +15,10 @@ function Instrument.createInstrument(name)
         track:setName(name)
         track:setType(Track.typeMap.instrument)
         track:setColor(colors.instrument)
-        local res = track:addFx(name)
-        if not res then
+        track:setValue('height', 40)
+        track:setValue('hlock', 1)
+        local instrument = track:addFx(name)
+        if not instrument then
             track:remove()
             track = nil
             return false
@@ -90,7 +92,6 @@ function Instrument.bang()
         else  -- no instruments found
             return false
         end
-
 
     end)
 

@@ -22,35 +22,39 @@ function TrackUI.click(track, mouse)
         end)
         menu:show()
 
-        return
-    end
-
-    track:focus()
-
-    if mouse:isAltKeyDown() then
-        local tracks = Track.getSelectedTracks(true)
-        rea.transaction('remove track', function()
-            if mouse:isShiftKeyDown() and _.size(tracks) > 0 then
-                _.forEach(tracks, function(track) track:remove() end)
-            else
-                track:remove(true)
-            end
-        end)
-
-    elseif mouse:isShiftKeyDown() then
-        local firstSelected = _.first(Track.getSelectedTracks()):getIndex()
-        local lastSelected = _.last(Track.getSelectedTracks()):getIndex()
-        local minIndex = math.min(track:getIndex(), firstSelected)
-        local maxIndex = math.max(track:getIndex(), lastSelected)
-        local tracks = Track.getAllTracks()
-        for i = minIndex, maxIndex do
-            tracks[i]:setSelected(true)
-        end
     else
-        local wasSelected = track:isSelected()
-        local sbSelected = 1
-        if mouse:isCommandKeyDown() then sbSelected = not wasSelected end
-        track:setSelected(sbSelected)
+
+        track:focus()
+
+        if mouse:isAltKeyDown() then
+            local tracks = Track.getSelectedTracks(true)
+            rea.transaction('remove track', function()
+                if mouse:isShiftKeyDown() and _.size(tracks) > 0 then
+                    _.forEach(tracks, function(track) track:remove() end)
+                else
+                    track:remove(true)
+                end
+            end)
+        elseif mouse:isShiftKeyDown() then
+            track:setMuted(not track:isMuted())
+        elseif mouse:isCommandKeyDown() and mouse:isShiftKeyDown() and _.size(Track.getSelectedTracks()) > 0 then
+
+            local firstSelected = _.first(Track.getSelectedTracks()):getIndex()
+            local lastSelected = _.last(Track.getSelectedTracks()):getIndex()
+            local minIndex = math.min(track:getIndex(), firstSelected)
+            local maxIndex = math.max(track:getIndex(), lastSelected)
+            local tracks = Track.getAllTracks()
+            for i = minIndex, maxIndex do
+                tracks[i]:setSelected(true)
+            end
+
+        else
+            local wasSelected = track:isSelected()
+            local sbSelected = 1
+            if mouse:isCommandKeyDown() then sbSelected = not wasSelected end
+            track:setSelected(sbSelected)
+        end
+
     end
 
 end

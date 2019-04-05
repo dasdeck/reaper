@@ -31,8 +31,14 @@ function TrackList:create(...)
 
     self:updateList()
 
+    _.forEach(Track.getAllTracks(), function(track) track:iconize() end)
+
     return self
 
+end
+
+function TrackList:onClick()
+    Track.setSelectedTracks({})
 end
 
 function TrackList:getData()
@@ -51,7 +57,9 @@ function TrackList:getData()
         local opt = {
             proto = function()
                 return TrackListComp:create(track, TrackListFilter.all.getToggleState())
-            end
+            end,
+            size = true
+
             -- size = 20
         }
 

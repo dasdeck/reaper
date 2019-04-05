@@ -12,6 +12,12 @@ local Bus = require 'Bus'
 local La = require 'La'
 local AuxUI = require 'AuxUI'
 local Mouse = require 'Mouse'
+local DrumRack = require 'DrumRack'
+local PadGrid = require 'PadGrid'
+local Output = require 'Output'
+local Outputs = require 'Outputs'
+local Type = require 'Type'
+local Slider = require 'Slider'
 
 local colors = require 'colors'
 local rea = require 'rea'
@@ -25,13 +31,8 @@ function TrackTool:create(track)
 
     self.track = track
 
-    self.watchers:watch(Project.watch.project, function()
-        if not Mouse.capture():isButtonDown() then
-            self:update()
-        end
-    end)
 
-    -- self:update()
+    self:update()
 
     return self
 end
@@ -39,62 +40,14 @@ end
 function TrackTool:update()
     self:deleteChildren()
 
-    rea.log('tracktool update')
     local track = self.track
 
-    self.outout = self:addChildComponent(TextButton:create('output'))
-    self.currentOutput = track:getOutput()
-    self.outout.color = self.currentOutput and self.currentOutput:getColor() or self.outout.color
-    self.outout.onClick = function(s, mouse)
-
-        if mouse:wasRightButtonDown() then
-            local menu = Menu:create()
-            local busMenu = Menu:create()
-            _.forEach(Track.getAllTracks(), function(otherTrack)
-                -- local checked = false
-                if otherTrack ~= track and otherTrack:isBus() then
-                    busMenu:addItem(otherTrack:getName() or otherTrack:getDefaultName(), {
-                        callback = function()
-                            track:setOutput(otherTrack)
-                        end,
-                        checked = self.currentOutput == otherTrack,
-                        transaction = 'change routing'
-
-                    })
-                end
-
-            end)
-            busMenu:addSeperator()
-            busMenu:addItem('new bus', function()
-                track:setOutput(Bus.createBus(), true)
-            end, 'add bus')
-            menu:addItem('bus', busMenu)
-            menu:addItem('master', {
-                checked = not self.currentOutput and track:getValue('toParent') > 0,
-                callback = function()
-                    track:setOutput(nil)
-                end
-            }, 'change routing')
-            menu:show()
-        elseif self.currentOutput then
-            self.currentOutput :focus()
-        end
+    local inlineUI = track:getInlineUI()
+    if inlineUI then
+        self.inline = self:addChildComponent(inlineUI)
     end
-    self.outout.getText = function(s, mouse)
-        local output = track:getOutput()
-        if not output then
-            if track:getValue('toParent') > 0 then
-                return 'master'
-            else
-                return '--'
-            end
-        else
-            return output:getName()
-        end
-    end
-    self.outout.isDisabled = function()
-        return not track:getOutput() and track:getValue('toParent') == 0
-    end
+
+    self.output = self:addChildComponent(Output:create(track))
 
     self.la = self:addChildComponent(ButtonList:create({}))
     self.la.getData = function()
@@ -152,29 +105,60 @@ function TrackTool:update()
     end
     self.aux:updateList()
 
-    self.type = self:addChildComponent(TextButton:create(''))
-    self.type.getText = function()
-        return track:getType() or '--'
-    end
-    self.type.onButtonClick = function()
-        local currentType = track:getType()
-        local menu = Menu:create()
-        _.forEach(Track.types, function(type)
-            menu:addItem(type, {
-                checked = type == currentType,
-                callback = function()
-                    track:setType(type)
-                end,
-                transaction = 'set track type'
-            })
-        end)
-        menu:show()
-    end
+    self.type = self:addChildComponent(Type:create(track))
+
 
     self.mute = self:addChildComponent(TrackStateButton:create(track, 'mute', 'M'))
     self.solo = self:addChildComponent(TrackStateButton:create(track, 'solo', 'S'))
 
     self.fx = self:addChildComponent(FXList:create(track))
+
+    self.gain = self:addChildComponent(Slider:create())
+    self.watchers:watch(function()
+        return self.track:getVolume()
+    end, function()
+        self.gain:repaint(true)
+    end)
+    self.gain.pixelsPerValue = 10
+    self.gain.getValue = function()
+        return round(self.track:getVolume(),10)
+    end
+    self.gain.setValue = function(s, volume)
+        self.track:setVolume(volume)
+    end
+    self.gain.getMin = function()
+        return -60
+    end
+    self.gain.getMax = function()
+        return 10
+    end
+
+    self.pan = self:addChildComponent(Slider:create())
+    self.watchers:watch(function()
+        return self.track:getPan()
+    end, function()
+        self.pan:repaint(true)
+    end)
+    self.pan.pixelsPerValue = 100
+    self.pan.bipolar = 0
+    self.pan.wheelscale = 0.01
+    self.pan.getText = function()
+        return tostring(round(self.pan:getValue() * 100)) .. ' %'
+    end
+    self.pan.getValue = function()
+        return self.track:getPan()
+    end
+    self.pan.setValue = function(s, volume)
+        self.track:setPan(volume)
+    end
+    self.pan.getMin = function()
+        return -1
+    end
+    self.pan.getMax = function()
+        return 1
+    end
+
+    self.outputs = self:addChildComponent(Outputs:create(track))
 
     if self.track:getTrackTool() then
         self.controlls = self:addChildComponent(TrackToolControlls:create(self.track))
@@ -187,22 +171,48 @@ function TrackTool:update()
         end
 
     end
+
 end
 
 function TrackTool:resized()
 
     local h = 20
-    self.controlls:setBounds(0, 0, self.w, 60)
-    self.outout:setBounds(0,self.controlls:getBottom(), self.w, h)
-    self.la:setBounds(0,self.outout:getBottom(), self.w, self.la.h)
-    self.aux:setBounds(0,self.la:getBottom(), self.w, self.aux.h)
+    local y = 0
 
-    self.type:setBounds(0,self.aux:getBottom(), self.w, h)
+    if self.inline then
+        self.inline:fitToWidth(self.w)
+        y = self.inline:getBottom()
+    end
 
-    self.mute:setBounds(0,self.type:getBottom(), self.w/2, h)
-    self.solo:setBounds(self.mute:getRight(),self.type:getBottom(), self.w/2, h)
+    self.controlls:setBounds(0, y, self.w, 60)
+    y = self.controlls:getBottom()
 
-    self.fx:setBounds(0,self.mute:getBottom(),self.w, self.fx.h)
+    if self.track:wantsAudioControlls() then
+        self.output:setBounds(0,self.controlls:getBottom(), self.w, h)
+        self.la:setBounds(0,self.output:getBottom(), self.w, self.la.h)
+        self.aux:setBounds(0,self.la:getBottom(), self.w, self.aux.h)
+        y = self.aux:getBottom()
+    end
+
+    self.type:setBounds(0,y, self.w, h)
+    y = self.type:getBottom()
+
+    self.mute:setBounds(0,y, self.w/2, h)
+    self.solo:setBounds(self.mute:getRight(),y, self.w/2, h)
+
+    y = self.solo:getBottom()
+
+    if self.track:wantsAudioControlls() then
+        self.fx:setBounds(0,self.mute:getBottom(),self.w)
+        self.fx:resized()
+        y = self.fx:getBottom()
+    end
+
+    self.outputs:setBounds(0,y, self.w)
+    y = self.outputs:getBottom()
+
+    self.pan:setBounds(0, self.h - 230, self.w, 30)
+    self.gain:setBounds(0, self.h - 200, 50, 200)
 end
 
 return TrackTool

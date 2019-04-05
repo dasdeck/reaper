@@ -78,8 +78,8 @@ function FXButton:create(fxSource)
     self.lock.getToggleState = function()
         return fxSource:getFx() and fxSource:getFx():isLocked()
     end
-    self.text.color = colors.fx
-    self.lock.color = colors.fx
+    self.text.color = colors.bus
+    self.lock.color = colors.bus
     return self
 end
 

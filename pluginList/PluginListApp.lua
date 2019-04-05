@@ -16,12 +16,21 @@ function PluginListApp:create(name)
     self.watchers:watch(function()
         return self.mem:get(0)
     end, function(value)
-        if value == 1 then
-            self:show()
-        elseif value == 0 then
-            self:close()
+        if value > 0 then
+            if self:getWindow() then
+                self.window.component:setDir(self.state:get('dir', paths.imageDir))
+                self.window:show()
+            end
+            if self.onShow then
+                self:onShow()
+            end
+        elseif value < 0 then
+
+            if self.onClose then self:onClose() end
+            if self:getWindow() then
+                self.window:close()
+            end
         end
-        self.mem:set(0,-1)
     end, false)
 
     self.watchers:watch(function()
@@ -45,7 +54,17 @@ function PluginListApp.pick(cat, callback)
         instance.onClick = nil
         instance:close()
     end
+
     instance:showModal(cat)
+    local shownAgain = false
+    instance.onShow = function()
+        if shownAgain then
+            -- rea.log('removed handler')
+            instance.onClick = nil
+            instance:delete()
+        end
+        shownAgain = true
+    end
 
 end
 
@@ -60,9 +79,9 @@ end
 function PluginListApp:onStart()
 
 
-    if tonumber(self.state:get('window_open', 0)) > 0 then
-        self:show()
-    end
+    -- if self.options.debug and tonumber(self.state:get('window_open', 0)) > 0 then
+    --     self:show()
+    -- end
 
 end
 
@@ -94,23 +113,18 @@ function PluginListApp:getWindow()
 end
 
 function PluginListApp:show()
-    self.state:set('window_open', 1)
-    self.mem:set(0, 1)
+    -- self.state:set('window_open', 1)
+    self.mem:set(0, math.max(0, self.mem:get(0)) + 1)
 
-    if self:getWindow() then
-        self.window.component:setDir(self.state:get('dir', paths.imageDir))
-        self.window:show()
-    end
+
     return self
 end
 
 function PluginListApp:close()
-    self.state:set('window_open', 0)
-    self.mem:set(0, 0)
-    if self.onClose then self:onClose() end
-    if self:getWindow() then
-        self.window:close()
-    end
+    -- self.state:set('window_open', 0)
+    self.mem:set(0, math.min(0, self.mem:get(0)) - 1)
+
+
     return self
 end
 

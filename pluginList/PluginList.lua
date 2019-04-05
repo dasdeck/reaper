@@ -7,6 +7,7 @@ local TextBox = require 'TextBox'
 local State = require 'State'
 
 local paths = require 'paths'
+local colors = require 'colors'
 local _ = require '_'
 local rea = require 'rea'
 
@@ -32,7 +33,22 @@ function PluginList:update()
     end), function(file)
         local child = self:addChildComponent(Image:create(file, 'fit'))
 
+        function child.paintOverChildren(s, g)
+            if child.selected then
+                g:setColor(colors.bus:with_alpha(1))
+                g:rect(0,0,child.w, child.h)
+
+                g:setColor(colors.bus:with_alpha(0.5))
+                g:rect(0,0,child.w, child.h, true)
+            end
+        end
+
         function child.onClick(mouse)
+            child.selected = not child.selected
+            child:repaint()
+        end
+
+        function child.onDblClick(mouse)
             State.app:set('lastclicked', file:sub(self.dir.dir:len() + 2, -5))
             Mem.app:set(1, Mem.app:get(1) + 1)
         end

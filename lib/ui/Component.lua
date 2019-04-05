@@ -61,7 +61,7 @@ function Component:getSlot(name, create, error)
                 end
             end)
 
-            if error then
+            if not slot and error then
                 error()
                 return self:getSlot(name, create)
             else
@@ -258,6 +258,7 @@ function Component:setSize(w,h)
 
         self.w = w
         self.h = h
+
 
         self:relayout()
     end

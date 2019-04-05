@@ -1,9 +1,14 @@
 local _require = require
 local loadedLibs = {}
 
+local exclude = {
+    Profiler = true,
+    _ = true,
+    Collection = true
+}
 require = function(lib)
     local res = _require(lib)
-    if type(res) == 'table' and lib ~= 'Profiler' then
+    if type(res) == 'table' and not exclude[lib] then
         loadedLibs[lib] = res
     end
 
@@ -102,9 +107,9 @@ function Profiler:getSlot(name, parent)
             children = {},
             __tostring = function(self)
                 local header = name .. ':' .. tostring(self.calls) .. ', ' .. tostring(self.time)
-                if _.size(self.children) > 0 then
-                    header = header .. '\n' .. _.join(_.map(self.children, function(child) return child.__tostring(child) end), '\n')
-                end
+                -- if _.size(self.children) > 0 then
+                --     header = header .. '\n' .. _.join(_.map(self.children, function(child) return child.__tostring(child) end), '\n')
+                -- end
                 return header
             end
         }

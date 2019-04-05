@@ -12,11 +12,11 @@ local defaults = {
     rows = 4
 }
 
-function PadGrid:create(options, ...)
+function PadGrid:create(rack, ...)
 
     local self = Component:create(...)
+    self.rack = rack
     _.assign(self, defaults)
-    _.assign(self, options)
 
     setmetatable(self, PadGrid)
     self:createPads()

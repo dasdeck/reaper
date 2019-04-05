@@ -44,6 +44,8 @@ function App:defer()
             Window.currentWindow:defer()
         end
 
+        if self.onAfterDefer then self:onAfterDefer() end
+
     end, debug.traceback)
 
     if not res and self.options.debug then
@@ -96,7 +98,7 @@ function App:start(options)
             end)
 
             local limitedRank = {}
-            for i=1,5 do
+            for i=1,100 do
                 local sub = _.map(rank[i].children, function(meth) return meth end)
                 table.sort(sub, function (a,b)
                     return a.time > b.time

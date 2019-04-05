@@ -76,12 +76,12 @@ function ButtonList:updateList()
             end
         end
 
-        local CompSize = value.size or (comp[size] > 0 and comp[size]) or self.getDefaultCompSize()
-        if CompSize < 0 then
-            CompSize = -CompSize * self[size]
-        end
+        -- local CompSize = value.size or (comp[size] > 0 and comp[size]) or self.getDefaultCompSize()
+        -- if CompSize < 0 then
+        --     CompSize = -CompSize * self[size]
+        -- end
         self:addChildComponent(comp)
-        self[size] = self[size] + CompSize
+        self[size] = self[size] + self:getSize(comp, value, size, self:getDefaultCompSize())
     end
 
     if self.layout == 1 and _.size(self.children) then
@@ -103,6 +103,27 @@ end
 
 function ButtonList:getData()
     return self.data
+end
+
+function ButtonList:getSize(comp, data, dim, size)
+    local s = size
+
+    if data then
+        if data.size then
+
+            if data.size == true and comp[dim] > 0 then
+                return comp[dim]
+            elseif data.size < 0 then
+                return -data.size * self[dim]
+            else
+                return data.size
+            end
+
+        end
+
+    end
+
+    return size
 end
 
 function ButtonList:resized()
@@ -129,11 +150,7 @@ function ButtonList:resized()
             child[dimI] = self[dimI]
             child[pI] = 0--self[pI]
             child[p] = off
-            local s = data and data.size or child[dim] > 0 and child[dim] or size
-            if s < 0 then
-                s = -s * self[dim]
-            end
-            child[dim] = s
+            child[dim] = self:getSize(child,data, dim,size)
             off = off + child[dim]
             i = i + 1
             child:relayout()

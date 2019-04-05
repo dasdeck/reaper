@@ -68,10 +68,6 @@ function PadUI.showMenu(pad)
     menu:addItem('add', addMenu)
     menu:addSeperator()
     menu:addItem('clear', function() pad:clear() end, 'clear pad')
-    menu:addItem('test', function()
-        local a = Collection:create({Track.get(0).track})
-        local b = Collection:create({Track.get(1).track})
-    end, 'clear pad')
     menu:show()
 
 end
@@ -213,14 +209,14 @@ function PadUI:paintOverChildren(g)
     local padding = 5
 
     if self.pad:getVelocity() > 0 then
-        g:setColor(colors.fx:with_alpha(self.pad:getVelocity() / 127))
+        g:setColor(colors.bus:with_alpha(self.pad:getVelocity() / 127))
         g:rect(padding, padding, self.w - padding * 2, self.h - padding * 2, true, true)
     end
 end
 
 function PadUI:resized()
 
-    local padding = 2
+    local padding = 0
     self.padButton:setBounds(padding, padding, self.w - 2 * padding, self.h - 2 * padding)
 
 end

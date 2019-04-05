@@ -50,15 +50,22 @@ function TrackListComp:create(track, hideChildren)
     self.icon = self:addChildComponent(icon and Image:create(icon, 'fit') or Component:create())
     self.icon.onDblClick = function()
         if track:getInstrument() then
-            track:getInstrument():open()
+            track:getInstrument():toggleOpen()
         end
     end
+
+    self.solo = self:addChildComponent(TrackStateButton:create(track, 'solo', 'S'))
+
     return self
 
 end
 
 function TrackListComp:paint(g)
     Label.drawBackground(self, g, self.name:getColor())
+end
+
+function TrackListComp:getAlpha()
+    return self.track:exists() and self.track:isMuted() and 0.5 or 1
 end
 
 function TrackListComp:resized()
@@ -68,10 +75,11 @@ function TrackListComp:resized()
     local buttons = #self.children - 1
 
     self.icon:setBounds(0,0,h,h)
-    self.name:setBounds(self.icon:getRight(), 0, self.w - h, h)
+    self.name:setBounds(self.icon:getRight(), 0, self.w - 2*h, h)
+    self.solo:setBounds(self.w - h,0,h,h)
 
     if self.slaves then
-        self.slaves:setBounds(self.icon:getRight()/2, self.name:getBottom(), self.w, h)
+        self.slaves:setBounds(h/2, self.name:getBottom(), self.w-h/2, h)
     end
     -- self.h = self.slaves:getBottom()
 end

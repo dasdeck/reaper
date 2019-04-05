@@ -4,6 +4,8 @@ local Component = require 'Component'
 local TextButton = require 'TextButton'
 local PluginListApp = require 'PluginListApp'
 local Menu = require 'Menu'
+local Aux = require 'Aux'
+local Bus = require 'Bus'
 
 local paths = require 'paths'
 local colors = require 'colors'
@@ -21,7 +23,6 @@ function FXListItem:create(plugin)
 
     self.fx = plugin
 
-    --
     self.comp = self:addChildComponent(comp)
     self.replace = self:addChildComponent(TextButton:create('R'))
     self.replace.getAlpha = function()
@@ -53,6 +54,18 @@ function FXListItem:onClick(mouse)
 
     if mouse:wasRightButtonDown() then
         local menu = Menu:create()
+
+        if self.fx:canDoMultiOut() then
+            menu:addItem('create multiout', function()
+                self.fx:createMultiOut()
+            end, 'create multiout')
+        end
+
+        local moveMenu = Menu:create()
+        moveMenu:addItem('create aux from effect', function()
+
+        end)
+
         menu:addItem('remove', function()
             self.fx:remove()
         end, 'remove')
@@ -133,7 +146,6 @@ end
 
 function FXListItem:resized()
     self.comp:setSize(self.w, self.h)
-    -- self.replace:setBounds(0,0,self.h, self.h)
 end
 
 return FXListItem

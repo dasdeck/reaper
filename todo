@@ -1,8 +1,20 @@
 Ideas:
+    ☐ tracklist tblclick edit first fx
+    ☐ A/B reference tool
+    ☐ drag samples to A/B tool / tag editor
+    ✔ reopen pluginwindow on pick @done(19-04-04 12:33)
+    ☐ bypass state in pluginmenu
     ☐ move la track to other track
     ☐ move fx to other tracks (incl pos)
 
+    ☐ la/ms/split inline handling
+    ☐ clide with visual value (gain, pan, delay)
+
     ☐ master tool
+        ☐ monitor
+        ☐ fx list
+
+
     ☐ split mode drop keyboard ui
     ☐ pad-mode per zone
     ☐ bussing
@@ -60,3 +72,4 @@ Bugx:
     ☐ fix tracktool relaod while dragging sliders
     ✔ bus all @done(19-04-02 10:13)
     ☐ solo LA on create
+    ☐ mouse leave window does not repaint

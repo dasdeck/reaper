@@ -89,6 +89,10 @@ function AuxUI.pickAndCreate(track)
                 aux:remove()
                 return false
             end
+            aux:focus()
+            aux:setSelected(1)
+            plugin:open()
+
             if track and aux then
                 track:createSend(aux)
             end

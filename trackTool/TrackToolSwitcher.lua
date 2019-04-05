@@ -3,6 +3,8 @@ local Track = require 'Track'
 local TrackTool = require 'TrackTool'
 local ButtonList = require 'ButtonList'
 local TextButton = require 'TextButton'
+local Project = require 'Project'
+local Mouse = require 'Mouse'
 
 local rea = require 'rea'
 local _ = require '_'
@@ -15,20 +17,57 @@ function TrackToolSwitcher:create(...)
 
     self.indexInHistory = 1
 
-    self.history = {track = Track.getFocusedTrack(true)}
+    self.history = {track = Track.getFocusedTrack()}
 
-    self.watchers:watch(Track.watch.focusedTrack, function()
-
-        local track = Track.getFocusedTrack(true)
-        -- if track then
+    self.watchers:watch(Track.watch.focusedTrack,
+    function(track)
+        -- rea.logCount('update')
         if self.history.track ~= track then
             self.history.next = {prev = self.history, track = track}
             self.history = self.history.next
             self:update()
         end
         if track then track:touch() end
-        -- end
+
     end)
+    self.watchers:watch(Track.watch.selectedTrack, function(track)
+        Track.mem:set(0, track and track:getIndex() or -1)
+    end)
+    self.watchers:watch(Project.watch.project, function()
+        if not Track.getFocusedTrack() or not Track.getFocusedTrack():exists() then
+            Track.mem:set(0, -1)
+        elseif not Mouse.capture():isButtonDown() then
+            self:update()
+        end
+    end)
+
+    -- self.watchers:watch(Track.watch.focusedTrack, function()
+
+    --     local track = Track.getFocusedTrack(true)
+    --     -- if track then
+    --     if self.history.track ~= track then
+    --         self.history.next = {prev = self.history, track = track}
+    --         self.history = self.history.next
+    --         self:update()
+    --     end
+    --     if track then track:touch() end
+    --     -- end
+    -- end)
+
+
+
+    self:update()
+
+    return self
+end
+
+function TrackToolSwitcher:getTrack()
+    return self.history.track
+end
+
+function TrackToolSwitcher:update()
+
+    self:deleteChildren()
 
     self.nav = self:addChildComponent(ButtonList:create({
         {
@@ -38,7 +77,8 @@ function TrackToolSwitcher:create(...)
                 button.disabled = not enabled
                 if enabled then
                     local track = self.history.prev.track
-                    button.getText = function() return (track:getName() or track:getDefaultName()) .. ' <' end
+                    local name = (track:getName() or track:getDefaultName()) or ''
+                    button.getText = function() return name  .. ' <' end
                     button.color = track:getColor() or button.color
                     button.onClick = function()
                         self.history = self.history.prev
@@ -58,7 +98,8 @@ function TrackToolSwitcher:create(...)
                 button.disabled = not enabled
                 if enabled then
                     local track = self.history.next.track
-                    button.getText = function() return '> ' .. (track:getName() or track:getDefaultName()) end
+                    local name = (track:getName() or track:getDefaultName()) or ''
+                    button.getText = function() return '> ' .. name end
                     button.color = track:getColor() or button.color
                     button.onClick = function()
                         self.history = self.history.next
@@ -74,29 +115,11 @@ function TrackToolSwitcher:create(...)
         }
     }, true))
 
-    self:update()
-
-    return self
-end
-
-function TrackToolSwitcher:getTrack()
-    return self.history.track
-end
-
-function TrackToolSwitcher:update()
-
-
-    if self.trackTool then
-        self.trackTool:delete()
-    end
 
     if self:getTrack() then
         self.trackTool = self:addChildComponent(TrackTool:create(self:getTrack()))
-    else
-        self:relayout()
     end
 
-    self.nav:updateList()
 end
 
 function TrackToolSwitcher:resized()

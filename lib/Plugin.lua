@@ -2,8 +2,10 @@ local Slider = require 'Slider'
 
 local rea = require 'rea'
 local paths = require 'paths'
+local colors = require 'colors'
 
 local Plugin = class()
+local _ = require '_'
 
 Plugin.plugins = {}
 
@@ -121,6 +123,94 @@ function Plugin:getImage()
     return paths.imageDir:findFile(self:getCleanName():escaped())
 end
 
+function Plugin:getOutputs()
+    local succ, i, o = reaper.TrackFX_GetIOSize(self.track.track, self.index)
+    if succ then
+
+        local res = {}
+        local current = {}
+        for i=0, o-1 do
+            local succ, name = reaper.TrackFX_GetNamedConfigParm(self.track.track, self.index, 'out_pin_' .. tostring(i))
+            if name ~= current.name then
+
+                current = {
+                    fx = self,
+                    name = name,
+                    channels = {
+                        i
+                    }
+
+                }
+                table.insert(res, current)
+            else
+                table.insert(current.channels, i)
+            end
+        end
+
+        local name = self.track:getName()
+
+        _.forEach(res, function(current)
+            local source = current.channels[1]
+            if  _.size(current.channels) == 1 then
+                source = source | 1024
+            end
+
+            current.sourceChan = source
+            current.createConnection = function()
+                local outputTrack = self.track.insert()
+
+                local numChansNeeded = current.sourceChan + _.size(current.channels)
+                numChansNeeded = math.ceil(numChansNeeded / 2) * 2
+                self.track:setValue('chans', math.max(self.track:getValue('chans'), numChansNeeded))
+
+                outputTrack:setType(outputTrack.typeMap.output)
+                outputTrack:setColor(colors.instrument:lighten_by(2))
+                outputTrack:setName(current.name)
+                outputTrack:setIcon(paths.imageDir:findFile(name .. '/' .. current.name) or self.track:getIcon())
+                outputTrack:setVisibility(false, true)
+
+                local send = self.track:createSend(outputTrack)
+
+                send:setAudioIO(current.sourceChan, 0)
+                send:setMidiBusIO(-1, -1)
+                send:setMode(3)
+                return send
+            end
+            current.getConnection = function()
+                return _.some(self.track:getSends(), function(send)
+                    local i = send:getAudioIO()
+                    return send:getMode() == 3 and send:getTargetTrack():getName() == current.name and i == current.sourceChan and send
+                end)
+            end
+        end)
+        return res
+    end
+end
+
+function Plugin:canDoMultiOut()
+    local outs = self:getOutputs()
+    return _.size(outs) > 1 and _.size(outs[1].channels) > 1 or _.size(outs) > 2
+end
+
+function Plugin:isMultiOut()
+    return _.some(self:getOutputs(), function(output)
+        return output.channels[1] > 0 and output.getConnection()
+    end)
+end
+
+
+function Plugin:createMultiOut()
+
+    local outs = self:getOutputs()
+    local track = self.track
+
+    track:setValue('chans', _.reduce(outs, function(car, out) return _.size(out.channels) end, 0))
+    track:setValue('toParent', false)
+    _.forEach(outs, function(output)
+        output.createOutput()
+    end)
+end
+
 function Plugin:setPreset(nameOrIndex)
     reaper.TrackFX_SetPreset(self.track.track, self.index, nameOrIndex)
 end
@@ -139,13 +229,21 @@ function Plugin:isSampler()
     return self:getParam('FILE0') ~= nil
 end
 
+function Plugin:toggleOpen()
+    self:open(not self:isOpen())
+end
+
 function Plugin:open(show)
-    reaper.TrackFX_Show(self.track.track, self.index, 3)
-    -- reaper.TrackFX_SetOpen(self.track.track, self.index, show == nil and true or show)
+    show = show == nil and true or show
+    if show then
+        reaper.TrackFX_Show(self.track.track, self.index, 3)
+    else
+        reaper.TrackFX_Show(self.track.track, self.index, 2)
+    end
 end
 
 function Plugin:close()
-    reaper.TrackFX_Show(self.track.track, self.index, 2)
+    self:open(false)
 end
 
 function Plugin:isOpen()

@@ -132,11 +132,11 @@ function Graphics:roundrect(x, y, w, h, r, fill, aa)
         gfx.circle(r, r, r, fill, aa)
         gfx.dest = self.dest
 
-        gfx.blit(0, 1, 0, 0, 0, r, r, self.x, self.y)
-        gfx.blit(0, 1, 0, r, 0, r, r, self.x + w - r, self.y)
-        gfx.blit(0, 1, 0, 0, r, r, r, self.x, self.y + h - r)
+        gfx.blit(0, 1, 0, 0, 0, r, r, self.x + x, self.y + y)
+        gfx.blit(0, 1, 0, r, 0, r, r, self.x + w - r + x, self.y + y)
+        gfx.blit(0, 1, 0, 0, r, r, r, self.x + x, self.y + h - r + y)
 
-        gfx.blit(0, 1, 0, r, r, r, r, self.x + w - r, self.y + h - r)
+        gfx.blit(0, 1, 0, r, r, r, r, self.x + w - r + x, self.y + h - r + y)
 
     else
         gfx.roundrect(self.x + x, self.y + y, w, h, r*2, aa)

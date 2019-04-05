@@ -19,7 +19,7 @@ return function(rack)
             end,
             isDisabled = function()
                 return not rack:isActive()
-            end,
+            end
         },
         {
             -- mode

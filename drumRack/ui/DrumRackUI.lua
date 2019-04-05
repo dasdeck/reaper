@@ -92,7 +92,7 @@ function DrumRackUI:create(rack)
     self.rack = rack
 
     self.opts = self:addChildComponent(ButtonList:create(DrumRackOptions(rack), true))
-    self.padgrid = self:addChildComponent(PadGrid:create({rack = rack}))
+    self.padgrid = self:addChildComponent(PadGrid:create(rack))
 
     local splits = _.map(rack.pads, function(pad) return {args = pad} end)
     self.layers = self:addChildComponent(ButtonList:create(splits, false, Split))

@@ -21,7 +21,7 @@ function Split:paintOverChildren(g)
         local x1 = low / 127 * self.w
         local x2 = (high+1) / 127 * self.w
 
-        g:setColor(colors.fx:with_alpha(0.5))
+        g:setColor(colors.bus:with_alpha(0.5))
         g:rect(x1, 0, x2 - x1, self.h, true)
     end
 
