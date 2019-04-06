@@ -27,7 +27,7 @@ function TrackToolControlls:create(track)
 
     self.globalTranspose = self:addChildComponent(TextButton:create(''))
     self.globalTranspose.getText = function()
-        return tostring(Mem.read('tracktool', 0))
+        return tostring(math.floor(Mem.read('tracktool', 0)))
     end
     self.globalTranspose.onClick = function()
         local state = track:getTrackTool():getParam(3) == 0
@@ -48,13 +48,16 @@ end
 
 function TrackToolControlls:resized()
 
-    local h  = self.h / 3
+    local h  = 20
 
     self.delay:setBounds(0, 0, self.w, h)
 
-    self.transpose:setBounds(0, self.delay:getBottom(), self.w, h)
+    local w = self.w / 2
+    local y = self.delay:getBottom()
 
-    self.globalTranspose:setBounds(0, self.transpose:getBottom(), self.w, h)
+    self.transpose:setBounds(0, y, self.w - h, h)
+
+    self.globalTranspose:setBounds(self.w - h, y, h, h)
 
 
     -- self.fx:setBounds(0, self.globalTranspose:getBottom(), self.w, 200)

@@ -12,6 +12,14 @@ function TrackUI.click(track, mouse)
         local menu = Menu:create()
         menu:addItem(TrackStateButton:create(track, 'tcp', 'T'):getMenuEntry())
         menu:addItem(TrackStateButton:create(track, 'mcp', 'M'):getMenuEntry())
+        if track:getType() == Track.typeMap.instrument then
+            menu:addItem('add midi track', function()
+                local slave = track:createMidiSlave()
+                slave:setArmed(1)
+                slave:focus()
+
+            end,'add midi track')
+        end
         menu:addItem('rename', function()
             local name = rea.prompt('name', track:getName())
             if name then

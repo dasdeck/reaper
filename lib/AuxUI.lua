@@ -20,8 +20,15 @@ function AuxUI:create(send)
     local icon = track:getImage()
     self.name = self:addChildComponent(TextButton:create(icon and Image:create(icon, 'fit', 1) or track:getName()))
     self.name.color = colors.aux
-    self.name.onButtonClick = function()
-        track:focus()
+    self.name.onButtonClick = function(s, mouse)
+
+        if mouse:isAltKeyDown() then
+            rea.transaction('remove send', function()
+                send:remove()
+            end)
+        else
+            track:focus()
+        end
     end
 
     self.gain = self:addChildComponent(Slider:create())

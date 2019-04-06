@@ -21,10 +21,9 @@ end
 function PluginGrid:setDir(dir)
 
     dir = Directory:create(dir)
-    self.h = 1000
+    self.h = gfx.h
     if self.dir ~= dir then
 
-        -- rea.log('dirset:' .. tostring(dir))
         self:deleteChildren()
 
         self.title = self:addChildComponent(TextButton:create(_.last(dir.dir:split('/'))))
@@ -46,14 +45,18 @@ function PluginGrid:setDir(dir)
             _.forEach(self.subgrids.children, function(grid, i)
                 local data = self.subgrids.data[i]
                 local numLists = grid:getNumLists()
-                data.size = -numLists/totalSubLists
+                data.size = -numLists / totalSubLists
             end)
             self.w = totalSubLists * 160
 
         else
+            self.w = 160
             self.list = self:addChildComponent(PluginList:create(dir))
+
         end
+
         self.dir = dir
+        self:resized()
     end
 end
 
@@ -70,14 +73,14 @@ end
 function PluginGrid:resized()
 
     local h = 20
-    -- self.title:setBounds(0,0,self.w, h)
+
     if self.subgrids then
-        self.subgrids:setBounds(0, self.title:getBottom(), self.w, h)
+        self.subgrids:setBounds(0, self.title:getBottom(), self.w)
     else
-        self.list:setBounds(0, self.title:getBottom(), self.w, self.list.h)
+        self.list:setBounds(0, self.title:getBottom(), self.w)
     end
 
-    self.h = gfx.h --(self.subgrids or self.list):getBottom()
+    self.h = gfx.h
 end
 
 

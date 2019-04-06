@@ -22,10 +22,11 @@ end
 function ButtonList:updateList()
 
     self:deleteChildren()
-    -- _.forEach(self.children, function(child) child:delete() end)
-    -- self.children = {}
+
     local size = self.layout == true and 'w' or 'h'
+
     self[size] = 0
+
     for i, value in pairs(self:getData()) do
 
         local proto = value.proto or self.proto
@@ -76,10 +77,6 @@ function ButtonList:updateList()
             end
         end
 
-        -- local CompSize = value.size or (comp[size] > 0 and comp[size]) or self.getDefaultCompSize()
-        -- if CompSize < 0 then
-        --     CompSize = -CompSize * self[size]
-        -- end
         self:addChildComponent(comp)
         self[size] = self[size] + self:getSize(comp, value, size, self:getDefaultCompSize())
     end
@@ -87,7 +84,7 @@ function ButtonList:updateList()
     if self.layout == 1 and _.size(self.children) then
         self[size] = _.first(self.children)[size]
     end
-
+    self:resized()
     self:repaint()
 end
 
@@ -106,7 +103,6 @@ function ButtonList:getData()
 end
 
 function ButtonList:getSize(comp, data, dim, size)
-    local s = size
 
     if data then
         if data.size then
@@ -140,21 +136,22 @@ function ButtonList:resized()
         local p = self.layout == true and 'x' or 'y'
         local pI = self.layout ~= true and 'x' or 'y'
 
-        local size = self[dim] / _.size(dataList)
-
+        local evenSize = self[dim] / _.size(dataList)
         local i = 1
-        local off = 0
+        local pos = 0
         _.forEach(self.children, function(child)
             local data = dataList[i]
 
             child[dimI] = self[dimI]
-            child[pI] = 0--self[pI]
-            child[p] = off
-            child[dim] = self:getSize(child,data, dim,size)
-            off = off + child[dim]
+            child[pI] = 0
+            child[p] = pos
+            child[dim] = self:getSize(child, data, dim, evenSize)
+            pos = pos + child[dim]
             i = i + 1
-            child:relayout()
+            child:resized()
         end)
+        self[dim] = pos
+
     end
 
 end

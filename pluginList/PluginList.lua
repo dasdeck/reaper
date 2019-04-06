@@ -43,9 +43,11 @@ function PluginList:update()
             end
         end
 
-        function child.onClick(mouse)
-            child.selected = not child.selected
-            child:repaint()
+        function child.onClick(s, mouse)
+            if mouse:isCommandKeyDown() then
+                child.selected = not child.selected
+                child:repaint()
+            end
         end
 
         function child.onDblClick(mouse)
@@ -55,12 +57,13 @@ function PluginList:update()
 
     end)
 
-    self:relayout()
+    self:resized()
 end
 
 function PluginList:resized()
-    local padding = 2
     if self.w > 0 then
+        -- rea.log(self.w)
+        local padding = 2
         local y = 0
         _.forEach(self.children, function(child)
             child:setPosition(padding, y + padding)

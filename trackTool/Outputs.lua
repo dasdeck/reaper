@@ -23,10 +23,16 @@ function Outputs:create(track)
             local showAll = track:getMeta('showOutputs', false)
             local rows = _.map(self.fx:getOutputs(), function(output)
                 -- rea.log(output.name)
-                return (showAll or output.getConnection()) and {
+                local con = output.getConnection()
+                local size = 20
+                if con and con:getTargetTrack():isFocused() then
+                    size = nil
+                end
+
+                return (showAll or con) and {
                     proto = OutputListComp,
                     args = output,
-                    size = 20
+                    size = size
                 } or nil
             end)
 
@@ -35,6 +41,8 @@ function Outputs:create(track)
                 onClick = function()
                     track:setMeta('showOutputs', not showAll)
                     self.outputs:updateList()
+
+                    if self.parent then self.parent:resized() end
                 end
             })
             return rows
@@ -53,7 +61,8 @@ function Outputs:resized()
         self.outputs:setSize(self.w)
         self.h = self.outputs.h
     else
-        self.output:setSize(self.w, 20)
+        self.output:setSize(self.w, h)
+        self.h = h
     end
 end
 

@@ -23,12 +23,12 @@ local options = {
         onDblClick = function()
             PluginListApp.pick(PluginListApp.cats.instruments,function(res)
                 -- rea.log(res)
-                local instrument = Instrument.createInstrument(res)
-                if instrument then
-                    instrument:setSelected(1)
-                    instrument:setArmed(1)
-                    instrument:focus()
-                    instrument:getInstrument():open(true)
+                local track = Instrument.createInstrument(res)
+                if track then
+                    track:setSelected(1)
+                    track:setArmed(1)
+                    track:focus()
+                    track:getInstrument():open(true)
                 end
             end)
         end

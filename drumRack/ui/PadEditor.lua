@@ -74,9 +74,7 @@ function PadEditor:resized()
 
     local y = self.range:isVisible() and self.range:getBottom() or 0
 
-
     self.options:setBounds(0, y, self.w, h)
-
 
     self.layers:setBounds(0, self.options:getBottom(), self.w, self.h - self.options:getBottom())
 

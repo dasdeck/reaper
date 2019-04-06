@@ -8,7 +8,6 @@ local Mem = require 'Mem'
 local color = require 'color'
 local colors = require 'colors'
 local _ = require '_'
-
 local Track = class()
 
 
@@ -20,6 +19,8 @@ Track.typeMap = {
     aux = 'aux',
     bus = 'bus',
     instrument = 'instrument',
+    midi = 'midi',
+    drumrack = 'drumrack',
     audio = 'audio',
     la = 'la',
     output = 'output'
@@ -240,10 +241,7 @@ function Track:isAudioTrack()
 end
 
 function Track:isMidiTrack()
-    local instrument = self:getInstrument()
-    return not instrument and self:getValue('toParent')  == 0 and not _.some(self:getSends(), function(send)
-        return send:isAudio()
-    end)
+    return self:getType() == Track.typeMap.midi
 end
 
 function Track:getMetaKey()
@@ -251,14 +249,14 @@ function Track:getMetaKey()
 end
 
 function Track:getMetaData(extra)
-    local suc, res = reaper.GetProjExtState(0, 'D3CK', self:getMetaKey())
-    res = suc and res or {}
+    -- local suc, res = reaper.GetProjExtState(0, 'D3CK', self:getMetaKey())
+    -- res = suc and res or {}
     local res = self:getValue('d3ck', {})
     return Collection:create(res)
 end
 
 function Track:setMetaData(coll)
-    reaper.SetProjExtState(0, 'D3CK', self:getMetaKey(), tostring(coll))
+    -- reaper.SetProjExtState(0, 'D3CK', self:getMetaKey(), tostring(coll))
     self:setValue('d3ck', tostring(coll))
     return track
 end
@@ -299,10 +297,19 @@ function Track:touch()
 end
 
 function Track:focus()
-    reaper.SetMixerScroll(self.track)
-    Track.mem:set(0, self:getIndex())
+    -- reaper.SetMixerScroll(self.track)
+    local instrument = self:getInstrument()
+    if instrument and not instrument:canDoMultiOut() then
+        Track.mem:set(0, instrument.track:getIndex())
+    else
+        Track.mem:set(0, self:getIndex())
+    end
+
+    -- if self:getType() == Track.typeMap.midi then
+
+
     -- reaper.Main_OnCommand(reaper.NamedCommandLookup("_S&M_PASTSNDRCV1"),0)
-    rea.refreshUI()
+    -- rea.refreshUI()
     return self
 end
 
@@ -365,12 +372,30 @@ function Track:getPan()
     return self:getValue('pan')
 end
 
+function Track:createUI()
+    local type = self:getType()
+    if type == Track.typeMap.midi then
+        return (require 'MidiTrackUI'):create(self)
+    elseif type == Track.typeMap.instrument then
+        local instrument = self:getInstrument()
+        return instrument and (require 'InstrumentUI'):create(instrument)
+    elseif self == Track.master then
+        return (require 'MasterUI'):create(self)
+    else
+        return (require 'AudioTrackUI'):create(self)
+    end
+end
+
 function Track:getInlineUI()
     if self:getType() == Track.typeMap.instrument then
         if self:getInstrument() then
             local FXListItem = require 'FXListItem'
             return FXListItem:create(self:getInstrument())
         end
+    elseif self:getType() == Track.typeMap.drumrack then
+        local DrumRackInlineUI = require 'DrumRackInlineUI'
+        local DrumRack = require 'DrumRack'
+        return DrumRackInlineUI:create(DrumRack:create(self))
     end
 end
 
@@ -442,8 +467,12 @@ function Track:setValues(vals)
 end
 
 function Track:getInstrument()
-    local inst = reaper.TrackFX_GetInstrument(self.track)
-    return inst >= 0 and Plugin:create(self, inst) or nil
+    if self:isMidiTrack() then
+        return _.some(self:getSends(), function(send) return send:getTargetTrack():getInstrument() end)
+    else
+        local inst = reaper.TrackFX_GetInstrument(self.track)
+        return inst >= 0 and Plugin:create(self, inst) or nil
+    end
 end
 
 function Track:remove(slaves)
@@ -468,7 +497,7 @@ function Track:getFxList()
     }
     local inst = self:getInstrument()
     local res = {}
-    for i = inst and inst:getIndex() or 0, reaper.TrackFX_GetCount(self.track) - 1 do
+    for i = inst and inst:getIndex() + 1 or 0, reaper.TrackFX_GetCount(self.track) - 1 do
         table.insert(res, Plugin:create(self, i))
     end
     return res
@@ -514,16 +543,6 @@ end
 
 function Track:isBus()
 
-    -- local isDrumRack = self:getFx('DrumRack')
-    -- local isContentTrack = self:getInstrument() or self:hasMedia()
-    -- local recs = self:getReceives()
-    -- local hasBusRecs = (_.size(recs) == 0 or _.some(recs, function(rec)
-    --     return rec:isBusSend()
-    -- end))
-    -- local sends = self:getSends()
-    -- local hasMidiSends = _.some(sends, function(send)
-    --     return send:isMidi() and not send:isAudio()
-    -- end)
     return self:getType() == Track.typeMap.bus
 
 end
@@ -552,11 +571,16 @@ function Track:createMidiSlave()
 
     local slave = Track.insert(self:getIndex())
 
-        slave:setVisibility(true, false)
-            :setIcon(self:getIcon() or 'midi.png')
-            :setName(self:getName() .. ':midi')
-            :createSend(self, true)
-                :setAudioIO(-1, -1)
+    slave:setValue('height', 40)
+    slave:setValue('hlock', 1)
+    slave:addFx('TrackTool')
+    slave:setType(Track.typeMap.midi)
+    slave:setVisibility(true, false)
+        :setIcon(self:getIcon() or 'midi.png')
+        :setName(self:getName())
+        :setColor(self:getColor():lighten_by(2))
+        :createSend(self, true)
+            :setAudioIO(-1, -1)
 
     return slave
 end
@@ -585,13 +609,12 @@ end
 function Track:getOutput()
     local toParent = self:getValue('toParent') > 0
     return not toParent and _.some(self:getSends(), function(send)
-        return send:getMode() == 0 and send:getTargetTrack()
+        return send:getType() == 'output' and send:getTargetTrack()
     end) or nil
 end
 
 
 function Track:setOutput(target, la)
-    local current = self:getOutput()
 
     if la then
         _.forEach(self:getLATracks(), function(la)
@@ -602,11 +625,11 @@ function Track:setOutput(target, la)
     end
 
     if not target then
-        self:removeSend(current)
         self:setValue('toParent', true)
+        self:removeSend(current)
     else
         if not self:sendsTo(target) then
-            self:createSend(target, true)
+            self:createSend(target, true):setType('output')
         end
     end
 
@@ -617,6 +640,8 @@ function Track:removeSend(target)
     _.forEach(self:getSends(), function(send)
         if send:getTargetTrack() == target then
             send:remove()
+            self:removeSend(target)
+            return false
         end
     end)
     return self
@@ -681,8 +706,8 @@ function Track:setType(type)
 end
 
 function Track:getType()
-    local type = self:getMeta('type')
-    return type or self:getInstrument() and Track.typeMap.instrument
+    return self:getMeta('type')
+    -- return type
 end
 
 function Track:autoName()

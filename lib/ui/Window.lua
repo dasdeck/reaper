@@ -19,7 +19,7 @@ Window.currentWindow = nil
 
 Project.watch.project:onChange(function()
     if Window.currentWindow then
-        Window.currentWindow.repaint = 'all'
+        Window.currentWindow.doPaint = 'all'
     end
     Track.onStateChange()
 end)
@@ -37,7 +37,7 @@ function Window:create(name, component, options)
         name = name,
         mouse = Mouse.capture(),
         state = {},
-        repaint = true,
+        doPaint = true,
         g = Graphics:create(),
         options = options or {},
         paints = 0
@@ -56,7 +56,7 @@ end
 
 function Window:render()
 
-    if self.repaint or Component.dragging then
+    if self.doPaint or Component.dragging then
         gfx.dest = -1
         gfx.update()
         gfx.clear = 0
@@ -64,7 +64,7 @@ function Window:render()
         self.component:evaluate(self.g)
 
         if Component.dragging then
-            if Component.dragging.isComponent then
+            if Component.dragging and instanceOf(Component.dragging, Component) then
 
                 gfx.setimgdim(0, -1,-1)
                 gfx.setimgdim(0, Component.dragging.w, Component.dragging.h)
@@ -83,7 +83,7 @@ function Window:render()
             end
         end
 
-        self.repaint = false
+        self.doPaint = false
 
         self.paints = self.paints + 1
 
@@ -175,7 +175,7 @@ function Window:updateWindow()
             -- rea.log('init')
             gfx.quit()
             gfx.init(self.name, w, h, self.dock, self.x, self.y)
-            self.repaint = 'all'
+            self.doPaint = 'all'
         else
             self.component:setSize(gfx.w, gfx.h)
         end
@@ -282,9 +282,6 @@ function Window:evalMouse()
 
     local allComps = self.component:getAllChildren()
 
-    self.lastUpTime = mouseUp and mouse.time or self.lastUpTime
-    self.lastDownTime = mouseDown and mouse.time or self.lastDownTime
-
     if mouseMoved or capChanged or isFileDrop or wheelMove then
 
         local consumed = false
@@ -296,32 +293,43 @@ function Window:evalMouse()
             local isOver = comp:isMouseOver()
             local mouseLeave = comp.mouse.over and not isOver
             if mouseLeave then
+
                 if comp.onMouseLeave then
                     comp:onMouseLeave()
                 end
                 if comp == self.component then
-                    self.repaint = self.repaint or true
+                    self:repaint()
                 end
             end
 
             local mouseEnter = not comp.mouse.over and isOver
-            if mouseEnter and comp.onMouseEnter then comp:onMouseEnter() end
+            if mouseEnter then
+                if comp.onMouseEnter then
+                    comp:onMouseEnter()
+                end
+            end
 
             comp.mouse.over = isOver
 
             local insideOnlyAction = (mouseMoved and not mouseDragged) or wheelMove
             if comp == self.component and not isOver and insideOnlyAction then
-                return false
+                if self.mouseIgnore then return false end
+                self.mouseIgnore = true
+            else
+                self.mouseIgnore = false
             end
 
             local useComp = comp:wantsMouse() and (isOver or (mouseDragged and comp.mouse.down))
             if not consumed and useComp then
 
+
+
+
                 if wheelMove and comp.onMouseWheel then comp:onMouseWheel(mouse) end
 
                 if mouseDown then
                     comp.mouse.down = mouse.time
-                    if comp.onDblClick and self.lastUpTime and (mouse.time - self.lastUpTime < 0.35) then
+                    if comp.onDblClick and self.lastDownTime and (mouse.time - self.lastDownTime < 0.35) then
                         comp:onDblClick(mouse)
                     end
                     if comp.onMouseDown then comp:onMouseDown(mouse) end
@@ -347,6 +355,7 @@ function Window:evalMouse()
                 end
 
                 if comp.mouse.down and mouseDragged and comp.onDrag then
+                    Component.dragging = true
                     comp:onDrag(mouse)
                 end
 
@@ -366,11 +375,19 @@ function Window:evalMouse()
             child.mouse.down = false
         end)
         if Component.dragging then
-            self.repaint = self.repaint or true
+            self:repaint()
             Component.dragging = nil
         end
     end
 
+    self.lastUpTime = mouseUp and mouse.time or self.lastUpTime
+    self.lastDownTime = mouseDown and mouse.time or self.lastDownTime
+
+end
+
+function Window:repaint(mode)
+    mode = mode or true
+    self.doPaint = self.doPaint == 'all' and all or mode
 end
 
 function Window:defer()

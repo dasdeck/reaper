@@ -38,7 +38,7 @@ function Component:create(x, y, w, h)
 
     setmetatable(self, Component)
 
-    self:relayout()
+    self:repaint()
 
     return self
 end
@@ -259,16 +259,16 @@ function Component:setSize(w,h)
         self.w = w
         self.h = h
 
-
-        self:relayout()
+        self:resized()
+        self:repaint(true)
     end
 
 end
 
-function Component:relayout()
-    self.needsLayout = true
-    self:repaint()
-end
+-- function Component:relayout()
+--     self.needsLayout = true
+--     self:repaint()
+-- end
 
 function Component:setPosition(x,y)
     self.x = x
@@ -289,7 +289,7 @@ end
 function Component:repaint(children)
     self.needsPaint = true
 
-    if children then
+    if children == true then
         _.forEach(self.children, function(child)
             child:repaint(children)
         end)
@@ -297,9 +297,7 @@ function Component:repaint(children)
 
     if self:isVisible() then
         local win = self:getWindow()
-        if win then
-            win.repaint = win.repaint or true
-        end
+        if win then win:repaint(children) end
     end
 end
 
@@ -329,7 +327,7 @@ function Component:evaluate(g, dest, x, y)
         self.needsLayout = false
     end
 
-    local doPaint = (self.paint or self.paintOverChildren) and (self.needsPaint or self:getWindow().repaint == 'all')
+    local doPaint = (self.paint or self.paintOverChildren) and (self.needsPaint or self:getWindow().doPaint == 'all')
 
 
     if self.paint and hasVisibleArea then
@@ -381,7 +379,7 @@ function Component:addChildComponent(comp, key, doNotLayout)
     else
         table.insert(self.children, comp)
     end
-    self:relayout()
+    -- self:relayout()
 
     return comp
 end

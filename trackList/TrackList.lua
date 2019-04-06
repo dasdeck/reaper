@@ -67,7 +67,7 @@ function TrackList:getData()
 
         if TrackListFilter.all.getToggleState() then
             table.insert(tracks, opt)
-        elseif TrackListFilter.inst.getToggleState() and (track:getInstrument() or track:getFx('DrumRack')) then
+        elseif TrackListFilter.inst.getToggleState() and track:getType() == Track.typeMap.instrument then
             table.insert(tracks, opt)
         elseif TrackListFilter[type] and TrackListFilter[type].getToggleState()then
             table.insert(tracks, opt)

@@ -33,5 +33,5 @@ end
 
 WindowApp:create('debug', label):start()
 Window.currentWindow.onDefer = function(self)
-  self.repaint = true
+  self.repaint()
 end

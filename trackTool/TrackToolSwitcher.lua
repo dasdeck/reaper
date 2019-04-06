@@ -19,7 +19,7 @@ function TrackToolSwitcher:create(...)
 
     self.history = {track = Track.getFocusedTrack()}
 
-    self.watchers:watch(Track.watch.focusedTrack,
+    self.watchers:watch(Track.watch.selectedTrack,
     function(track)
         -- rea.logCount('update')
         if self.history.track ~= track then
@@ -27,33 +27,21 @@ function TrackToolSwitcher:create(...)
             self.history = self.history.next
             self:update()
         end
-        if track then track:touch() end
+        if track then
+            track:focus()
+            track:touch()
+        end
 
     end)
-    self.watchers:watch(Track.watch.selectedTrack, function(track)
-        Track.mem:set(0, track and track:getIndex() or -1)
-    end)
+    -- self.watchers:watch(Track.watch.selectedTrack, function(track)
+    --     Track.mem:set(0, track and track:getIndex() or -1)
+    -- end)
     self.watchers:watch(Project.watch.project, function()
-        if not Track.getFocusedTrack() or not Track.getFocusedTrack():exists() then
-            Track.mem:set(0, -1)
-        elseif not Mouse.capture():isButtonDown() then
+
+        if not Mouse.capture():isButtonDown()then
             self:update()
         end
     end)
-
-    -- self.watchers:watch(Track.watch.focusedTrack, function()
-
-    --     local track = Track.getFocusedTrack(true)
-    --     -- if track then
-    --     if self.history.track ~= track then
-    --         self.history.next = {prev = self.history, track = track}
-    --         self.history = self.history.next
-    --         self:update()
-    --     end
-    --     if track then track:touch() end
-    --     -- end
-    -- end)
-
 
 
     self:update()
@@ -83,13 +71,12 @@ function TrackToolSwitcher:update()
                     button.onClick = function()
                         self.history = self.history.prev
                         self:update()
-                        self.history.track:focus()
+                        self.history.track:setSelected(1)
                         self:repaint(true)
                     end
                 end
                 return button
-            end,
-            size = -0.5
+            end
         },
         {
             proto = function()
@@ -104,21 +91,23 @@ function TrackToolSwitcher:update()
                     button.onClick = function()
                         self.history = self.history.next
                         self:update()
-                        self.history.track:focus()
+                        self.history.track:setSelected(1)
                         self:repaint(true)
                     end
                 end
                 return button
-            end,
-            size = -0.5
+            end
 
         }
     }, true))
 
 
-    if self:getTrack() then
-        self.trackTool = self:addChildComponent(TrackTool:create(self:getTrack()))
+    if self:getTrack() and self:getTrack():exists() then
+        local comp = self:getTrack():createUI() or TrackTool:create(self:getTrack())
+        self.trackTool = self:addChildComponent(comp)
     end
+
+    self:resized()
 
 end
 

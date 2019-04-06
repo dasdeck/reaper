@@ -1,11 +1,14 @@
 local TextButton = require 'TextButton'
+local Track = require 'Track'
+local Menu = require 'Menu'
 local colors = require 'colors'
+local _ = require '_'
 
 local Output = class(TextButton)
 
 function Output:create(track)
     local self = TextButton:create('output')
-
+    setmetatable(self, Output)
     self.track = track
     self.currentOutput = self.track:getOutput()
     self.color = self.currentOutput and self.currentOutput:getColor() or colors.default
@@ -18,15 +21,19 @@ function Output:isDisabled()
 end
 
 function Output:getText()
-    local output = self.track:getOutput()
-    if not output then
-        if self.track:getValue('toParent') > 0 then
-            return 'master'
-        else
-            return '--'
-        end
+    if self.track:getInstrument() and self.track:getInstrument():isMultiOut() then
+
     else
-        return output:getName()
+        local output = self.track:getOutput()
+        if not output then
+            if self.track:getValue('toParent') > 0 then
+                return 'master'
+            else
+                return '--'
+            end
+        else
+            return output:getName()
+        end
     end
 end
 
@@ -34,6 +41,7 @@ function Output:onClick(mouse)
 
     if mouse:wasRightButtonDown() then
         local menu = Menu:create()
+
         local busMenu = Menu:create()
         _.forEach(Track.getAllTracks(), function(otherTrack)
             -- local checked = false
@@ -54,6 +62,7 @@ function Output:onClick(mouse)
             self.track:setOutput(Bus.createBus(), true)
         end, 'add bus')
         menu:addItem('bus', busMenu)
+
         menu:addItem('master', {
             checked = not self.currentOutput and self.track:getValue('toParent') > 0,
             callback = function()

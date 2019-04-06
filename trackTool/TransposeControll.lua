@@ -16,7 +16,7 @@ function TransposeControll:create(track)
     end
 
     function self.value.getValue()
-         return getPlugin():getParam(2)
+         return math.floor(getPlugin():getParam(2))
     end
 
     function self.value:setValue(val)

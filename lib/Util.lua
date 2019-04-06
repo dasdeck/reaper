@@ -104,7 +104,7 @@ function class(...)
 end
 
 function instanceOf(obj, Class)
-    return obj and obj.__instanceOf and obj:__instanceOf(Class)
+    return type(obj) == 'table' and obj.__instanceOf and obj:__instanceOf(Class)
 end
 
 local log2 = math.log(2)

@@ -40,7 +40,7 @@ function Bus.createBus(index, name)
     track:iconize()
     track:setType(Track.typeMap.bus)
     track:setName(name or ('Bus ' .. tostring(_.size(Bus.getAllBusses()))))
-    track:setColor(colors.fx)
+    track:setColor(colors.bus)
     track:setVisibility(false, true)
     return track
 end

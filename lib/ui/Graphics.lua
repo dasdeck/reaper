@@ -34,8 +34,6 @@ function Graphics:setFromComponent(comp, slot)
 
 end
 
-
-
 function Graphics:loadColors()
     gfx.r = self.r
     gfx.g = self.g

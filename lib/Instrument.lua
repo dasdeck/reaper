@@ -14,16 +14,20 @@ function Instrument.createInstrument(name)
         track = Track.insert()
         track:setName(name)
         track:setType(Track.typeMap.instrument)
+        track:setVisibility(false,false)
         track:setColor(colors.instrument)
-        track:setValue('height', 40)
-        track:setValue('hlock', 1)
-        local instrument = track:addFx(name)
-        if not instrument then
-            track:remove()
-            track = nil
-            return false
+
+        if name then
+            local instrument = track:addFx(name)
+            if not instrument then
+                track:remove()
+                track = nil
+                return false
+            end
+            track:iconize()
         end
-        track:iconize()
+
+        track = track:createMidiSlave()
 
     end)
     return track

@@ -1,3 +1,4 @@
+local Collection = require 'Collection'
 
 local Send = class()
 
@@ -13,6 +14,26 @@ end
 
 function Send:remove()
     reaper.RemoveTrackSend(self.track, self.cat, self.index)
+end
+
+function Send:getMedaData()
+    local suc, res = reaper.GetSetTrackSendInfo_String(self.track, self.cat, self.index, 'P_EXT:D3CK','', false)
+    res = suc and res or {}
+    return Collection:create(res)
+end
+function Send:setMedaData(coll)
+    reaper.GetSetTrackSendInfo_String(self.track, self.cat, self.index, 'P_EXT:D3CK', tostring(coll), true)
+end
+
+function Send:setType(type)
+    local coll = self:getMedaData()
+    coll.type = type
+    self:setMedaData(coll)
+
+end
+
+function Send:getType()
+    return self:getMedaData().type
 end
 
 function Send:getSourceTrack()

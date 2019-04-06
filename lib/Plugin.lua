@@ -102,10 +102,13 @@ function Plugin:refresh()
     return self:isValid()
 end
 
-function Plugin:setIndex(index)
-    if self.index ~= index then
-        reaper.TrackFX_CopyToTrack(self.track.track, self.index, self.track.track, index, true)
+function Plugin:setIndex(index, targetTrack)
+
+    targetTrack = targetTrack or self.track
+    if self.index ~= index or targetTrack ~= self.track then
+        reaper.TrackFX_CopyToTrack(self.track.track, self.index, targetTrack.track, index, true)
         self.index = index
+        self.track = targetTrack
     end
     return self
 end
@@ -168,6 +171,7 @@ function Plugin:getOutputs()
                 outputTrack:setName(current.name)
                 outputTrack:setIcon(paths.imageDir:findFile(name .. '/' .. current.name) or self.track:getIcon())
                 outputTrack:setVisibility(false, true)
+                outputTrack:setOutput(self.track:getOutput())
 
                 local send = self.track:createSend(outputTrack)
 
@@ -207,7 +211,7 @@ function Plugin:createMultiOut()
     track:setValue('chans', _.reduce(outs, function(car, out) return _.size(out.channels) end, 0))
     track:setValue('toParent', false)
     _.forEach(outs, function(output)
-        output.createOutput()
+        output.createConnection()
     end)
 end
 

@@ -11,14 +11,14 @@ local _ = require '_'
 
 local FXList = class(Component)
 
-function FXList:create(track)
+function FXList:create(track, name)
     local self = Component:create()
     setmetatable(self, FXList)
     _.forEach(track:getFxList(), function(fx)
         self:addChildComponent(FXListItem:create(fx))
     end)
 
-    self.add = self:addChildComponent(TextButton:create('+fx',0,0,100,25))
+    self.add = self:addChildComponent(TextButton:create(name or '+fx',0,0,100,25))
     self.add.onButtonClick = function(s, mouse)
 
         if mouse:isAltKeyDown() then

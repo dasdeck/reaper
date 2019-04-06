@@ -1,6 +1,7 @@
 local Component = require 'Component'
 local Label = require 'Label'
 local color = require 'color'
+local colors = require 'colors'
 
 local rea = require 'rea'
 local Slider = class(Label)
@@ -9,6 +10,7 @@ function Slider:create(...)
 
     local self = Label:create('', ...)
     self.pixelsPerValue = 100
+    self.colorValue = color.rgb(1,0,0)
     self.wheelscale = 1
     setmetatable(self, Slider)
     return self
@@ -86,7 +88,7 @@ function Slider:paintOverChildren(g)
     local min = self:getMin()
     local max = self:getMax()
     if min and max then
-        g:setColor(1,0,0,0.5)
+        g:setColor((self.colorValue):with_alpha(0.5))
 
         local range = max - min
 

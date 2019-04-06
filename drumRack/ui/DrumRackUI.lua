@@ -123,6 +123,8 @@ function DrumRackUI:update()
         if self.padEditor then self.padEditor:delete() end
         self.padEditor = self:addChildComponent(PadEditor:create(self.rack:getSelectedPad()))
     end
+
+    self:resized()
 end
 
 function DrumRackUI:resized()

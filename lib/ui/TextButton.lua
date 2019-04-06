@@ -1,6 +1,6 @@
 local Label = require 'Label'
 local Mouse = require 'Mouse'
-
+local Component = require 'Component'
 local color = require 'color'
 local rea = require 'rea'
 
@@ -21,11 +21,15 @@ function TextButton:getToggleStateInt()
 end
 
 function TextButton:onMouseEnter()
-    self:repaint(true)
+    if not Component.dragging then
+        self:repaint(true)
+    end
 end
 
 function TextButton:onMouseLeave()
-    self:repaint(true)
+    if not Component.dragging then
+        self:repaint(true)
+    end
 end
 
 function TextButton:getColor()

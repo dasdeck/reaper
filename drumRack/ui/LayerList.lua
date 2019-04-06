@@ -24,16 +24,12 @@ function LayerList:update()
 
     local layers = self.pad:getLayers()
 
-    -- if _.equal(layers, self.layers) then return end
-
-    -- self.layers = layers
-
-
     self:deleteChildren()
 
    _.forEach(layers, function(layer)
         self:addChildComponent(Layer:create(layer, self.pad))
    end)
+   self:resized()
 end
 
 function LayerList:resized()

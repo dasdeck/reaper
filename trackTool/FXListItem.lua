@@ -115,7 +115,7 @@ function FXListItem:onMouseUp()
 end
 
 function FXListItem:onDrop()
-    if Component.dragging and Component.dragging.fx and Component.dragging.fx ~= self.fx and self:isMouseOver() then
+    if Component.dragging and instanceOf(Component.dragging, FXListItem) and Component.dragging.fx ~= self.fx and self:isMouseOver() then
             rea.transaction('move fx', function()
                 local offset = (self.mouse.y > (self.h / 2)) and 1 or 0
 
@@ -124,10 +124,10 @@ function FXListItem:onDrop()
 
                 if to -1 == from then return false end
 
-                Component.dragging.fx:setIndex(to)
+                Component.dragging.fx:setIndex(to, self.fx.track)
             end)
     else
-        self.parent:repaint(true)
+        self:repaint('all')
     end
 end
 
