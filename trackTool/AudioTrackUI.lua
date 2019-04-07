@@ -2,6 +2,8 @@ local Component = require 'Component'
 local TrackToolControlls = require 'TrackToolControlls'
 local TrackStateButton = require 'TrackStateButton'
 local TextButton = require 'TextButton'
+local FXlistAddButton = require 'FXlistAddButton'
+local DelaySlider = require 'DelaySlider'
 local ButtonList = require 'ButtonList'
 local FXList = require 'FXList'
 local La = require 'La'
@@ -86,6 +88,11 @@ function AudioTrackUI:update()
     self.solo = self:addChildComponent(TrackStateButton:create(track, 'solo', 'S'))
 
     self.fx = self:addChildComponent(FXList:create(track))
+    self.fxAdd = self:addChildComponent(FXlistAddButton:create(track, '+fx'))
+
+    if track:getTrackTool() then
+        self.delay = self:addChildComponent(DelaySlider:create(track))
+    end
 
     self.gain = self:addChildComponent(Slider:create())
     self.gain.colorValue = colors[track:getType()] or colors.default
@@ -138,7 +145,6 @@ function AudioTrackUI:update()
     self.output = self:addChildComponent(Output:create(track))
 
     local output = track:getOutput() or (self.track ~= Track.master and Track.master)
-
     if output then
         local ui = output:createUI()
         if ui then
@@ -158,6 +164,10 @@ function AudioTrackUI:update()
     end
 end
 
+function AudioTrackUI:onMouseEnter()
+    self.track:focus()
+end
+
 function AudioTrackUI:resized()
 
     local h = 20
@@ -166,6 +176,15 @@ function AudioTrackUI:resized()
     self.fx:setBounds(0,y,self.w)
     y = self.fx:getBottom()
 
+    if self.delay then
+        self.fxAdd:setBounds(0,y,self.w/2, h)
+        self.delay:setBounds(self.w/2,y,self.w/2, h)
+    else
+        self.fxAdd:setBounds(0,y,self.w, h)
+    end
+
+    y = self.fxAdd:getBottom()
+
 
     self.la:setBounds(0, y, self.w)
     y = self.la:getBottom()
@@ -173,10 +192,13 @@ function AudioTrackUI:resized()
     self.pan:setBounds(0, y, self.w, h)
     y = self.pan:getBottom()
 
-    self.gain:setBounds(0, y, self.w/2, h*4)
-    self.mute:setBounds(self.w/2,y, self.w/2, h)
-    y = self.mute:getBottom()
-    self.solo:setBounds(self.w/2,y, self.w/2, h)
+    self.gain:setBounds(0, y, self.w/2, h*3)
+
+    local w2 = self.w/2
+    local w4 = self.w/4
+    self.mute:setBounds(w2,y, w4, h)
+    -- y = self.mute:getBottom()
+    self.solo:setBounds(w2 + w4,y, w4, h)
     y = self.solo:getBottom()
     self.laAdd:setBounds(self.w/2,y, self.w/2, h)
 
@@ -194,8 +216,10 @@ function AudioTrackUI:resized()
 
     if self.next then
         self.next:setBounds(0,y,self.w)
+        y = self.next:getBottom()
     end
 
+    self.h = y
 
 end
 

@@ -16,11 +16,56 @@ local rea = require 'rea'
 local icons = require 'icons'
 local colors = require 'colors'
 
-function PadUI.showMenu(pad)
-
+function PadUI.getChokeMenu(pad)
+    local val = math.floor(pad.rack:getMapper():getParam(10))
     local menu = Menu:create()
 
-    menu:addItem('save', {
+    for i=0, 16 do
+        menu:addItem(i == 0 and '--' or tostring(i), {
+            callback = function()
+                pad.rack:getMapper():setParam(10, i)
+            end,
+            checked = val == i
+        })
+    end
+    return menu
+end
+
+function PadUI.getModeMenu(pad)
+    local val = pad.rack:getMapper():getParam(8)
+    return Menu:create({
+        {
+            name = 'release',
+            callback = function() pad.rack:getMapper():setParam(8, 0) end,
+            checked = val == 0
+        },
+        {
+            name = 'hold:time',
+            callback = function() pad.rack:getMapper():setParam(8, 1) end,
+            checked = val == 1
+        },
+        {
+            name = 'hold:inf',
+            callback = function() pad.rack:getMapper():setParam(8, 2) end,
+            checked = val == 2
+        }
+    })
+end
+
+function PadUI.showMenu(pad)
+
+    local rack = pad.rack
+
+    local menu = Menu:create()
+    menu:addItem('select by midi',{
+        callback = function()
+            local value = rack:getMapper():getParam(6) == 0 and 1 or 0
+            rack:getMapper():setParam(6, value)
+        end,
+        checked = rack:getMapper():getParam(6) == 1
+    })
+
+    menu:addItem('save pad', {
         disabled = not pad:hasContent(),
         callback = function()
             local file = DrumRack.padPresetDir:saveDialog('.RTrackTemplate', pad:getName())
@@ -29,7 +74,7 @@ function PadUI.showMenu(pad)
             end
         end,
     })
-    menu:addItem('load', function()
+    menu:addItem('load pad', function()
         local file = DrumRack.padPresetDir:browseForFile('RTrackTemplate')
         if file then
             rea.transaction('load pad', function()
@@ -40,6 +85,10 @@ function PadUI.showMenu(pad)
 
     menu:addSeperator()
 
+
+    menu:addItem('trigger mode', PadUI.getModeMenu(pad))
+    menu:addItem('choke group', PadUI.getChokeMenu(pad))
+
     local low, high = pad.rack:getMapper():getKeyRange(pad)
 
     local learnMenu = Menu:create()
@@ -47,12 +96,13 @@ function PadUI.showMenu(pad)
         disabled = true
     })
 
-    learnMenu:addItem('low', function() pad:learnLow() end)
-    learnMenu:addItem('high', function() pad:learnHi() end)
-    learnMenu:addItem('both', function() pad:learn() end)
+    learnMenu:addItem('learn low', function() pad:learnLow() end)
+    learnMenu:addItem('learn high', function() pad:learnHi() end)
+    learnMenu:addItem('learn both', function() pad:learn() end)
 
-    menu:addItem('learn', learnMenu)
+    menu:addItem('key range', learnMenu)
 
+    menu:addSeperator()
     local addMenu = Menu:create()
     if _.size(pad.rack:getSelectedTracks()) > 0 then
         addMenu:addItem('selected tracks as layers', function() pad:addSelectedTracks() end, 'add empty track')
@@ -67,7 +117,8 @@ function PadUI.showMenu(pad)
 
     menu:addItem('add', addMenu)
     menu:addSeperator()
-    menu:addItem('clear', function() pad:clear() end, 'clear pad')
+
+    menu:addItem('clear pad', function() pad:clear() end, 'clear pad')
     menu:show()
 
 end
@@ -120,24 +171,24 @@ function PadUI:create(pad)
     self.padButton.onClick = function (s, mouse)
         local wasSelected = pad:setSelected()
 
-        if wasSelected then
-            rea.transaction('select pad', function()
+        -- if wasSelected then
+            -- rea.transaction('select pad', function()
 
-                if pad:getFx() then
-                    pad:getFx():focus()
-                else
-                    local firstLayer = _.first(pad:getLayers())
-                    if firstLayer then
-                        firstLayer:focus()
-                        if firstLayer:isSampler() and pad.rack.samplerIsOpen() then
-                            pad.rack.closeSampler()
-                            firstLayer:getInstrument():open()
-                        end
-                    end
-
+        if pad:getFx() then
+            pad:getFx():focus()
+        else
+            local firstLayer = _.first(pad:getLayers())
+            if firstLayer then
+                firstLayer:focus()
+                if firstLayer:isSampler() and pad.rack.samplerIsOpen() then
+                    pad.rack.closeSampler()
+                    firstLayer:getInstrument():open()
                 end
-            end)
+            end
+
         end
+            -- end)
+        -- end
 
         pad:noteOff()
 
@@ -153,10 +204,9 @@ function PadUI:create(pad)
     return self
 end
 
-
-
 function PadUI:onFilesDrop(files)
 
+    -- rea.log('drop')
     rea.transaction('add layer', function()
         for v, k in pairs(files) do
             local layer = self.pad:addLayer(k)
@@ -167,6 +217,8 @@ function PadUI:onFilesDrop(files)
             end
         end
     end)
+
+    self.pad:setSelected()
 
 end
 
@@ -181,7 +233,7 @@ function PadUI:onDrop(mouse)
 
         self.pad:setSelected()
 
-        if Component.dragging.pad and getmetatable(Component.dragging.pad) == Pad then
+        if instanceOf(Component.dragging, Component) and getmetatable(Component.dragging.pad) == Pad then
 
             local pad = Component.dragging.pad
 

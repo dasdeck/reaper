@@ -8,6 +8,7 @@ local Project = require 'Project'
 local DrumRack = require 'DrumRack'
 local Menu = require 'Menu'
 local Track = require 'Track'
+local FXButton = require 'FXButton'
 
 local colors = require 'colors'
 local _ = require '_'
@@ -26,6 +27,7 @@ function DrumRackInlineUI:create(rack)
 
     self.rack = rack
 
+
     -- self.opts = self:addChildComponent(ButtonList:create(DrumRackOptions(rack), true))
     self.padgrid = self:addChildComponent(PadGrid:create(rack))
 
@@ -37,11 +39,15 @@ function DrumRackInlineUI:create(rack)
         self.padgrid:setVisible(not rack:isSplitMode())
         self:update()
     end
-    self.watchers:watch(Project.watch.project, change)
+    -- self.watchers:watch(Project.watch.project, change, true)
     self.watchers:watch(function()
         return self.rack:getSelectedPad()
-    end, change)
+    end, change, true)
+
+    self.rackFx = self:addChildComponent(FXButton:create(rack, 'rack:fx'))
+
     change()
+
 
     return self
 
@@ -50,8 +56,8 @@ end
 function DrumRackInlineUI:update()
     local currentPad = self.padEditor and self.padEditor.pad
 
-    if self.rack:getSelectedPad() and self.rack:getSelectedPad() ~= currentPad then
-        if self.padEditor then self.padEditor:delete() end
+    if self.padEditor then self.padEditor:delete() end
+    if self.rack:getSelectedPad() then
         self.padEditor = self:addChildComponent(PadEditor:create(self.rack:getSelectedPad()))
     end
 
@@ -62,6 +68,7 @@ function DrumRackInlineUI:resized()
 
     -- self.opts:setBounds(0, 0, self.w, 20)
     local y = 0
+    local h = 20
 
     local padgrid = self.w
     self.padgrid:setBounds(0, y, padgrid, padgrid)
@@ -72,7 +79,12 @@ function DrumRackInlineUI:resized()
         self.padEditor:setBounds(0, y, self.w)
     end
 
-    self.h = self.padEditor:getBottom()
+    y = self.padEditor:getBottom()
+
+    self.rackFx:setBounds(0,y,self.w, h)
+    y = self.rackFx:getBottom()
+
+    self.h = y
 
 end
 

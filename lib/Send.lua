@@ -36,6 +36,10 @@ function Send:getType()
     return self:getMedaData().type
 end
 
+function Send:isOutput()
+    return self:getType() == 'output'
+end
+
 function Send:getSourceTrack()
     local Track = require 'Track'
     local source = reaper.BR_GetMediaTrackSendInfo_Track(self.track, self.cat, self.index, 0)

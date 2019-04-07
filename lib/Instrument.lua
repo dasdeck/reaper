@@ -14,6 +14,7 @@ function Instrument.createInstrument(name)
         track = Track.insert()
         track:setName(name)
         track:setType(Track.typeMap.instrument)
+        -- track:setType(name == DrumRack.fxName and Track.typeMap.drumrack or Track.typeMap.instrument)
         track:setVisibility(false,false)
         track:setColor(colors.instrument)
 
@@ -24,9 +25,8 @@ function Instrument.createInstrument(name)
                 track = nil
                 return false
             end
-            track:iconize()
         end
-
+        track:iconize()
         track = track:createMidiSlave()
 
     end)
@@ -54,9 +54,7 @@ function Instrument.bang()
                 if inst then
                     track:setName(splits[2] or name)
                     track:setType('instrument')
-                    track:choose()
-                    icon = rea.findIcon(name) or paths.imageDir:findFile(name)
-                    if icon then track:setIcon(icon) end
+                    track:iconize()
                     track:getInstrument():open()
                     return track
                 else

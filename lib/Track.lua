@@ -240,8 +240,16 @@ function Track:isAudioTrack()
     end
 end
 
+function Track:isInstrument()
+    return self:getType() == Track.typeMap.instrument
+end
+
 function Track:isMidiTrack()
     return self:getType() == Track.typeMap.midi
+end
+
+function Track:getMidiMaster()
+    return _.some(self:getSends(), function(send) return send:getTargetTrack():isInstrument() and send:getTargetTrack() end)
 end
 
 function Track:getMetaKey()
@@ -269,8 +277,9 @@ function Track:setMeta(name, value)
 end
 
 
-function Track:getMeta(name)
-    return self:getMetaData()[name]
+function Track:getMeta(name, default)
+    local data = self:getMetaData()
+    return data[name] == nil and default or data[name]
 end
 
 function Track:isAudioTrack()
@@ -300,7 +309,13 @@ function Track:focus()
     -- reaper.SetMixerScroll(self.track)
     local instrument = self:getInstrument()
     if instrument and not instrument:canDoMultiOut() then
-        Track.mem:set(0, instrument.track:getIndex())
+        if instrument.track:getFx('DrumRack') then
+            local DrumRack = require 'DrumRack'
+            local fx = DrumRack:create(instrument.track):getFx()
+            if fx then fx:focus() end
+        else
+            Track.mem:set(0, instrument.track:getIndex())
+        end
     else
         Track.mem:set(0, self:getIndex())
     end
@@ -314,8 +329,10 @@ function Track:focus()
 end
 
 function Track:isFocused(slaves)
-    return slaves and _.some(self:getSlaves(), function(slave) return slave:isFocused(true) end)
-    or reaper.GetMixerScroll() == self.track
+    -- return slaves and _.some(self:getSlaves(), function(slave) return slave:isFocused(true) end)
+    -- or reaper.GetMixerScroll() == self.track
+
+    return self == Track.getFocusedTrack()
 end
 
 function Track:isSelected()
@@ -373,12 +390,18 @@ function Track:getPan()
 end
 
 function Track:createUI()
+    -- rea.logCount('createUI')
     local type = self:getType()
     if type == Track.typeMap.midi then
         return (require 'MidiTrackUI'):create(self)
     elseif type == Track.typeMap.instrument then
-        local instrument = self:getInstrument()
-        return instrument and (require 'InstrumentUI'):create(instrument)
+        if self:getFx((require 'DrumRack').fxName) then
+            local DrumRackTrackUI = require 'DrumRackTrackUI'
+            return DrumRackTrackUI:create(self)
+        else
+            local instrument = self:getInstrument()
+            return instrument and (require 'InstrumentUI'):create(self)
+        end
     elseif self == Track.master then
         return (require 'MasterUI'):create(self)
     else
@@ -389,13 +412,16 @@ end
 function Track:getInlineUI()
     if self:getType() == Track.typeMap.instrument then
         if self:getInstrument() then
-            local FXListItem = require 'FXListItem'
-            return FXListItem:create(self:getInstrument())
+            local DrumRack = require 'DrumRack'
+            local drumRack = self:getFx((require 'DrumRack').fxName)
+            if drumRack then
+                local DrumRackInlineUI = require 'DrumRackInlineUI'
+                return DrumRackInlineUI:create(DrumRack:create(self))
+            else
+                local FXListItem = require 'FXListItem'
+                return FXListItem:create(self:getInstrument())
+            end
         end
-    elseif self:getType() == Track.typeMap.drumrack then
-        local DrumRackInlineUI = require 'DrumRackInlineUI'
-        local DrumRack = require 'DrumRack'
-        return DrumRackInlineUI:create(DrumRack:create(self))
     end
 end
 
@@ -469,6 +495,8 @@ end
 function Track:getInstrument()
     if self:isMidiTrack() then
         return _.some(self:getSends(), function(send) return send:getTargetTrack():getInstrument() end)
+    elseif self:getFx('DrumRack') then
+        return self:getFx('DrumRack')
     else
         local inst = reaper.TrackFX_GetInstrument(self.track)
         return inst >= 0 and Plugin:create(self, inst) or nil
@@ -624,23 +652,24 @@ function Track:setOutput(target, la)
         end)
     end
 
+    self:removeSends(Send.isOutput)
     if not target then
         self:setValue('toParent', true)
-        self:removeSend(current)
     else
-        if not self:sendsTo(target) then
-            self:createSend(target, true):setType('output')
-        end
+        self:createSend(target, true):setType('output')
     end
 
     return self
 end
 
-function Track:removeSend(target)
+function Track:removeSends(target)
+    target = type(target) == 'function' and target or function(send) return send:getTargetTrack() == target end
+
     _.forEach(self:getSends(), function(send)
-        if send:getTargetTrack() == target then
+
+        if target(send) then
             send:remove()
-            self:removeSend(target)
+            self:removeSends(target)
             return false
         end
     end)
@@ -775,7 +804,9 @@ function Track:addFx(name, input)
 end
 
 function Track:getImage()
-    return self:getIcon() or _.some(self:getFxList(), function(fx) return fx:getImage()end)
+    return self:getIcon() or (
+        self:getInstrument() and self:getInstrument():getImage()
+    ) or _.some(self:getFxList(), function(fx) return fx:getImage()end)
 end
 
 function Track:createSend(target, sendOnly)

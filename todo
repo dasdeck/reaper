@@ -66,10 +66,10 @@ Bugx:
     ✔ fix solo mode (in place) @done(19-03-30 14:47)
     ✔ hide sub tracks in * filter @done(19-04-02 09:49)
     ☐ random sound if db file is missing
-    ☐ arm midi track on creation
+    ✔ arm midi track on creation @done(19-04-06 21:55)
     ✔ show fx on insertion @done(19-04-02 09:50)
-    ☐ midi track track color
-    ☐ fix tracktool relaod while dragging sliders
+    ✔ midi track track color @done(19-04-06 21:56)
+    ✔ fix tracktool relaod while dragging sliders @done(19-04-06 21:56)
     ✔ bus all @done(19-04-02 10:13)
     ☐ solo LA on create
-    ☐ mouse leave window does not repaint
+    ✔ mouse leave window does not repaint @done(19-04-06 21:56)

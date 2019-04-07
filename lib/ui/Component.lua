@@ -24,6 +24,7 @@ function Component:create(x, y, w, h)
         y = y or 0,
         w = w or 0,
         h = h or 0,
+        repaintOnMouseEnterOrLeave,
         uislots = {},
         watchers = WatcherManager:create(),
         id = Component.componentIds,
@@ -265,14 +266,13 @@ function Component:setSize(w,h)
 
 end
 
--- function Component:relayout()
---     self.needsLayout = true
---     self:repaint()
--- end
-
 function Component:setPosition(x,y)
     self.x = x
     self.y = y
+end
+
+function Component:repaintOnMouse()
+    return self.repaintOnMouseEnterOrLeave
 end
 
 function Component:setBounds(x,y,w,h)
@@ -282,8 +282,11 @@ end
 
 function Component:getWindow()
     if self.window then return self.window
-    elseif self.parent then return self.parent:getWindow()
+    elseif self.parent then
+        return self.parent:getWindow()
     end
+
+    -- assert(false, 'components need a window')
 end
 
 function Component:repaint(children)
@@ -295,10 +298,6 @@ function Component:repaint(children)
         end)
     end
 
-    if self:isVisible() then
-        local win = self:getWindow()
-        if win then win:repaint(children) end
-    end
 end
 
 function Component:resized()
@@ -327,7 +326,7 @@ function Component:evaluate(g, dest, x, y)
         self.needsLayout = false
     end
 
-    local doPaint = (self.paint or self.paintOverChildren) and (self.needsPaint or self:getWindow().doPaint == 'all')
+    local doPaint = (self.paint or self.paintOverChildren) and (self.needsPaint or (self:getWindow() or {}).doPaint == 'all')
 
 
     if self.paint and hasVisibleArea then
@@ -372,8 +371,16 @@ function Component:evaluateChildren(g, dest, x, y)
     end)
 end
 
+function Component:setWindow(window)
+    self.window = window
+    _.forEach(self.children, function(child)
+        child:setWindow(window)
+    end)
+end
+
 function Component:addChildComponent(comp, key, doNotLayout)
     comp.parent = self
+    comp.window = self.window -- optimize window access
     if key then
         self.children[key] = comp
     else

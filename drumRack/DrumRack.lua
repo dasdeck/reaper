@@ -232,12 +232,12 @@ function DrumRack:loadKit(file)
     return self
 end
 
-function DrumRack:refreshConnections()
-    _.forEach(self.pads, function(pad)
-        pad:refreshConnections()
-    end)
-    return self
-end
+-- function DrumRack:refreshConnections()
+--     _.forEach(self.pads, function(pad)
+--         pad:refreshConnections()
+--     end)
+--     return self
+-- end
 
 function DrumRack:isSplitMode()
     return self:getMapper():getParam(11) > 0
@@ -262,10 +262,24 @@ function DrumRack:setSplitMode(enable)
     return self
 end
 
+
+function DrumRack:setOutput(track, filter)
+    _.forEach(self.pads, function(pad)
+        pad:setOutput(track, filter)
+    end)
+end
+
+function DrumRack:getOutput()
+    return self:getFx()
+end
+
+
 function DrumRack:removeFx()
     if self:getFx() then
-        self:getFx():remove()
-        self:refreshConnections()
+        local fx = self:getFx()
+        self:setOutput(nil, fx)
+        fx:remove()
+        -- self:refreshConnections()
     end
     return self
 end
@@ -274,10 +288,11 @@ function DrumRack:setFx(track)
     if track then
         self:removeFx()
 
+        self:setOutput(track, nil)
+
         local send = self:getTrack():createSend(track)
         send:setMidiBusIO(-1, -1):setMuted()
-
-        self:refreshConnections()
+        -- self:refreshConnections()
 
     end
     return self

@@ -12,13 +12,13 @@ local icons = require 'icons'
 
 local FXButton = class(Component)
 
-function FXButton:create(fxSource)
+function FXButton:create(fxSource, name)
     local self = Component:create()
     setmetatable(self, FXButton)
 
     self.fxSource = fxSource
 
-    self.text = self:addChildComponent(TextButton:create('fx'))
+    self.text = self:addChildComponent(TextButton:create(name or 'fx'))
     self.text.getToggleState = function()
         return fxSource:getFx()
     end
@@ -52,8 +52,6 @@ function FXButton:create(fxSource)
             menu:show()
 
         else
-            -- rea.log('click')
-            -- rea.log(self.text.mouse.down)
             local fx = fxSource:getFx()
             if not fx then
                 rea.transaction('add fx', function()
@@ -61,7 +59,7 @@ function FXButton:create(fxSource)
                 end)
             end
 
-            if fx then fx:focus() end
+            -- if fx then fx:focus() end
         end
     end
 

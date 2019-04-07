@@ -76,21 +76,21 @@ function Pad:loadPad(file)
     return self
 end
 
-function Pad:refreshConnections()
-    local fxBus = self.rack:getFx()
-    local fx = self:getFx()
-    local layers = self:getLayers()
+-- function Pad:refreshConnections()
+--     local fxBus = self.rack:getFx()
+--     local fx = self:getFx()
+--     local layers = self:getLayers()
 
-    if fx then fx:setOutput(fxBus) end
+--     if fx then fx:setOutput(fxBus) end
 
-    _.forEach(layers, function(layer)
-        if fx and fxBus then
-            layer:removeSend(fxBus)
-        end
-        layer:setOutput(fx or fxBus)
-    end)
-    return self
-end
+--     _.forEach(layers, function(layer)
+--         if fx and fxBus then
+--             layer:removeSends(send.isOutput)
+--         end
+--         layer:setOutput(fx or fxBus)
+--     end)
+--     return self
+-- end
 
 function Pad:getNext()
     return self.rack.pads[self:getIndex() + 1]
@@ -170,11 +170,12 @@ end
 function Pad:removeFx()
     local fx = self:getFx()
     local rackFx = self.rack:getFx()
-    local layers = self:getLayers()
+    -- local layers = self:getLayers()
 
     if fx then
+        self:setOutput(rackFx, fx)
+        -- self:refreshConnections(fx)
         fx:remove()
-        self:refreshConnections()
     end
 
 end
@@ -187,10 +188,27 @@ function Pad:createFx()
     return track
 end
 
+function Pad:getOutput()
+    return self:getFx() or self.rack:getFx() or nil
+end
+
+function Pad:setOutput(track, filter)
+    if self:getFx() and self:getFx():getOutput() == filter then
+        self:getFx():setOutput(track)
+    end
+
+    _.forEach(self:getLayers(), function(layer)
+        if layer:getOutput() == filter then
+            layer:setOutput(track)
+        end
+    end)
+
+end
+
 function Pad:getFx(create)
 
     local track = _.some(self.rack:getTrack():getSends(), function(send)
-        return send:getMidiSourceBus() == self:getIndex() and send:isMuted() and send:getTargetTrack()
+        return send:getMidiSourceBus() == self:getIndex() and send:getType() == 'bus' and send:getTargetTrack()
     end)
 
     if create and not track and (_.size(self:getLayers()) > 0) then
@@ -201,12 +219,18 @@ function Pad:getFx(create)
 end
 
 function Pad:setFx(track)
+    local oldFx = self:getFx()
+
     self:removeFx()
     if track then
+        local currentOutPut = self:getOutput()
+        track:setOutput(currentOutPut)
+        self:setOutput(track, currentOutPut)
+
         local send = self.rack:getTrack():createSend(track)
-        send:setMuted()
+        send:setType('bus')
         send:setMidiBusIO(self:getIndex(), 0)
-        self:refreshConnections()
+        -- self:refreshConnections()
     end
     return pad
 end
@@ -226,10 +250,12 @@ function Pad:addTrack(newTrack)
         newTrack:focus()
         newTrack:setType('layer')
         newTrack:autoName()
-        newTrack:setAutoRecArm(false)
-        newTrack:setValue('arm', 0)
+        newTrack:getTrackTool(true)
+        -- newTrack:setAutoRecArm(false)
+        -- newTrack:setValue('arm', 0)
+        newTrack:setOutput(self:getOutput())
 
-        self:refreshConnections()
+        -- self:refreshConnections()
     end
 end
 
@@ -270,7 +296,7 @@ function Pad:addLayer(path, name)
         newTrack = Track:create(reaper.GetTrack(0, index))
     end
 
-    track:setSelected(1)
+    -- track:setSelected(1)
 
     self:addTrack(newTrack)
     return newTrack
@@ -300,7 +326,7 @@ function Pad:getLayerConnections()
     local layers = {}
 
     _.forEach(self.rack:getTrack():getSends(), function(send)
-        if send:getMidiSourceBus() == self:getIndex() and not send:isMuted() then
+        if send:getMidiSourceBus() == self:getIndex() and send:getTargetTrack():getType() == 'layer' then
             table.insert(layers, send)
         end
     end)

@@ -3,6 +3,7 @@ local Component = require 'Component'
 local TrackStateButton = require 'TrackStateButton'
 local TrackToolControlls = require 'TrackToolControlls'
 local InstrumentUI = require 'InstrumentUI'
+local TextButton = require 'TextButton'
 local _ = require '_'
 local rea = require 'rea'
 local paths = require 'paths'
@@ -11,6 +12,7 @@ local colors = require 'colors'
 local MidiTrackUI = class(Component)
 
 function MidiTrackUI:create(track)
+
     local self = Component:create()
     setmetatable(self, MidiTrackUI)
     self.track = track
@@ -25,10 +27,21 @@ function MidiTrackUI:create(track)
     self.mute = self:addChildComponent(TrackStateButton:create(track, 'mute', 'M'))
     self.solo = self:addChildComponent(TrackStateButton:create(track, 'solo', 'S'))
 
-    local instrument = track:getInstrument()
-    if instrument then
-        self.instrument = self:addChildComponent(InstrumentUI:create(instrument))
+    self.midiOutputs = self:addChildComponent(TextButton:create('out'))
+
+    local sends = track:getSends()
+
+    local targetTrack = _.some(sends, function(send) return send:getTargetTrack() end)
+
+    if targetTrack then
+        self.midiOutputs.content.text = targetTrack:getName()
+        local ui = targetTrack:createUI()
+        if ui then
+            self.targetTrack = self:addChildComponent(ui)
+        end
     end
+
+
 
     return self
 end
@@ -58,8 +71,11 @@ function MidiTrackUI:resized()
 
     y = self.solo:getBottom()
 
-    if self.instrument then
-        self.instrument:setBounds(0, y, self.w)
+    self.midiOutputs:setBounds(0,y,self.w, h)
+    y = self.midiOutputs:getBottom()
+
+    if self.targetTrack then
+        self.targetTrack:setBounds(0, y, self.w)
     end
 end
 

@@ -107,8 +107,8 @@ function ButtonList:getSize(comp, data, dim, size)
     if data then
         if data.size then
 
-            if data.size == true and comp[dim] > 0 then
-                return comp[dim]
+            if data.size == true then
+                return comp[dim] > 0 and comp[dim] or size
             elseif data.size < 0 then
                 return -data.size * self[dim]
             else
@@ -146,9 +146,10 @@ function ButtonList:resized()
             child[pI] = 0
             child[p] = pos
             child[dim] = self:getSize(child, data, dim, evenSize)
-            pos = pos + child[dim]
             i = i + 1
             child:resized()
+            pos = pos + child[dim]
+
         end)
         self[dim] = pos
 

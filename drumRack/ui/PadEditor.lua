@@ -1,15 +1,19 @@
 local Component = require 'Component'
-local LayerList = require 'LayerList'
 local ButtonList = require 'ButtonList'
 local PadOptions = require 'PadOptions'
+local FXButton = require 'FXButton'
+-- local AudioTrackUI = require 'AudioTrackUI'
+local Layer = require 'Layer'
 local Split = require 'Split'
 local rea = require 'rea'
+local _ = require '_'
 
 local PadEditor = class(Component)
 
 function PadEditor:create(pad)
     self = Component:create()
     self.pad = pad
+
     self.options =  self:addChildComponent(ButtonList:create(PadOptions(pad), true))
 
     self.options.isVisible = function( )
@@ -47,14 +51,31 @@ function PadEditor:create(pad)
                 pad.rack:getMapper():setParamForPad(prevPad, 2, key)
             else
                 pad.rack:getMapper():setParamForPad(pad, 2, 127)
-
             end
 
         end
 
     end
 
-    self.layers = self:addChildComponent(LayerList:create(pad))
+    self.layers = self:addChildComponent(ButtonList:create())
+    self.layers.getData = function()
+        return _.map(self.pad:getLayers(), function(layer)
+            return {
+                size = true,
+                proto = function()
+                    return Layer:create(layer, self.pad)
+                end
+            }
+        end)
+    end
+    self.layers:updateList()
+
+    self.fx = self:addChildComponent(FXButton:create(pad, 'pad:fx'))
+
+    -- if pad:getFx() then
+    --     self.fxTrack = self:addChildComponent(AudioTrackUI:create(pad:getFx()))
+    -- end
+
     setmetatable(self, PadEditor)
     return self
 end
@@ -69,14 +90,25 @@ end
 
 function PadEditor:resized()
     local h = 20
-
+    -- rea.log('PadEditor:resized')
     self.range:setBounds(0,0,self.w, h)
 
     local y = self.range:isVisible() and self.range:getBottom() or 0
 
     self.options:setBounds(0, y, self.w, h)
 
-    self.layers:setBounds(0, self.options:getBottom(), self.w, self.h - self.options:getBottom())
+    self.layers:setBounds(0, self.options:getBottom(), self.w)
+    y = self.layers:getBottom()
+
+    self.fx:setBounds(0, y, self.w, h)
+    y = self.fx:getBottom()
+
+    -- if self.fxTrack then
+    --     self.fxTrack:setBounds(0, y, self.w)
+    --     y = self.fxTrack:getBottom()
+    -- end
+
+    self.h = y
 
 end
 

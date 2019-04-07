@@ -21,6 +21,8 @@ function FXListItem:create(plugin)
     local self = Component:create(0,0, comp.w, comp.h)
     setmetatable(self, FXListItem)
 
+    self.repaintOnMouseEnterOrLeave = true
+
     self.fx = plugin
 
     self.comp = self:addChildComponent(comp)
@@ -105,9 +107,13 @@ function FXListItem:onDblClick(mouse)
     end
 end
 
+-- function FXListItem:onDragOver()
+--     self.parent:repaint(true)
+-- end
+
 function FXListItem:onDrag()
     Component.dragging = self
-    self.parent:repaint(true)
+    -- self.parent:repaint(true)
 end
 
 function FXListItem:onMouseUp()
@@ -117,6 +123,7 @@ end
 function FXListItem:onDrop()
     if Component.dragging and instanceOf(Component.dragging, FXListItem) and Component.dragging.fx ~= self.fx and self:isMouseOver() then
             rea.transaction('move fx', function()
+
                 local offset = (self.mouse.y > (self.h / 2)) and 1 or 0
 
                 local from = Component.dragging.fx.index

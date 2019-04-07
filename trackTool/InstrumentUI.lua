@@ -19,12 +19,13 @@ local _ = require '_'
 
 local InstrumentUI = class(Component)
 
-function InstrumentUI:create(instrument)
+function InstrumentUI:create(track)
     local self = Component:create()
     setmetatable(self, InstrumentUI)
 
-    self.track = instrument.track
-    self.instrument = instrument
+
+    self.instrument = track:getInstrument()
+    self.track = self.instrument.track
 
     self:update()
 
@@ -47,9 +48,11 @@ function InstrumentUI:update()
         self.mute = self:addChildComponent(TrackStateButton:create(track, 'mute', 'M'))
         self.solo = self:addChildComponent(TrackStateButton:create(track, 'solo', 'S'))
 
+
         self.output = self:addChildComponent(Output:create(track))
 
         self.outputs = self:addChildComponent(Outputs:create(track))
+
 
         if self.track:getTrackTool() then
             self.controlls = self:addChildComponent(TrackToolControlls:create(self.track))
@@ -80,6 +83,7 @@ function InstrumentUI:resized()
 
     if self.audioTrack then
         self.audioTrack:setBounds(0, y, self.w)
+        y = self.audioTrack:getBottom()
     else
         self.mute:setBounds(0,y, self.w/2, h)
         self.solo:setBounds(self.mute:getRight(),y, self.w/2, h)
@@ -87,8 +91,10 @@ function InstrumentUI:resized()
         self.outputs:setBounds(0,y, self.w)
         y = self.outputs:getBottom()
         self.output:setBounds(0, y, self.w, h)
+        y = self.output:getBottom()
     end
 
+    self.h = y
 
 end
 

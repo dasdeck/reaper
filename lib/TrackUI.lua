@@ -16,7 +16,8 @@ function TrackUI.click(track, mouse)
             menu:addItem('add midi track', function()
                 local slave = track:createMidiSlave()
                 slave:setArmed(1)
-                slave:focus()
+                -- slave:focus()
+                slave:setSelected(1)
 
             end,'add midi track')
         end

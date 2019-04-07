@@ -28,7 +28,9 @@ local options = {
                     track:setSelected(1)
                     track:setArmed(1)
                     track:focus()
-                    track:getInstrument():open(true)
+                    if track:getInstrument() then
+                        track:getInstrument():open(true)
+                    end
                 end
             end)
         end

@@ -95,6 +95,7 @@ function App:start(options)
             local rank = _.map(log.calls.methods, function(meth) return meth end)
             table.sort(rank, function (a,b)
                 return a.time > b.time
+                -- return a.calls > b.calls
             end)
 
             local limitedRank = {}

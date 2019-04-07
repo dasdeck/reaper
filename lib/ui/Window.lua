@@ -19,7 +19,7 @@ Window.currentWindow = nil
 
 Project.watch.project:onChange(function()
     if Window.currentWindow then
-        Window.currentWindow.doPaint = 'all'
+        Window.currentWindow:repaint('all')
     end
     Track.onStateChange()
 end)
@@ -37,15 +37,15 @@ function Window:create(name, component, options)
         name = name,
         mouse = Mouse.capture(),
         state = {},
-        doPaint = true,
         g = Graphics:create(),
         options = options or {},
         paints = 0
     }
     setmetatable(self, Window)
-    component.window = self
+    component:setWindow(self)
     self.component = component
 
+    self:repaint(true)
     self.time = reaper.time_precise()
     return self
 end
@@ -54,11 +54,10 @@ function Window:isOpen()
     return self.open ~= false
 end
 
-function Window:render()
+function Window:render(allComps)
 
-    if self.doPaint or Component.dragging then
+    if _.some(allComps, function(comp)return comp.needsPaint end) or self.doPaint or Component.dragging then
         gfx.dest = -1
-        gfx.update()
         gfx.clear = 0
 
         self.component:evaluate(self.g)
@@ -87,6 +86,7 @@ function Window:render()
 
         self.paints = self.paints + 1
 
+        return true
     end
 
 end
@@ -175,7 +175,7 @@ function Window:updateWindow()
             -- rea.log('init')
             gfx.quit()
             gfx.init(self.name, w, h, self.dock, self.x, self.y)
-            self.doPaint = 'all'
+            self.repaint('all')
         else
             self.component:setSize(gfx.w, gfx.h)
         end
@@ -214,7 +214,7 @@ function Window:toggleDock()
 
 end
 
-function Window:evalKeyboard()
+function Window:evalKeyboard(allComps)
 
     local key = gfx.getchar()
 
@@ -238,7 +238,7 @@ function Window:evalKeyboard()
                 self:close()
             end
 
-            _.forEach(self.component:getAllChildren(), function(comp)
+            _.forEach(allComps, function(comp)
                 if comp.onKeyPress then
                     comp:onKeyPress(key)
                 end
@@ -254,6 +254,7 @@ function getDroppedFiles()
     local i = 0
     local success, file = gfx.getdropfile(i)
     while success >= 1 do
+        -- rea.log('droppaaz')
         table.insert(files, file)
         i = i + 1
         success, file = gfx.getdropfile(i)
@@ -264,10 +265,14 @@ function getDroppedFiles()
     return files
 end
 
-function Window:evalMouse()
+function Window:evalMouse(allComps)
 
     local files = getDroppedFiles()
     local isFileDrop = _.size(files) > 0
+
+    if isFileDrop then
+        rea.logCount('drop')
+    end
 
     local mouse = Mouse.capture(reaper.time_precise(), self.mouse)
 
@@ -280,7 +285,6 @@ function Window:evalMouse()
     local mouseDown = (not self.mouse:isButtonDown()) and mouse:isButtonDown()
     local mouseUp = self.mouse:isButtonDown() and (not mouse:isButtonDown())
 
-    local allComps = self.component:getAllChildren()
 
     if mouseMoved or capChanged or isFileDrop or wheelMove then
 
@@ -297,6 +301,10 @@ function Window:evalMouse()
                 if comp.onMouseLeave then
                     comp:onMouseLeave()
                 end
+                if comp:repaintOnMouse() then
+                    comp:repaint()
+                end
+
                 if comp == self.component then
                     self:repaint()
                 end
@@ -304,6 +312,10 @@ function Window:evalMouse()
 
             local mouseEnter = not comp.mouse.over and isOver
             if mouseEnter then
+                if comp:repaintOnMouse() then
+                    comp:repaint()
+                end
+
                 if comp.onMouseEnter then
                     comp:onMouseEnter()
                 end
@@ -321,9 +333,6 @@ function Window:evalMouse()
 
             local useComp = comp:wantsMouse() and (isOver or (mouseDragged and comp.mouse.down))
             if not consumed and useComp then
-
-
-
 
                 if wheelMove and comp.onMouseWheel then comp:onMouseWheel(mouse) end
 
@@ -351,6 +360,15 @@ function Window:evalMouse()
                     if isFileDrop then
                         comp:onFilesDrop(files)
                         files = {}
+                    end
+                end
+
+                if mouseMoved and isOver then
+                    if comp:repaintOnMouse() then
+                        comp:repaint()
+                    end
+                    if comp.onMouseMove then
+                        comp:onMouseMove(mouse)
                     end
                 end
 
@@ -394,10 +412,11 @@ function Window:defer()
 
     if not self.open then return end
 
+    local allComps = self.component:getAllChildren()
     self:updateWindow()
-    self:render()
-    self:evalMouse()
-    self:evalKeyboard()
+    local wasPainted = self:render(allComps)
+    self:evalMouse(allComps)
+    self:evalKeyboard(allComps)
 
     if rea.refreshUI(true) then
         self.paint = true
@@ -406,6 +425,8 @@ function Window:defer()
     if self.onDefer then
         self:onDefer()
     end
+
+    if wasPainted then gfx.update() end
 
 end
 
