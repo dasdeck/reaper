@@ -390,10 +390,11 @@ function Track:getPan()
 end
 
 function Track:createUI()
-    -- rea.logCount('createUI')
+    rea.logCount('Track:createUI')
     local type = self:getType()
     if type == Track.typeMap.midi then
-        return (require 'MidiTrackUI'):create(self)
+        local MidiTrackUI = require 'MidiTrackUI'
+        return MidiTrackUI:create(self)
     elseif type == Track.typeMap.instrument then
         if self:getFx((require 'DrumRack').fxName) then
             local DrumRackTrackUI = require 'DrumRackTrackUI'
@@ -410,6 +411,7 @@ function Track:createUI()
 end
 
 function Track:getInlineUI()
+    rea.logCount('getInlineUI')
     if self:getType() == Track.typeMap.instrument then
         if self:getInstrument() then
             local DrumRack = require 'DrumRack'

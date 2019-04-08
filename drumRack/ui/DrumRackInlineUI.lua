@@ -23,6 +23,8 @@ function DrumRackInlineUI:create(rack)
 
     local self = Component:create()
 
+    rea.logCount('DrumRackInlineUI')
+
     setmetatable(self, DrumRackInlineUI)
 
     self.rack = rack
@@ -31,7 +33,7 @@ function DrumRackInlineUI:create(rack)
     -- self.opts = self:addChildComponent(ButtonList:create(DrumRackOptions(rack), true))
     self.padgrid = self:addChildComponent(PadGrid:create(rack))
 
-    local splits = _.map(rack.pads, function(pad) return {args = pad} end)
+    -- local splits = _.map(rack.pads, function(pad) return {args = pad} end)
     -- self.layers = self:addChildComponent(ButtonList:create(splits, false, Split))
 
     local change = function()
@@ -56,7 +58,10 @@ end
 function DrumRackInlineUI:update()
     local currentPad = self.padEditor and self.padEditor.pad
 
-    if self.padEditor then self.padEditor:delete() end
+    if self.padEditor then
+        self.padEditor:delete()
+        self.padEditor = nil
+    end
     if self.rack:getSelectedPad() then
         self.padEditor = self:addChildComponent(PadEditor:create(self.rack:getSelectedPad()))
     end
@@ -66,20 +71,20 @@ end
 
 function DrumRackInlineUI:resized()
 
-    -- self.opts:setBounds(0, 0, self.w, 20)
     local y = 0
     local h = 20
 
     local padgrid = self.w
     self.padgrid:setBounds(0, y, padgrid, padgrid)
-    -- self.layers:setBounds(0, padgrid, padgrid)
-
     local y = self.padgrid:getBottom()
+
     if self.padEditor then
         self.padEditor:setBounds(0, y, self.w)
+        y = self.padEditor:getBottom()
+        rea.log(self.h)
+
     end
 
-    y = self.padEditor:getBottom()
 
     self.rackFx:setBounds(0,y,self.w, h)
     y = self.rackFx:getBottom()

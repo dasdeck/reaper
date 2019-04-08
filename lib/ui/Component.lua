@@ -285,8 +285,6 @@ function Component:getWindow()
     elseif self.parent then
         return self.parent:getWindow()
     end
-
-    -- assert(false, 'components need a window')
 end
 
 function Component:repaint(children)

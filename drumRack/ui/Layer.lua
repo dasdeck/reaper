@@ -138,9 +138,7 @@ function Layer:resized()
     self.icon:setSize(h,h)
 
     -- self.mute:setBounds(self.icon:getRight(), 0, h, h)
-
     -- self.solo:setBounds(self.mute:getRight(), 0, h, h)
-
     -- self.lock:setBounds(self.solo:getRight(), 0, h, h)
 
     self.name:setBounds(h, self.lock:getBottom(), self.w-h, h)
@@ -152,7 +150,6 @@ function Layer:resized()
     end
 
     -- rea.log(self.h)
-
 
 end
 

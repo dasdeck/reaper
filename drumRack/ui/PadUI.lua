@@ -171,9 +171,6 @@ function PadUI:create(pad)
     self.padButton.onClick = function (s, mouse)
         local wasSelected = pad:setSelected()
 
-        -- if wasSelected then
-            -- rea.transaction('select pad', function()
-
         if pad:getFx() then
             pad:getFx():focus()
         else
@@ -187,8 +184,6 @@ function PadUI:create(pad)
             end
 
         end
-            -- end)
-        -- end
 
         pad:noteOff()
 
@@ -206,7 +201,6 @@ end
 
 function PadUI:onFilesDrop(files)
 
-    -- rea.log('drop')
     rea.transaction('add layer', function()
         for v, k in pairs(files) do
             local layer = self.pad:addLayer(k)
@@ -266,11 +260,5 @@ function PadUI:paintOverChildren(g)
     end
 end
 
-function PadUI:resized()
-
-    local padding = 0
-    self.padButton:setBounds(padding, padding, self.w - 2 * padding, self.h - 2 * padding)
-
-end
 
 return PadUI

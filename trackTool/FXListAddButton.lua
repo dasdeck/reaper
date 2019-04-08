@@ -24,6 +24,10 @@ function FXlistAddButton:create(track, name)
 
 end
 
+function TextButton:repaintOnMouse()
+    return true
+end
+
 function FXlistAddButton:onButtonClick(mouse)
 
     local add = function()

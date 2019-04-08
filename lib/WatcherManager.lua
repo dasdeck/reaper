@@ -17,7 +17,16 @@ function WatcherManager:watch(watcher, callback, onstart)
     if getmetatable(watcher) ~= Watcher then
         watcher = Watcher:create(watcher, onstart)
         table.insert(self.watchers, watcher)
+    elseif onstart == false then
+        local use = false
+        local origCallback = callback
+        callback = function(...)
+            if use then return origCallback(...) end
+            use = true
+        end
     end
+
+
 
     table.insert(self.offs, watcher:onChange(callback))
 end

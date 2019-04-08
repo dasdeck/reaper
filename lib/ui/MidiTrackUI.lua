@@ -13,6 +13,7 @@ local MidiTrackUI = class(Component)
 
 function MidiTrackUI:create(track)
 
+    rea.logCount('MidiTrackUI')
     local self = Component:create()
     setmetatable(self, MidiTrackUI)
     self.track = track

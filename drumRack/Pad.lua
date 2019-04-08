@@ -170,11 +170,9 @@ end
 function Pad:removeFx()
     local fx = self:getFx()
     local rackFx = self.rack:getFx()
-    -- local layers = self:getLayers()
 
     if fx then
         self:setOutput(rackFx, fx)
-        -- self:refreshConnections(fx)
         fx:remove()
     end
 
@@ -230,7 +228,6 @@ function Pad:setFx(track)
         local send = self.rack:getTrack():createSend(track)
         send:setType('bus')
         send:setMidiBusIO(self:getIndex(), 0)
-        -- self:refreshConnections()
     end
     return pad
 end
@@ -251,11 +248,7 @@ function Pad:addTrack(newTrack)
         newTrack:setType('layer')
         newTrack:autoName()
         newTrack:getTrackTool(true)
-        -- newTrack:setAutoRecArm(false)
-        -- newTrack:setValue('arm', 0)
         newTrack:setOutput(self:getOutput())
-
-        -- self:refreshConnections()
     end
 end
 
@@ -296,8 +289,6 @@ function Pad:addLayer(path, name)
         newTrack = Track:create(reaper.GetTrack(0, index))
     end
 
-    -- track:setSelected(1)
-
     self:addTrack(newTrack)
     return newTrack
 
@@ -312,7 +303,6 @@ end
 function Pad:clear()
 
     self:removeLayers()
-
     self:removeFx()
 
 end

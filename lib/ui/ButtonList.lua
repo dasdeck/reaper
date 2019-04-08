@@ -25,7 +25,7 @@ function ButtonList:updateList()
 
     local size = self.layout == true and 'w' or 'h'
 
-    self[size] = 0
+    -- self[size] = 0
 
     for i, value in pairs(self:getData()) do
 
@@ -78,12 +78,8 @@ function ButtonList:updateList()
         end
 
         self:addChildComponent(comp)
-        self[size] = self[size] + self:getSize(comp, value, size, self:getDefaultCompSize())
     end
 
-    if self.layout == 1 and _.size(self.children) then
-        self[size] = _.first(self.children)[size]
-    end
     self:resized()
     self:repaint()
 end

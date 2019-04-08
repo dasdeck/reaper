@@ -16,10 +16,6 @@ function PadEditor:create(pad)
 
     self.options =  self:addChildComponent(ButtonList:create(PadOptions(pad), true))
 
-    self.options.isVisible = function( )
-        return pad:hasContent()
-    end
-
     self.range = self:addChildComponent(Split:create(pad))
     self.range.padButton:setVisible(false)
 
@@ -70,11 +66,8 @@ function PadEditor:create(pad)
     end
     self.layers:updateList()
 
-    self.fx = self:addChildComponent(FXButton:create(pad, 'pad:fx'))
 
-    -- if pad:getFx() then
-    --     self.fxTrack = self:addChildComponent(AudioTrackUI:create(pad:getFx()))
-    -- end
+    self.fx = self:addChildComponent(FXButton:create(pad, 'pad:fx'))
 
     setmetatable(self, PadEditor)
     return self
@@ -90,23 +83,16 @@ end
 
 function PadEditor:resized()
     local h = 20
-    -- rea.log('PadEditor:resized')
-    self.range:setBounds(0,0,self.w, h)
-
-    local y = self.range:isVisible() and self.range:getBottom() or 0
+    local y = 0
 
     self.options:setBounds(0, y, self.w, h)
+    y = self.options:getBottom()
 
-    self.layers:setBounds(0, self.options:getBottom(), self.w)
+    self.layers:setBounds(0, y, self.w)
     y = self.layers:getBottom()
 
     self.fx:setBounds(0, y, self.w, h)
     y = self.fx:getBottom()
-
-    -- if self.fxTrack then
-    --     self.fxTrack:setBounds(0, y, self.w)
-    --     y = self.fxTrack:getBottom()
-    -- end
 
     self.h = y
 
