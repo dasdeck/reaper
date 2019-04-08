@@ -84,9 +84,9 @@ function Layer:create(track, pad)
         Component.dragging = self
     end
 
-    self.watchers:watch(Track.watch.focusedTrack, function()
-        self:update()
-    end)
+    -- self.watchers:watch(Track.watch.focusedTrack, function()
+    --     self:update()
+    -- end)
 
     self:update()
 
@@ -111,13 +111,12 @@ function Layer:update()
         if self.instrument then self.instrument:delete() end
         self.instrument = self:addChildComponent(InstrumentUI:create(self.track))
 
-        -- if self.pad:getOutput() and self.track:getOutput() == self.pad:getOutput() then
-        --     self.instrument.audioTrack.next:delete()
-        --     self.instrument.audioTrack.next = nil
-        -- end
+        if self.pad:getOutput() and self.track:getOutput() == self.pad:getOutput() then
+            self.instrument.audioTrack.next:delete()
+            self.instrument.audioTrack.next = nil
+        end
 
         self:resized()
-        rea.log('expanded')
     end
     if self.parent then self.parent:resized() end
 end

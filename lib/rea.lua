@@ -46,6 +46,10 @@ local function showLogs()
         log(logPins)
     end
 end
+if __RELEASE or false then
+    showLogs = function()end
+    log = function()end
+end
 
 local function logCount(key, mnt)
     key = tostring(key)

@@ -279,7 +279,18 @@ end
 
 function Track:getMeta(name, default)
     local data = self:getMetaData()
-    return data[name] == nil and default or data[name]
+
+    if name == nil then
+        return data or default or {}
+    end
+
+    if data[name] == nil then
+        return default
+    end
+
+    -- rea.logPin('meta'..name, data[name])
+
+    return data[name]
 end
 
 function Track:isAudioTrack()
@@ -390,8 +401,8 @@ function Track:getPan()
 end
 
 function Track:createUI()
-    rea.logCount('Track:createUI')
     local type = self:getType()
+    -- rea.logPin('type',type)
     if type == Track.typeMap.midi then
         local MidiTrackUI = require 'MidiTrackUI'
         return MidiTrackUI:create(self)
@@ -411,7 +422,6 @@ function Track:createUI()
 end
 
 function Track:getInlineUI()
-    rea.logCount('getInlineUI')
     if self:getType() == Track.typeMap.instrument then
         if self:getInstrument() then
             local DrumRack = require 'DrumRack'
@@ -636,13 +646,24 @@ function Track:setColor(c)
     return self
 end
 
-function Track:getOutput()
-    local toParent = self:getValue('toParent') > 0
-    return not toParent and _.some(self:getSends(), function(send)
-        return send:getType() == 'output' and send:getTargetTrack()
-    end) or nil
+function Track:getOutputConnection()
+    return _.some(self:getSends(), function(send)
+        return send:getType() == 'output' and send
+    end)
 end
 
+function Track:getOutput()
+    local toParent = self:getValue('toParent') > 0
+    local output = not toParent and _.some(self:getSends(), function(send)
+        return send:getType() == 'output' and send:getTargetTrack()
+    end) or nil
+
+    return output
+end
+
+function Track:isMultioutRouting()
+    return self:getInstrument() and (self:getValue('toParent') == 0) and (not self:getOutputConnection() or self:getOutputConnection():isMuted()) and true or false
+end
 
 function Track:setOutput(target, la)
 
@@ -654,12 +675,29 @@ function Track:setOutput(target, la)
         end)
     end
 
+    local multiOut = self:isMultioutRouting()
+    rea.log(multiOut)
+    -- if multiOut then
+    local current = self:getOutput()
+    _.forEach(self:getSends(), function(send)
+        local track = send:getTargetTrack()
+        if track:getType() == Track.typeMap.output then
+            if track:getOutput() == current then
+                track:setOutput(target)
+            end
+        end
+    end)
+    -- end
+
     self:removeSends(Send.isOutput)
     if not target then
-        self:setValue('toParent', true)
+        self:setValue('toParent', not multiOut)
     else
-        self:createSend(target, true):setType('output')
+        local send = self:createSend(target, true):setType('output')
+        send:setMuted(multiOut)
     end
+
+
 
     return self
 end

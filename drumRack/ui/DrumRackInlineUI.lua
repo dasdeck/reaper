@@ -29,27 +29,26 @@ function DrumRackInlineUI:create(rack)
 
     self.rack = rack
 
-
-    -- self.opts = self:addChildComponent(ButtonList:create(DrumRackOptions(rack), true))
     self.padgrid = self:addChildComponent(PadGrid:create(rack))
 
-    -- local splits = _.map(rack.pads, function(pad) return {args = pad} end)
-    -- self.layers = self:addChildComponent(ButtonList:create(splits, false, Split))
 
     local change = function()
-        -- self.layers:setVisible(rack:isSplitMode())
-        self.padgrid:setVisible(not rack:isSplitMode())
+        self.padgrid:repaint(true)
         self:update()
     end
-    -- self.watchers:watch(Project.watch.project, change, true)
+
     self.watchers:watch(function()
         return self.rack:getSelectedPad()
     end, change, true)
 
     self.rackFx = self:addChildComponent(FXButton:create(rack, 'rack:fx'))
 
-    change()
+    if rack:getFx() then
+        local AudioTrackUI = require 'AudioTrackUI'
+        self.rackFxTrack = self:addChildComponent(AudioTrackUI:create(rack:getFx()))
+    end
 
+    change()
 
     return self
 
@@ -81,13 +80,18 @@ function DrumRackInlineUI:resized()
     if self.padEditor then
         self.padEditor:setBounds(0, y, self.w)
         y = self.padEditor:getBottom()
-        rea.log(self.h)
 
     end
 
-
     self.rackFx:setBounds(0,y,self.w, h)
     y = self.rackFx:getBottom()
+
+    if self.rackFxTrack then
+        self.rackFxTrack:setBounds(0, y, self.w)
+        y = self.rackFxTrack:getBottom()
+    end
+
+
 
     self.h = y
 

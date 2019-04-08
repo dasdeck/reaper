@@ -102,7 +102,9 @@ function DrumRackUI:create(rack)
         self.padgrid:setVisible(not rack:isSplitMode())
         self:update()
     end
+
     self.watchers:watch(Project.watch.project, change)
+
     self.watchers:watch(function()
         return self.rack:getSelectedPad()
     end, change)

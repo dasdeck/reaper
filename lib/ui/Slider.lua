@@ -37,7 +37,6 @@ end
 
 function Slider:onDrag()
     self:setValue(self.valueDown + (self.yDown - gfx.mouse_y) / self.pixelsPerValue)
-    -- rea.logCount('drags')
     self:repaint(true)
 end
 

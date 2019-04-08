@@ -4,6 +4,7 @@ local TrackStateButton = require 'TrackStateButton'
 local TextButton = require 'TextButton'
 local ButtonList = require 'ButtonList'
 local FXList = require 'FXList'
+local FXListAddButton = require 'FXListAddButton'
 local La = require 'La'
 local AuxUI = require 'AuxUI'
 local Output = require 'Output'
@@ -23,7 +24,11 @@ function AudioTrackUI:create(track, isOutput)
 
     self.track = track
 
-    self:update()
+    local track = self.track
+
+    self.fx = self:addChildComponent(FXList:create(track, '+master-fx'))
+    self.fxAdd = self:addChildComponent(FXListAddButton:create(track))
+    -- self:update()
 
     return self
 end
@@ -31,9 +36,7 @@ end
 function AudioTrackUI:update()
     self:deleteChildren()
 
-    local track = self.track
 
-    self.fx = self:addChildComponent(FXList:create(track, '+master-fx'))
 
 end
 
@@ -45,6 +48,9 @@ function AudioTrackUI:resized()
     self.fx:setBounds(0,y,self.w)
     y = self.fx:getBottom()
 
+    self.fxAdd:setBounds(0,y, self.w, h)
+    y = self.fxAdd:getBottom()
+    self.h = y
 end
 
 return AudioTrackUI

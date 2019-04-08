@@ -32,6 +32,14 @@ function InstrumentUI:create(track)
     return self
 end
 
+function InstrumentUI:getFx(create)
+
+end
+
+function InstrumentUI:setFx(track)
+
+end
+
 function InstrumentUI:update()
     self:deleteChildren()
 
@@ -42,17 +50,14 @@ function InstrumentUI:update()
         self.inline = self:addChildComponent(inlineUI)
     end
 
-
     if self.instrument:canDoMultiOut() then
-
+        -- rea.logCount('multi')
         self.mute = self:addChildComponent(TrackStateButton:create(track, 'mute', 'M'))
         self.solo = self:addChildComponent(TrackStateButton:create(track, 'solo', 'S'))
 
-
-        self.output = self:addChildComponent(Output:create(track))
+        -- self.output = self:addChildComponent(Output:create(track))
 
         self.outputs = self:addChildComponent(Outputs:create(track))
-
 
         if self.track:getTrackTool() then
             self.controlls = self:addChildComponent(TrackToolControlls:create(self.track))
@@ -66,6 +71,7 @@ function InstrumentUI:update()
 
         end
     else
+        rea.logCount('single')
         self.audioTrack = self:addChildComponent(AudioTrackUI:create(self.track))
     end
 
@@ -90,8 +96,8 @@ function InstrumentUI:resized()
         y = self.solo:getBottom()
         self.outputs:setBounds(0,y, self.w)
         y = self.outputs:getBottom()
-        self.output:setBounds(0, y, self.w, h)
-        y = self.output:getBottom()
+        -- self.output:setBounds(0, y, self.w)
+        -- y = self.output:getBottom()
     end
 
     self.h = y

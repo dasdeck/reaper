@@ -21,13 +21,9 @@ function TrackToolSwitcher:create(...)
     self.watchers:watch(Track.watch.selectedTrack,
     function(track)
 
-        rea.logCount('Track.watch.selectedTrack')
-
-        -- rea.logCount('update')
         if self.history.track ~= track then
             self.history.next = {prev = self.history, track = track}
             self.history = self.history.next
-            -- self:update()
         end
         if track then
             track:focus()
@@ -35,11 +31,7 @@ function TrackToolSwitcher:create(...)
         end
 
     end)
-    -- -- self.watchers:watch(Track.watch.selectedTrack, function(track)
-    --     Track.mem:set(0, track and track:getIndex() or -1)
-    -- end)
     self.watchers:watch(Project.watch.project, function()
-        rea.logCount('Project.watch.project')
         if not Mouse.capture():isButtonDown()then
             self:update()
         end
@@ -105,7 +97,6 @@ function TrackToolSwitcher:update()
 
 
     if self:getTrack() and self:getTrack():exists() then
-        rea.logCount('updateSwitcher')
         self.currentTrack = self:getTrack()
         local comp = self:getTrack():createUI()-- or TrackTool:create(self:getTrack())
         if comp then

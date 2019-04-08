@@ -22,7 +22,6 @@ local DrumRackTrackUI = class(Component)
 
 function DrumRackTrackUI:create(track)
 
-    rea.logCount('DrumRackTrackUI')
     local self = Component:create()
     setmetatable(self, DrumRackTrackUI)
 

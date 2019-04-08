@@ -1,14 +1,19 @@
 Ideas:
+    ☐ delete managed tracks on delete
     ☐ tracklist tblclick edit first fx
     ☐ A/B reference tool
     ☐ drag samples to A/B tool / tag editor
     ✔ reopen pluginwindow on pick @done(19-04-04 12:33)
     ☐ bypass state in pluginmenu
+    ☐ bypass whole chains
+    ☐ bypass button on fx
     ☐ move la track to other track
     ☐ move fx to other tracks (incl pos)
-
+    ☐ move fx to new aux
     ☐ la/ms/split inline handling
-    ☐ clide with visual value (gain, pan, delay)
+    ☐ slider with visual value (gain, pan, delay)
+
+    ☐ midi fx insert
 
     ☐ master tool
         ☐ monitor

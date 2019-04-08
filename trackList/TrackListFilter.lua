@@ -28,7 +28,7 @@ local options = {
                     track:setSelected(1)
                     track:setArmed(1)
                     track:focus()
-                    if track:getInstrument() then
+                    if track:getInstrument() and not track:getFx('DrumRack') then
                         track:getInstrument():open(true)
                     end
                 end

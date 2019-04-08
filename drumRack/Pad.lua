@@ -173,18 +173,19 @@ function Pad:removeFx()
 
     if fx then
         self:setOutput(rackFx, fx)
-        fx:remove()
+
+        if fx:getMeta('managed') then
+            fx:remove()
+        end
     end
 
 end
 
-function Pad:createFx()
-    track = Bus.createBus(_.first(self:getLayers()):getIndex())
-    track:setIcon('pads.png')
-    track:setName('pad' .. self:getName())
-    track:setVisibility(false, true)
-    return track
+function Pad:getUniqueName()
+    return self.rack:getTrack().guid .. 'pad' .. tostring(self:getIndex())
 end
+
+
 
 function Pad:getOutput()
     return self:getFx() or self.rack:getFx() or nil
@@ -216,14 +217,24 @@ function Pad:getFx(create)
     return track
 end
 
-function Pad:setFx(track)
-    local oldFx = self:getFx()
+function Pad:createFx()
+    track = Bus.createBus(_.first(self:getLayers()):getIndex())
+    track:setIcon('pads.png')
+    track:setMeta('managed', true)
+    track:setVisibility(false, true)
+    return track
+end
 
+function Pad:setFx(track)
     self:removeFx()
     if track then
-        local currentOutPut = self:getOutput()
-        track:setOutput(currentOutPut)
-        self:setOutput(track, currentOutPut)
+
+        if track:getMeta('managed') then
+            local currentOutPut = self:getOutput()
+            track:setOutput(currentOutPut)
+            self:setOutput(track, currentOutPut)
+            track:setName('pad' .. self:getName())
+        end
 
         local send = self.rack:getTrack():createSend(track)
         send:setType('bus')
@@ -343,6 +354,11 @@ function Pad:flipPad(otherPad)
     for k,v in pairs(layersB) do
         v:setMidiBusIO(otherPad:getIndex(), 1)
     end
+
+    local fxA = otherPad:getFx()
+    local fxB = self:getFx()
+    self:setFx(fxA)
+    otherPad:setFx(fxB)
 end
 
 function Pad:copyPad(otherPad)

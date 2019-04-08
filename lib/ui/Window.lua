@@ -41,6 +41,8 @@ function Window:create(name, component, options)
         options = options or {},
         paints = 0
     }
+
+    self.options.debug = true
     setmetatable(self, Window)
     component:setWindow(self)
     self.component = component
@@ -56,10 +58,19 @@ end
 
 function Window:render(allComps)
 
-    if _.some(allComps, function(comp)return comp.needsPaint end) or self.doPaint or Component.dragging then
+    local fromComp = _.some(allComps, function(comp)return comp.needsPaint and comp.isCurrentlyVisible end)
+    if fromComp or self.doPaint or Component.dragging then
         gfx.dest = -1
         gfx.clear = 0
 
+        -- if self.options.debug then
+        --     rea.logCount('render')
+        --     rea.logPin('render', {
+        --         fromComp = fromComp,
+        --         window = self.doPaint,
+        --         dragging = Component.dragging
+        --     })
+        -- end
         self.component:evaluate(self.g)
 
         if Component.dragging then
@@ -269,10 +280,6 @@ function Window:evalMouse(allComps)
 
     local files = getDroppedFiles()
     local isFileDrop = _.size(files) > 0
-
-    if isFileDrop then
-        rea.logCount('drop')
-    end
 
     local mouse = Mouse.capture(reaper.time_precise(), self.mouse)
 

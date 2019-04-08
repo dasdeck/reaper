@@ -285,15 +285,11 @@ function DrumRack:removeFx()
 end
 
 function DrumRack:setFx(track)
+    self:removeFx()
     if track then
-        self:removeFx()
-
         self:setOutput(track, nil)
-
         local send = self:getTrack():createSend(track)
         send:setMidiBusIO(-1, -1):setMuted()
-        -- self:refreshConnections()
-
     end
     return self
 end

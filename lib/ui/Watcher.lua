@@ -49,6 +49,7 @@ function Watcher:defer()
         local newValue = self.callback()
 
         if self.lastValue ~= newValue then
+            -- rea.logCount('deferChange')
             self.lastValue = newValue
             _.forEach(self.listeners, function(listener)
                 listener(newValue)

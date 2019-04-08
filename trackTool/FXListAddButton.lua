@@ -33,7 +33,12 @@ function FXlistAddButton:onButtonClick(mouse)
     local add = function()
         PluginListApp.pick(PluginListApp.cats.effects, function(name)
             rea.transaction('add effect', function()
-                self.track:addFx(name)
+                local fx = self.track:addFx(name)
+                if fx then
+                    fx:open()
+                else
+                    return false
+                end
             end)
         end)
     end

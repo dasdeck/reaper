@@ -2,8 +2,9 @@ local Component = require 'Component'
 local ButtonList = require 'ButtonList'
 local PadOptions = require 'PadOptions'
 local FXButton = require 'FXButton'
--- local AudioTrackUI = require 'AudioTrackUI'
+
 local Layer = require 'Layer'
+local Track = require 'Track'
 local Split = require 'Split'
 local rea = require 'rea'
 local _ = require '_'
@@ -66,8 +67,15 @@ function PadEditor:create(pad)
     end
     self.layers:updateList()
 
+    self.watchers:watch(Track.watch.tracks, function() self.layers:updateList() end)
 
     self.fx = self:addChildComponent(FXButton:create(pad, 'pad:fx'))
+
+    if pad:getFx() then
+        local AudioTrackUI = require 'AudioTrackUI'
+        self.fxTrack = self:addChildComponent(AudioTrackUI:create(pad:getFx()))
+    end
+
 
     setmetatable(self, PadEditor)
     return self
@@ -93,6 +101,12 @@ function PadEditor:resized()
 
     self.fx:setBounds(0, y, self.w, h)
     y = self.fx:getBottom()
+
+    if self.fxTrack then
+        self.fxTrack:setBounds(0, y, self.w)
+        y = self.fxTrack:getBottom()
+    end
+
 
     self.h = y
 

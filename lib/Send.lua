@@ -29,7 +29,7 @@ function Send:setType(type)
     local coll = self:getMedaData()
     coll.type = type
     self:setMedaData(coll)
-
+    return self
 end
 
 function Send:getType()

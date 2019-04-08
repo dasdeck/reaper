@@ -35,8 +35,6 @@ function AudioTrackUI:update()
 
     local track = self.track
 
-    self.output = self:addChildComponent(Output:create(track))
-
     self.laAdd = self:addChildComponent(TextButton:create('+la'))
     self.laAdd.color = colors.la:fade(0.8)
     self.laAdd.onButtonClick = function(s, mouse)
@@ -210,14 +208,13 @@ function AudioTrackUI:resized()
     self.aux:setBounds(0, y, self.w)
     y = self.aux:getBottom()
 
-    self.output:setBounds(0,y, self.w, h)
-
+    self.output:setBounds(0,y, self.w)
     y = self.output:getBottom()
 
-    if self.next then
-        self.next:setBounds(0,y,self.w)
-        y = self.next:getBottom()
-    end
+    -- if self.next then
+    --     self.next:setBounds(0,y,self.w)
+    --     y = self.next:getBottom()
+    -- end
 
     self.h = y
 

@@ -69,9 +69,8 @@ function AuxUI.pickOrCreateMenu(track)
     local menu = Menu:create()
 
     menu:addItem('create aux', function()
-        -- TODO
-        track:createSend(Aux.createAux('new'))
-    end, 'create aux')
+        AuxUI.pickAndCreate(track)
+    end)
 
     local auxs = Aux.getAuxTracks()
     if _.size(auxs) then

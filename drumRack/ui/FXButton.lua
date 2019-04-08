@@ -26,7 +26,7 @@ function FXButton:create(fxSource, name)
         if Mouse.capture():isAltKeyDown() then
             if fxSource:getFx() then
                 rea.transaction('remove fx', function()
-                    fxSource:removeFx()
+                    fxSource:setFx(nil)
                 end)
             end
         elseif mouse:wasRightButtonDown() then

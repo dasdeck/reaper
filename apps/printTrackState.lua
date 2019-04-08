@@ -8,4 +8,7 @@ local Track = require 'Track'
 local rea = require 'rea'
 
 local track = Track.getFocusedTrack()
-if track then rea.logPin(track.guid, track:getState()) end
+if track then 
+  rea.logPin(track.guid, track:getState()) 
+  rea.logPin('type', track:getType())
+end
