@@ -23,7 +23,7 @@ function DrumRackInlineUI:create(rack)
 
     local self = Component:create()
 
-    rea.logCount('DrumRackInlineUI')
+    -- rea.logCount('DrumRackInlineUI')
 
     setmetatable(self, DrumRackInlineUI)
 

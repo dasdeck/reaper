@@ -25,8 +25,6 @@ function ButtonList:updateList()
 
     local size = self.layout == true and 'w' or 'h'
 
-    -- self[size] = 0
-
     for i, value in pairs(self:getData()) do
 
         local proto = value.proto or self.proto
@@ -169,7 +167,6 @@ function ButtonList:showAsMenu()
             checked = child:getToggleState()
         })
     end)
-
 
     menu:show()
 

@@ -54,10 +54,8 @@ function DataBase:getRandomEntry(filter)
         entries = _.filter(entries, function(entry)
             return entry.path:includes(filter)
         end, true)
-        -- rea.log(entries)
     end
     local numEntries = _.size(entries)
-    -- rea.log(numEntries)
     if numEntries > 0 then
         local index = math.random(1, _.size(entries))
         return entries[index]
@@ -90,7 +88,6 @@ function DataBase:store()
         return file
     end), '\n')
 
-    -- rea.log(paths .. '\n' .. entries)
     self.file:setContent(paths .. '\n' .. entries)
 end
 

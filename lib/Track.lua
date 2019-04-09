@@ -288,8 +288,6 @@ function Track:getMeta(name, default)
         return default
     end
 
-    -- rea.logPin('meta'..name, data[name])
-
     return data[name]
 end
 
@@ -304,20 +302,15 @@ end
 
 function Track:touch()
 
-    -- rea.log('touch' .. tostring(self))
     local selection = Track.getSelectedTracks()
     self:setSelected(1)
     Track.deferAll()
-    -- rea.log(Track.getSelectedTracks().data)
     reaper.Main_OnCommand(40914, 0) -- set as last touch
     Track.setSelectedTracks(selection, true)
-
-    --reaper.CSurf_OnTrackSelection(self.track)
 
 end
 
 function Track:focus()
-    -- reaper.SetMixerScroll(self.track)
     local instrument = self:getInstrument()
     if instrument and not instrument:canDoMultiOut() then
         if instrument.track:getFx('DrumRack') then
@@ -331,18 +324,10 @@ function Track:focus()
         Track.mem:set(0, self:getIndex())
     end
 
-    -- if self:getType() == Track.typeMap.midi then
-
-
-    -- reaper.Main_OnCommand(reaper.NamedCommandLookup("_S&M_PASTSNDRCV1"),0)
-    -- rea.refreshUI()
     return self
 end
 
 function Track:isFocused(slaves)
-    -- return slaves and _.some(self:getSlaves(), function(slave) return slave:isFocused(true) end)
-    -- or reaper.GetMixerScroll() == self.track
-
     return self == Track.getFocusedTrack()
 end
 
@@ -402,7 +387,6 @@ end
 
 function Track:createUI()
     local type = self:getType()
-    -- rea.logPin('type',type)
     if type == Track.typeMap.midi then
         local MidiTrackUI = require 'MidiTrackUI'
         return MidiTrackUI:create(self)
@@ -580,11 +564,24 @@ function Track:hasMedia()
     return reaper.CountTrackMediaItems(self.track) > 0
 end
 
+function Track:updateFxRouting()
+    local track = 0
+    _.forEach(self:getFxList(), function(fx)
+        if fx:getCleanName() == 'LA' then
+            if track == 0 then track  = track + 1
+                self:setValue('chans', 4)
+            else track = track -1
+
+            end
+        else
+            fx:setIO(track, track)
+        end
+
+    end)
+end
 
 function Track:isBus()
-
     return self:getType() == Track.typeMap.bus
-
 end
 
 function Track:getLATracks()
@@ -593,7 +590,6 @@ function Track:getLATracks()
         return send:getMode() == 3 and track:getType() == Track.typeMap.la and track or nil
     end)
 end
-
 
 function Track:isSlave()
     return self:getName():includes(':')
@@ -676,8 +672,6 @@ function Track:setOutput(target, la)
     end
 
     local multiOut = self:isMultioutRouting()
-    rea.log(multiOut)
-    -- if multiOut then
     local current = self:getOutput()
     _.forEach(self:getSends(), function(send)
         local track = send:getTargetTrack()
@@ -832,13 +826,17 @@ function Track:getFx(name, force, rec)
 
     local index = reaper.TrackFX_AddByName(self.track, name, rec or false, force and 1 or 0)
 
-    return index >= 0 and Plugin:create(self, index + (rec and 0x1000000 or 0)) or nil
+    if index >= 0 then
+        self:updateFxRouting()
+        return Plugin:create(self, index + (rec and 0x1000000 or 0)) or nil
+    end
 end
 
-function Track:addFx(name, input)
+function Track:addFx(name, input, force)
     if not name then return end
-    local res = reaper.TrackFX_AddByName(self.track, name, input or false, 1)
+    local res = reaper.TrackFX_AddByName(self.track, name, input or false, force and -1 or 1)
     if res >= 0 then
+        self:updateFxRouting()
         return Plugin:create(self, res)
     end
 end

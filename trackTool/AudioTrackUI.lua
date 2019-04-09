@@ -47,6 +47,7 @@ function AudioTrackUI:update()
     self.la.getData = function()
         return _.map(self.track:getLATracks(), function(track)
             return {
+                size = 20,
                 color = colors.la,
                 args = track:getName(),
                 onClick = function()
@@ -85,7 +86,7 @@ function AudioTrackUI:update()
     self.mute = self:addChildComponent(TrackStateButton:create(track, 'mute', 'M'))
     self.solo = self:addChildComponent(TrackStateButton:create(track, 'solo', 'S'))
 
-    self.fx = self:addChildComponent(FXList:create(track))
+    self.fx = self:addChildComponent(FXList:create(track:getFxList()))
     self.fxAdd = self:addChildComponent(FXlistAddButton:create(track, '+fx'))
 
     if track:getTrackTool() then

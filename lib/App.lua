@@ -115,9 +115,6 @@ function App:start(options)
 
             rea.logPin('profile', limitedRank)
 
-            -- tree = log.calls.tree
-            -- local tree = dump(log.calls.tree)
-            -- rea.logPin('tree', )
 
         end
     end

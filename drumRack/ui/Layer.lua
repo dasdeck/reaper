@@ -15,7 +15,6 @@ local Layer = class(Component)
 
 function Layer:create(track, pad)
 
-    -- rea.log('Layer:create')
     local self = Component:create()
     setmetatable(self, Layer)
 
@@ -84,10 +83,6 @@ function Layer:create(track, pad)
         Component.dragging = self
     end
 
-    -- self.watchers:watch(Track.watch.focusedTrack, function()
-    --     self:update()
-    -- end)
-
     self:update()
 
     return self
@@ -133,12 +128,7 @@ end
 function Layer:resized()
 
     local h = 20
-    -- local w = self.
     self.icon:setSize(h,h)
-
-    -- self.mute:setBounds(self.icon:getRight(), 0, h, h)
-    -- self.solo:setBounds(self.mute:getRight(), 0, h, h)
-    -- self.lock:setBounds(self.solo:getRight(), 0, h, h)
 
     self.name:setBounds(h, self.lock:getBottom(), self.w-h, h)
 
@@ -147,8 +137,6 @@ function Layer:resized()
         self.instrument:setBounds(0,self.name:getBottom(), self.w)
         self.h = self.instrument:getBottom()
     end
-
-    -- rea.log(self.h)
 
 end
 

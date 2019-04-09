@@ -63,14 +63,6 @@ function Window:render(allComps)
         gfx.dest = -1
         gfx.clear = 0
 
-        -- if self.options.debug then
-        --     rea.logCount('render')
-        --     rea.logPin('render', {
-        --         fromComp = fromComp,
-        --         window = self.doPaint,
-        --         dragging = Component.dragging
-        --     })
-        -- end
         self.component:evaluate(self.g)
 
         if Component.dragging then
@@ -183,10 +175,9 @@ function Window:updateWindow()
         end
 
         if reinit then
-            -- rea.log('init')
             gfx.quit()
             gfx.init(self.name, w, h, self.dock, self.x, self.y)
-            self.repaint('all')
+            self:repaint('all')
         else
             self.component:setSize(gfx.w, gfx.h)
         end
@@ -218,8 +209,6 @@ function Window:toggleDock()
     else
         gfx.dock(self.dock)
     end
-    -- rea.log(self.docked)
-    -- rea.log(self.dock)
 
     self:updateWindow()
 
@@ -265,7 +254,6 @@ function getDroppedFiles()
     local i = 0
     local success, file = gfx.getdropfile(i)
     while success >= 1 do
-        -- rea.log('droppaaz')
         table.insert(files, file)
         i = i + 1
         success, file = gfx.getdropfile(i)
@@ -396,7 +384,6 @@ function Window:evalMouse(allComps)
 
     if not self.mouse:isButtonDown() then
         _.forEach(allComps, function(child)
-            -- if child.mouse.down then rea.log('up') end
             child.mouse.down = false
         end)
         if Component.dragging then

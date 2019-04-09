@@ -37,8 +37,6 @@ function TrackToolControlls:create(track)
         return track:getTrackTool():getParam(3) > 0
     end
 
-    -- self.fx = self:addChildComponent(FXList:create(track))
-
     return self
 end
 

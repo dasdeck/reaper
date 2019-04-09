@@ -104,6 +104,7 @@ function class(...)
 end
 
 function instanceOf(obj, Class)
+    assert(Class, 'instanceOf(obj, Class): Class is nil or false')
     return type(obj) == 'table' and obj.__instanceOf and obj:__instanceOf(Class)
 end
 

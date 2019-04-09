@@ -51,11 +51,8 @@ function InstrumentUI:update()
     end
 
     if self.instrument:canDoMultiOut() then
-        -- rea.logCount('multi')
         self.mute = self:addChildComponent(TrackStateButton:create(track, 'mute', 'M'))
         self.solo = self:addChildComponent(TrackStateButton:create(track, 'solo', 'S'))
-
-        -- self.output = self:addChildComponent(Output:create(track))
 
         self.outputs = self:addChildComponent(Outputs:create(track))
 
@@ -71,7 +68,6 @@ function InstrumentUI:update()
 
         end
     else
-        rea.logCount('single')
         self.audioTrack = self:addChildComponent(AudioTrackUI:create(self.track))
     end
 

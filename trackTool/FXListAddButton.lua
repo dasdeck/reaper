@@ -13,12 +13,13 @@ local rea = require 'rea'
 
 local FXlistAddButton = class(TextButton)
 
-function FXlistAddButton:create(track, name)
+function FXlistAddButton:create(track, name, index)
 
     local self = TextButton:create(name or '+fx')
     setmetatable(self, FXlistAddButton)
 
     self.track = track
+    self.index = index
 
     return self
 
@@ -35,6 +36,7 @@ function FXlistAddButton:onButtonClick(mouse)
             rea.transaction('add effect', function()
                 local fx = self.track:addFx(name)
                 if fx then
+                    if self.index then fx:setIndex(self.index) end
                     fx:open()
                 else
                     return false
@@ -50,7 +52,13 @@ end
 function FXlistAddButton:onDrop()
     if instanceOf(Component.dragging, Component) and Component.dragging.fx then
             rea.transaction('move fx', function()
-                Component.dragging.fx:setIndex(9999, self.track)
+                local from = Component.dragging.fx.index
+                local to = self.index or 9999
+                if to > from then
+                    to = to - 1
+                end
+
+                Component.dragging.fx:setIndex(to, self.track)
             end)
     else
         self:repaint('all')

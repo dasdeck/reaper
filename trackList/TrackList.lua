@@ -76,21 +76,16 @@ function TrackList:create(...)
     end
 
     local updater = function(tracks)
-        -- rea.logCount('tracklist')
 
         self.tracklist:updateList()
     end
 
     self.watchers:watch(Project.watch.project, updater)
-    -- self.watchers:watch(Track.watch.selectedTracks, updater)
-    -- self.watchers:watch(Track.watch.focusedTrack, updater)
 
     TrackListFilter.onChange = updater
 
 
     self.tracklist:updateList()
-
-    -- _.forEach(Track.getAllTracks(), function(track) track:iconize() end)
 
     return self
 

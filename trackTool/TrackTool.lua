@@ -111,7 +111,7 @@ function TrackTool:update()
     self.mute = self:addChildComponent(TrackStateButton:create(track, 'mute', 'M'))
     self.solo = self:addChildComponent(TrackStateButton:create(track, 'solo', 'S'))
 
-    self.fx = self:addChildComponent(FXList:create(track))
+    self.fx = self:addChildComponent(FXList:create(track:getFxList()))
 
     self.gain = self:addChildComponent(Slider:create())
     self.watchers:watch(function()

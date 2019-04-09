@@ -13,9 +13,9 @@ local rea = require 'rea'
 
 local FXListItem = class(Component)
 
-function FXListItem:create(plugin)
+function FXListItem:create(plugin, plain)
 
-    local file = plugin:getImage()
+    local file = not plain and plugin:getImage()
     local comp = file and Image:create(file, 'fit', 1) or Label:create(plugin:getCleanName(), 0,0,200,40)
 
     local self = Component:create(0,0, comp.w, comp.h)
@@ -50,6 +50,7 @@ function FXListItem:onClick(mouse)
                 self.fx:remove()
                 local plugin = self.fx.track:addFx(name)
                 plugin:setIndex(index)
+                plugin:open()
             end)
         end)
     end
@@ -57,11 +58,13 @@ function FXListItem:onClick(mouse)
     if mouse:wasRightButtonDown() then
         local menu = Menu:create()
 
-        if self.fx:canDoMultiOut() then
-            menu:addItem('create multiout', function()
-                self.fx:createMultiOut()
-            end, 'create multiout')
-        end
+        menu:addItem('wrap in la', function()
+            local pre = self.fx.track:addFx('LA', false, true)
+            local post = self.fx.track:addFx('LA', false, true)
+
+            post:setIndex(self.fx.index+1)
+            pre:setIndex(self.fx.index)
+        end, 'wrap in la')
 
         local moveMenu = Menu:create()
         moveMenu:addItem('create aux from effect', function()
@@ -77,6 +80,7 @@ function FXListItem:onClick(mouse)
                 rea.transaction('add before', function()
                     local plugin = self.fx.track:addFx(name)
                     plugin:setIndex(self.fx.index)
+                    plugin:open()
                 end)
             end)
         end)
@@ -85,6 +89,7 @@ function FXListItem:onClick(mouse)
                 rea.transaction('add after', function()
                     local plugin = self.fx.track:addFx(name)
                     plugin:setIndex(self.fx.index+1)
+                    plugin:open()
                 end)
             end)
         end)
@@ -92,11 +97,14 @@ function FXListItem:onClick(mouse)
     elseif mouse:isShiftKeyDown() and mouse:isAltKeyDown() then
         replace()
     elseif mouse:isShiftKeyDown() then
-        self.fx:setEnabled(not self.fx:getEnabled())
+        if mouse:isCommandKeyDown() then
+            self.fx:setOffline(not self.fx:getOffline())
+        else
+            self.fx:setEnabled(not self.fx:getEnabled())
+        end
     elseif mouse:isAltKeyDown() then
         self.fx:remove()
     end
-
 end
 
 function FXListItem:onDblClick(mouse)
@@ -107,13 +115,8 @@ function FXListItem:onDblClick(mouse)
     end
 end
 
--- function FXListItem:onDragOver()
---     self.parent:repaint(true)
--- end
-
 function FXListItem:onDrag()
     Component.dragging = self
-    -- self.parent:repaint(true)
 end
 
 function FXListItem:onMouseUp()
@@ -126,7 +129,6 @@ function FXListItem:onDrop()
 
             local sametrack = Component.dragging.fx.track == self.fx.track
             local offset = (self.mouse.y > (self.h / 2)) and 1 or 0
-            -- local offset = 0
 
             from = Component.dragging.fx.index
             to  = self.fx.index + offset
@@ -137,12 +139,6 @@ function FXListItem:onDrop()
 
             if sametrack and from == to  then return false end
 
-
-
-
-            -- if to - from == 1 then return false end
-            -- if from - to == 1 then
-
             Component.dragging.fx:setIndex(to, self.fx.track)
         end)
     else
@@ -152,7 +148,11 @@ end
 
 function FXListItem:paintOverChildren(g)
 
-    if Component.dragging and Component.dragging.fx and Component.dragging.fx ~= self.fx and self:isMouseOver() then
+    if not self.fx:getEnabled() then
+        g:setColor(colors.mute:with_alpha(0.5))
+        g:rect(0,0,self.w, self.h, true)
+    end
+    if instanceOf(Component.dragging, Component) and Component.dragging.fx and Component.dragging.fx ~= self.fx and self:isMouseOver() then
         g:setColor(colors.mute:with_alpha(0.5))
         local h = self.h/2
         g:rect(0, (self.mouse.y > h) and h or 0 ,self.w, h, true)
@@ -160,7 +160,7 @@ function FXListItem:paintOverChildren(g)
 end
 
 function FXListItem:getAlpha()
-    return self.fx:getEnabled() and 1 or 0.5
+    return self.fx:getOffline() and 0.5 or 1
 end
 
 function FXListItem:resized()

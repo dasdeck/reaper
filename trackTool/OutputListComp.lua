@@ -39,12 +39,9 @@ function OutputListComp:create(output)
         local con = self.name.onButtonClick(s, mouse)
         if con then
             rea.transaction('toggle output', function()
-                -- rea.logPin('exp',not self.expanded.getToggleState())
                 con:getTargetTrack():setMeta('expanded',not self.expanded.getToggleState())
                 self.parent:updateList()
-                -- self:getWindow().component:resized()
             end)
-            -- con:getTargetTrack():focus()
         end
     end
 

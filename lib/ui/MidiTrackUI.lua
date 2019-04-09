@@ -19,9 +19,13 @@ function MidiTrackUI:create(track)
     local img = paths.iconsDir:findFile('midi.png')
     self.image = self:addChildComponent(Image:create(img, 'fit'))
     self.image.onClick = function()
-        rea.transaction('toggle track arm', function()
-            self.track:setArmed(not self.track:isArmed())
-        end)
+        if mouse:wasRightClick() then
+
+        else
+            rea.transaction('toggle track arm', function()
+                self.track:setArmed(not self.track:isArmed())
+            end)
+        end
     end
     self.controlls = self:addChildComponent(TrackToolControlls:create(track))
     self.mute = self:addChildComponent(TrackStateButton:create(track, 'mute', 'M'))

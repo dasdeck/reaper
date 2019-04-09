@@ -62,7 +62,6 @@ end
 
 function PluginList:resized()
     if self.w > 0 then
-        -- rea.log(self.w)
         local padding = 2
         local y = 0
         _.forEach(self.children, function(child)

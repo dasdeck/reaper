@@ -20,8 +20,6 @@ function Outputs:create(track)
         local enableMulti = not self.multi.getToggleState()
         local output = track:getOutputConnection()
 
-        rea.log(enableMulti)
-
         rea.transaction('enable multi', function()
             if output then
                 output:setMuted(enableMulti)
@@ -64,14 +62,11 @@ function Outputs:create(track)
 
     self.output = self:addChildComponent(Output:create(track))
 
-    -- rea.logPin('outputs',fx)
-
     if self.multi.getToggleState() then
 
         self.outputs = self:addChildComponent(ButtonList:create())
         self.outputs.getData = function()
             local rows = _.map(self.fx:getOutputs(), function(output)
-                -- rea.log(output.name)
                 local con = output.getConnection()
                 local size = 20
                 if con and con:getTargetTrack():getMeta().expanded then

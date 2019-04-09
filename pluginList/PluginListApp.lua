@@ -59,7 +59,6 @@ function PluginListApp.pick(cat, callback)
     local shownAgain = false
     instance.onShow = function()
         if shownAgain then
-            -- rea.log('removed handler')
             instance.onClick = nil
             instance:delete()
         end
@@ -77,7 +76,6 @@ function PluginListApp:showModal(cat)
 end
 
 function PluginListApp:onStart()
-
 
     -- if self.options.debug and tonumber(self.state:get('window_open', 0)) > 0 then
     --     self:show()

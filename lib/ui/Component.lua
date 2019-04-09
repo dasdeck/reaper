@@ -192,6 +192,9 @@ end
 
 function Component:getAbsoluteX()
     local parentOffset = self.parent and self.parent:getAbsoluteX() or 0
+    if type(self.x) ~= 'number' then
+        rea.logPin('x', self.x)
+    end
     return self.x + parentOffset
 end
 

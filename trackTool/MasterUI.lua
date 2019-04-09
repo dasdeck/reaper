@@ -26,17 +26,14 @@ function AudioTrackUI:create(track, isOutput)
 
     local track = self.track
 
-    self.fx = self:addChildComponent(FXList:create(track, '+master-fx'))
+    self.fx = self:addChildComponent(FXList:create(track:getFxList(), '+master-fx'))
     self.fxAdd = self:addChildComponent(FXListAddButton:create(track))
-    -- self:update()
 
     return self
 end
 
 function AudioTrackUI:update()
     self:deleteChildren()
-
-
 
 end
 

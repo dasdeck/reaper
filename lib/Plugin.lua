@@ -24,6 +24,14 @@ function Plugin.deferAll()
     Plugin.plugins = {}
 end
 
+function Plugin:setIO(i, o)
+    reaper.TrackFX_SetPinMappings(self.track.track, self.index, 1, 0, 2^(o*2),0)
+    reaper.TrackFX_SetPinMappings(self.track.track, self.index, 1, 1, 2^(o*2+1),0)
+    reaper.TrackFX_SetPinMappings(self.track.track, self.index, 0, 0, 2^(i*2),0)
+    reaper.TrackFX_SetPinMappings(self.track.track, self.index, 0, 1, 2^(i*2+1),0)
+
+end
+
 function Plugin.getByGUID(track, guid)
     for i=0, reaper.TrackFX_GetCount(track)-1 do
         if reaper.TrackFX_GetFXGUID(track, i) == guid then return i end
@@ -93,6 +101,14 @@ function Plugin:getEnabled()
 
 end
 
+function Plugin:setOffline(enabled)
+    reaper.TrackFX_SetOffline(self.track.track, self.index, enabled)
+end
+function Plugin:getOffline()
+    return reaper.TrackFX_GetOffline(self.track.track, self.index)
+
+end
+
 function Plugin:setEnabled(enabled)
     reaper.TrackFX_SetEnabled(self.track.track, self.index, enabled)
 end
@@ -109,6 +125,7 @@ function Plugin:setIndex(index, targetTrack)
         reaper.TrackFX_CopyToTrack(self.track.track, self.index, targetTrack.track, index, true)
         self.index = index
         self.track = targetTrack
+        self.track:updateFxRouting()
     end
     return self
 end
@@ -123,7 +140,8 @@ function Plugin:getCleanName()
 end
 
 function Plugin:getImage()
-    return paths.imageDir:findFile(self:getCleanName():escaped())
+    local pattern = self:getCleanName():escaped()
+    return paths.imageDir:findFile(function(file) return file:lower() == pattern:lower() end) or paths.imageDir:findFile(pattern)
 end
 
 function Plugin:getOutputs()
