@@ -114,6 +114,7 @@ function App:start(options)
             end
 
             rea.logPin('profile', limitedRank)
+            rea.logPin('getProfileData', log.data)
 
 
         end

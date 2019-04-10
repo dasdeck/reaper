@@ -5,8 +5,7 @@ require 'boot'
 local WindowApp = require 'WindowApp'
 local Mixer = require 'Mixer'
 
--- WindowApp:create('monitor', MonitorPresets:create(0,0,170, 100)):start()
-WindowApp:create('monitor', Mixer:create()):start()
+WindowApp:create('mixer', Mixer:create()):start()
 
 
 

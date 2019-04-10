@@ -16,7 +16,6 @@ end
 
 function Graphics:setFromComponent(comp, slot)
 
-        self.dest = slot
         self.a = 1
         gfx.mode = 0
 
@@ -24,9 +23,9 @@ function Graphics:setFromComponent(comp, slot)
         assert(comp.h > 0)
         assert(slot >= 0)
 
-        gfx.setimgdim(self.dest, -1, -1)
-        gfx.setimgdim(self.dest, comp.w, comp.h)
-        gfx.dest = self.dest
+        gfx.setimgdim(slot, -1, -1)
+        gfx.setimgdim(slot, comp.w, comp.h)
+        gfx.dest = slot
         gfx.x = 0
         gfx.y = 0
         self.x = 0
@@ -123,12 +122,15 @@ function Graphics:roundrect(x, y, w, h, r, fill, aa)
         self:rect(x+r, y , w- 2*r, r, fill)
         self:rect(x+r, y + h - r , w- 2*r, r, fill)
 
+        local dest = gfx.dest
+
         gfx.dest = 0
 
         gfx.setimgdim(0, -1, -1)
         gfx.setimgdim(0, r * 2, r * 2)
         gfx.circle(r, r, r, fill, aa)
-        gfx.dest = self.dest
+
+        gfx.dest = dest
 
         gfx.blit(0, 1, 0, 0, 0, r, r, self.x + x, self.y + y)
         gfx.blit(0, 1, 0, r, 0, r, r, self.x + w - r + x, self.y + y)

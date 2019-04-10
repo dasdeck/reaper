@@ -24,7 +24,7 @@ function WindowApp:getProfileData()
             end)
         },
         window = {
-            -- numComps = #self.window.component:getAllChildren(),
+            numComps = #self.window.component:getAllChildren(),
             paints = self.window.paints
         },
         component = {

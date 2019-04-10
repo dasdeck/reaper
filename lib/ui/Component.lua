@@ -24,6 +24,7 @@ function Component:create(x, y, w, h)
         y = y or 0,
         w = w or 0,
         h = h or 0,
+        bufferToImage = true,
         repaintOnMouseEnterOrLeave,
         uislots = {},
         watchers = WatcherManager:create(),
@@ -96,12 +97,15 @@ function Component:triggerDeletion()
     _.forEach(self.children, function(comp)
         comp:triggerDeletion()
     end)
+
 end
 
 function Component:freeSlots()
+
     _.forEach(self.uislots, function(slot)
         Component.slots[slot] = false
     end)
+
 end
 
 function Component:getAllChildren(results)
@@ -322,13 +326,7 @@ function Component:evaluate(g, dest, x, y)
     local area = self.w * self.h * alpha
     local hasVisibleArea = area > 0
 
-    if self.needsLayout and self.resized then
-        self:resized()
-        self.needsLayout = false
-    end
-
     local doPaint = (self.paint or self.paintOverChildren) and (self.needsPaint or (self:getWindow() or {}).doPaint == 'all')
-
 
     if self.paint and hasVisibleArea then
         local pslot = self:getSlot('component:' .. tostring(self.id) .. ':paint')

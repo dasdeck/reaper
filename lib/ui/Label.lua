@@ -18,6 +18,8 @@ function Label:create(content, ...)
         else
             self.content = self:addChildComponent(content)
         end
+
+        self.content.isVisible = function() return false end--(false)
     end
 
     self.color = color.rgb(1,1,1)
@@ -45,6 +47,7 @@ function Label:paint(g)
 
     local c = self:getColor()
     self:drawBackground(g, c)
+    self.content:paint(g)
 
 end
 

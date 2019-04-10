@@ -27,7 +27,8 @@ end
 
 function Master:resized()
     local h = 20
-    self.monitor:setBounds(0,0,self.w, h * 4)
+    self.monitor:setBounds(0,0,self.w)
+
     self.fx:setBounds(0,self.monitor:getBottom(), self.w)
 end
 

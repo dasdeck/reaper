@@ -17,6 +17,43 @@ function FXlistAddButton:create(track, name, index)
     local self = Component:create()
     setmetatable(self, FXlistAddButton)
     self.name = self:addChildComponent(TextButton:create(name or '+fx'))
+    self.name.onButtonClick = function(s, mouse)
+
+        local add = function()
+            PluginListApp.pick(PluginListApp.cats.effects, function(name)
+                rea.transaction('add effect', function()
+                    local fx = self.track:addFx(name)
+                    if fx then
+                        if self.index then fx:setIndex(self.index) end
+                        fx:open()
+                    else
+                        return false
+                    end
+                end)
+            end)
+        end
+
+        if mouse:wasRightButtonDown() then
+            local menu = Menu:create()
+            menu:addItem('show channel', function()
+                self.track:setOpen()
+            end)
+            -- menu:addItem('')
+            menu:show()
+        elseif mouse:isShiftKeyDown() then
+            rea.transaction('toggle fx', function()
+                self.track:setValue('fx', self.track:getValue('fx') ~= 1 and 1 or 0)
+            end)
+        elseif mouse:isAltKeyDown() then
+            local name = rea.prompt('name')
+            if name then
+                self.track:addFx(name)
+            end
+        else
+            add()
+        end
+    end
+
     self.enabled = self:addChildComponent(TextButton:create('b'))
     self.enabled.onButtonClick = function()
         rea.transaction('toggle fx', function()
@@ -36,43 +73,6 @@ end
 
 function FXlistAddButton:repaintOnMouse()
     return true
-end
-
-function FXlistAddButton:onButtonClick(mouse)
-
-    local add = function()
-        PluginListApp.pick(PluginListApp.cats.effects, function(name)
-            rea.transaction('add effect', function()
-                local fx = self.track:addFx(name)
-                if fx then
-                    if self.index then fx:setIndex(self.index) end
-                    fx:open()
-                else
-                    return false
-                end
-            end)
-        end)
-    end
-
-    if mouse:wasRightButtonDown() then
-        local menu = Menu:create()
-        menu:addItem('show channel', function()
-            self.track:setOpen()
-        end)
-        -- menu:addItem('')
-        menu:show()
-    elseif mouse:isShiftKeyDown() then
-        rea.transaction('toggle fx', function()
-            self.track:setValue('fx', self.track:getValue('fx') ~= 1 and 1 or 0)
-        end)
-    elseif mouse:isAltKeyDown() then
-        local name = rea.prompt('name')
-        if name then
-            self.track:addFx(name)
-        end
-    else
-        add()
-    end
 end
 
 function FXlistAddButton:onDrop()

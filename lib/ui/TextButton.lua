@@ -24,6 +24,7 @@ function TextButton:repaintOnMouse()
     return not Component.dragging
 end
 
+
 function TextButton:getColor()
     local state = self:getToggleStateInt()
     local c = ((self:isMouseDown() or state > 0) and self.color)

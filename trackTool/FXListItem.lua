@@ -28,16 +28,6 @@ function FXListItem:create(plugin, plain)
     self.fx = plugin
 
     self.comp = self:addChildComponent(comp)
-    self.replace = self:addChildComponent(TextButton:create('R'))
-    self.replace.getAlpha = function()
-        if self.replace:isMouseOver() then
-            return 1
-        elseif self:isMouseOver() then
-            return 0.5
-        else
-            return 0
-        end
-    end
 
     return self
 
@@ -94,7 +84,6 @@ function FXListItem:onClick(mouse)
         menu:addItem('move to track', moveMenu)
         -- local moveMenu = Menu:create()
         -- moveMenu:addItem('create aux from effect', function()
-
         -- end)
 
         menu:addItem('remove', function()
@@ -139,11 +128,13 @@ function FXListItem:onClick(mouse)
 end
 
 function FXListItem:onDblClick(mouse)
+
     if self.fx:isOpen() then
         self.fx:close()
     else
         self.fx:open()
     end
+
 end
 
 function FXListItem:onDrag()
@@ -171,6 +162,7 @@ function FXListItem:onDrop()
             if sametrack and from == to  then return false end
 
             Component.dragging.fx:setIndex(to, self.fx.track)
+
         end)
     else
         self:repaint('all')
@@ -183,19 +175,18 @@ function FXListItem:paintOverChildren(g)
         g:setColor(colors.mute:with_alpha(0.5))
         g:rect(0,0,self.w, self.h, true)
     end
+
     if instanceOf(Component.dragging, Component) and Component.dragging.fx and Component.dragging.fx ~= self.fx and self:isMouseOver() then
         g:setColor(colors.mute:with_alpha(0.5))
         local h = self.h/2
         g:rect(0, (self.mouse.y > h) and h or 0 ,self.w, h, true)
     end
+
 end
 
 function FXListItem:getAlpha()
     return self.fx:getOffline() and 0.5 or 1
 end
 
-function FXListItem:resized()
-    self.comp:setSize(self.w, self.h)
-end
 
 return FXListItem
