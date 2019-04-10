@@ -16,6 +16,12 @@ local TrackListFilters = {
 }
 
 local options = {
+
+    {
+        color = colors.midi,
+        args = 'm',
+        key = 'midi'
+    },
     {
         color = colors.instrument,
         args = 'i',

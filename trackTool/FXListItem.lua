@@ -6,10 +6,12 @@ local PluginListApp = require 'PluginListApp'
 local Menu = require 'Menu'
 local Aux = require 'Aux'
 local Bus = require 'Bus'
+local Track = require 'Track'
 
 local paths = require 'paths'
 local colors = require 'colors'
 local rea = require 'rea'
+local _ = require '_'
 
 local FXListItem = class(Component)
 
@@ -66,10 +68,34 @@ function FXListItem:onClick(mouse)
             pre:setIndex(self.fx.index)
         end, 'wrap in la')
 
-        local moveMenu = Menu:create()
-        moveMenu:addItem('create aux from effect', function()
-
+        menu:addItem('panic', function()
+            self.fx:setOffline(true)
+            self.fx:setOffline(false)
         end)
+
+        local moveMenu = Menu:create(
+            _.map(Track.getAllTracks(), function(track)
+                local use = track ~= self.fx.track and not track:isMidiTrack()
+                return use and {
+                    name = track:getName() or track:getDefaultName(),
+                    callback = function()
+                        self.fx:setIndex(-1, track)
+                    end,
+                    transaction = 'move fx'
+                } or nil
+            end))
+        if self.fx.track ~= Track.master then
+            moveMenu:addSeperator()
+            moveMenu:addItem('master', function()
+                self.fx:setIndex(-1, Track.master)
+            end)
+        end
+
+        menu:addItem('move to track', moveMenu)
+        -- local moveMenu = Menu:create()
+        -- moveMenu:addItem('create aux from effect', function()
+
+        -- end)
 
         menu:addItem('remove', function()
             self.fx:remove()
@@ -97,13 +123,18 @@ function FXListItem:onClick(mouse)
     elseif mouse:isShiftKeyDown() and mouse:isAltKeyDown() then
         replace()
     elseif mouse:isShiftKeyDown() then
+
         if mouse:isCommandKeyDown() then
-            self.fx:setOffline(not self.fx:getOffline())
+            -- self.fx:setOffline(not self.fx:getOffline())
         else
-            self.fx:setEnabled(not self.fx:getEnabled())
+            rea.transaction('toggle fx bypass', function()
+                self.fx:setEnabled(not self.fx:getEnabled())
+            end)
         end
     elseif mouse:isAltKeyDown() then
-        self.fx:remove()
+        rea.transaction('remove fx', function()
+            self.fx:remove()
+        end)
     end
 end
 
@@ -148,7 +179,7 @@ end
 
 function FXListItem:paintOverChildren(g)
 
-    if not self.fx:getEnabled() then
+    if not self.fx:getEnabled() or self.fx.track:getValue('fx') == 0 then
         g:setColor(colors.mute:with_alpha(0.5))
         g:rect(0,0,self.w, self.h, true)
     end

@@ -22,6 +22,15 @@ function LAItem:create(group)
     self.fxs = group.fx
     self.fx = group.first
     self.name = self:addChildComponent(Label:create('LA'))
+    self.name.onClick = function(s,mouse)
+        if mouse:isAltKeyDown() then
+            rea.transaction('remove fx', function()
+                self.la:remove()
+                self.fx:remove()
+            end)
+        end
+    end
+
     self.addFx = self:addChildComponent(FXListAddButton:create(group.first.track,'+fx', group.last.index))
 
     self.mute = self:addChildComponent(TextButton:create('M'))
@@ -30,7 +39,9 @@ function LAItem:create(group)
         return group.last:getParam(0) == 1
     end
     self.mute.onButtonClick = function()
-        group.last:setParam(0, not self.mute.getToggleState() and 1 or 0)
+        rea.transaction('toggle LA listen', function()
+            group.last:setParam(0, not self.mute.getToggleState() and 1 or 0)
+        end)
     end
 
     self.solo = self:addChildComponent(TextButton:create('S'))
@@ -40,7 +51,9 @@ function LAItem:create(group)
         return group.last:getParam(0) == 2
     end
     self.solo.onButtonClick = function()
-        group.last:setParam(0, not self.solo.getToggleState() and 2 or 0)
+        rea.transaction('toggle LA listen', function()
+            group.last:setParam(0, not self.solo.getToggleState() and 2 or 0)
+        end)
     end
 
     self.gain = self:addChildComponent(Slider:create())
@@ -59,20 +72,18 @@ function LAItem:create(group)
     return self
 end
 
+
 function LAItem:paint(g)
+
     Label.drawBackground(self, g, colors.default)
 end
 
 function LAItem:onDrop()
-    rea.log('drop:?')
-    rea.log(self:isMouseOver())
     if instanceOf(Component.dragging, FXListItem) and Component.dragging.fx ~= self.fx and self:isMouseOver() then
 
         local h = self.name.h
         local before = self.mouse.y < h
         local after = self.mouse.y > (self.h - h)
-
-        rea.log('drop:' .. (before and 'before' or 'after'))
 
         if before or after then
             rea.transaction('move fx', function()
@@ -107,6 +118,11 @@ function LAItem:paintOverChildren(g)
         g:setColor(colors.mute:with_alpha(0.5))
         local y = self.mouse.y > (self.h - h) and self.h - h or 0
         g:rect(0, y ,self.w, h, true)
+    end
+
+    if not self.fx:getEnabled() or self.fx.track:getValue('fx') == 0 then
+        g:setColor(colors.mute:with_alpha(0.5))
+        g:rect(0,0,self.w, self.h, true)
     end
 end
 

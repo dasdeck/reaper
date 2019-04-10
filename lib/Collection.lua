@@ -5,8 +5,13 @@ local rea = require 'rea'
 local Collection = class()
 
 function Collection:create(data)
+
     if type(data) == 'string' then
-        data = json.decode(data) or {}
+        if not pcall(function()
+            data = json.decode(data) or {}
+        end) then
+            rea.logPin('datamiss', data)
+        end
     end
 
     local self = {

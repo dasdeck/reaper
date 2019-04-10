@@ -174,7 +174,7 @@ function Pad:removeFx()
     if fx then
         self:setOutput(rackFx, fx)
 
-        if fx:getMeta('managed') then
+        if fx:isManagedBy(self.rack:getTrack()) then
             fx:remove()
         end
     end
@@ -220,7 +220,7 @@ end
 function Pad:createFx()
     track = Bus.createBus(_.first(self:getLayers()):getIndex())
     track:setIcon('pads.png')
-    track:setMeta('managed', true)
+    track:setManaged(self.rack:getTrack())
     track:setVisibility(false, true)
     return track
 end
@@ -229,7 +229,7 @@ function Pad:setFx(track)
     self:removeFx()
     if track then
 
-        if track:getMeta('managed') then
+        if track:isManagedBy(self) then
             local currentOutPut = self:getOutput()
             track:setOutput(currentOutPut)
             self:setOutput(track, currentOutPut)
@@ -260,6 +260,7 @@ function Pad:addTrack(newTrack)
         newTrack:autoName()
         newTrack:getTrackTool(true)
         newTrack:setOutput(self:getOutput())
+        newTrack:setManaged(self.rack:getTrack())
     end
 end
 
@@ -286,12 +287,12 @@ function Pad:addLayer(path, name)
 
             local fx
             if reaper.file_exists(path) then
-                fx = newTrack:getFx('ReaSamplomatic5000', true)
+                fx = newTrack:addFx('ReaSamplomatic5000')
                 fx:setParam('FILE0', path)
                 fx:setParam('DONE', '')
                 newTrack:setIcon(rea.findIcon('wave decrease'))
             else
-                fx = newTrack:getFx(path, true)
+                fx = newTrack:addFx(path)
             end
 
         end

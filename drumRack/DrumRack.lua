@@ -67,7 +67,7 @@ function DrumRack.init(track)
     track:setVisibility(true, false)
     track:setName(track:getName() or 'drumrack')
     track:setValue('toParent', false)
-    track:getFx(DrumRack.fxName, true)
+    track:addFx(DrumRack.fxName)
     track:setColor(colors.instrument)
     track:setArmed(1)
 

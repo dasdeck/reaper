@@ -30,20 +30,14 @@ function TrackListComp:create(track, hideChildren)
         TrackUI.click(track, mouse)
     end
 
-    self.h = 20
-    if track:isFocused(true) and not hideChildren then
-        self.slaves = self:addChildComponent(ButtonList:create({}))
-        self.slaves.getData = function()
-            return _.map(track:getSlaves(), function(slave)
-                return {
-                    proto = TrackListComp,
-                    args = slave,
-                    size = 20
-                }
-            end)
-        end
-        self.slaves:updateList()
-        self.h = self.h + self.slaves.h
+    if track:isSelected(true) and not hideChildren then
+        self.slaves = self:addChildComponent(ButtonList:create(_.map(track:getManagedTracks(), function(slave)
+            return {
+                proto = TrackListComp,
+                args = slave,
+                size = 20
+            }
+        end)))
     end
 
     local icon = track:getImage()
@@ -51,6 +45,8 @@ function TrackListComp:create(track, hideChildren)
     self.icon.onDblClick = function()
         if track:getInstrument() then
             track:getInstrument():toggleOpen()
+        elseif _.size(track:getFxList()) then
+            track:getFxList()[1]:toggleOpen()
         end
     end
 
@@ -77,10 +73,14 @@ function TrackListComp:resized()
     self.icon:setBounds(0,0,h,h)
     self.name:setBounds(self.icon:getRight(), 0, self.w - 2*h, h)
     self.solo:setBounds(self.w - h,0,h,h)
+    local y = self.solo:getBottom()
 
     if self.slaves then
-        self.slaves:setBounds(h/2, self.name:getBottom(), self.w-h/2, h)
+        self.slaves:setBounds(h/2, self.name:getBottom(), self.w-h/2)
+        y = self.slaves:getBottom()
     end
+
+    self.h = y
     -- self.h = self.slaves:getBottom()
 end
 

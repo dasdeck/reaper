@@ -188,7 +188,7 @@ function rpairs(t)
 end
 
 function assertDebug(cond, text)
-    if cond then assert(false, (text or '') .. debug.traceback()) end
+    if cond then assert(false, (text or '') .. '\n\n' .. debug.traceback()) end
 end
 
 function table.clone(org)

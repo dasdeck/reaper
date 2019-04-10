@@ -8,3 +8,4 @@
 - parameter range for plugins?
 - reasamplomatic motulation matrix
 - advanced note api (pitch, pan, etc. per note)
+- return offline instruments (getInstrument)

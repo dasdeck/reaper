@@ -7,6 +7,7 @@ local Mem = require 'Mem'
 local Track = require 'Track'
 local _ = require '_'
 local rea = require 'rea'
+local colors = require 'colors'
 local Builder = require 'Builder'
 local paths = require 'paths'
 local TrackListFilter =  require 'TrackListFilter'
@@ -38,8 +39,6 @@ function TrackList:create(...)
                     return TrackListComp:create(track, TrackListFilter.all.getToggleState())
                 end,
                 size = true
-
-                -- size = 20
             }
 
             local type = track:getType()
@@ -76,7 +75,7 @@ function TrackList:create(...)
     end
 
     local updater = function(tracks)
-
+        -- rea.logCount('updateTrackListisManager')
         self.tracklist:updateList()
     end
 
@@ -84,15 +83,24 @@ function TrackList:create(...)
 
     TrackListFilter.onChange = updater
 
-
     self.tracklist:updateList()
 
     return self
 
 end
 
-function TrackList:onClick()
-    Track.setSelectedTracks({})
+function TrackList:onClick(mouse)
+    if mouse:wasRightButtonDown() then
+        local menu = Menu:create()
+        menu:addItem('autocolor', function()
+            _.forEach(Track.getAllTracks(), function(track)
+                track:setColor(colors[track:getType()] or colors.default)
+            end)
+        end, 'autocolor')
+        menu:show()
+    else
+        Track.setSelectedTracks({})
+    end
 end
 
 

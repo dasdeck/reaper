@@ -47,6 +47,30 @@ function Directory:findFiles(pattern)
     return rea.findFiles(self.dir, {}, filter)
 end
 
+function Directory:getNextFile(file)
+    local current = self:indexOf(file)
+    return self:getFiles()[current + 1]
+end
+
+function Directory:getPrevFile(file)
+    local current = self:indexOf(file)
+    return self:getFiles()[current - 1]
+end
+
+function Directory:indexOf(needle)
+    return _.some(self:getFiles(), function(file, index)
+        return file:match(needle) and (index+1)
+    end)
+end
+
+function Directory:getFiles()
+    return rea.getFiles(self.dir, self.filter)
+end
+
+function Directory:getDirectories()
+    return rea.getDirectories(self.dir, self.filter)
+end
+
 function Directory:__tostring()
     return self.dir
 end
@@ -92,21 +116,6 @@ function Directory:saveDialog(suffix, initial, override)
             end
         end
     end
-end
-
-function Directory:indexOf(needle)
-    return _.some(self:getFiles(), function(file, index)
-        return file:match(needle) and (index+1)
-    end)
-end
-
-
-function Directory:getFiles()
-    return rea.getFiles(self.dir, self.filter)
-end
-
-function Directory:getDirectories()
-    return rea.getDirectories(self.dir, self.filter)
 end
 
 return Directory

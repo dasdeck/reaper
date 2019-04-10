@@ -67,7 +67,7 @@ function PadEditor:create(pad)
     end
     self.layers:updateList()
 
-    self.watchers:watch(Track.watch.tracks, function() self.layers:updateList() end)
+    -- self.watchers:watch(Track.watch.tracks, function() self.layers:updateList() end)
 
     self.fx = self:addChildComponent(FXButton:create(pad, 'pad:fx'))
 

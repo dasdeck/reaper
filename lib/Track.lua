@@ -46,8 +46,6 @@ function Track.onStateChange()
     end)
 end
 
-
-
 function Track.deferAll()
 
     Track.selectedTrack = nil
@@ -68,14 +66,7 @@ function Track.getTrackMap()
 end
 
 function Track.getFocusedTrack(live)
-
     return Track.get(Track.mem:get(0) - 1)
-    -- if nil == Track.focusedTrack or live then
-    --     local track = reaper.GetMixerScroll()
-    --     Track.focusedTrack = track and Track:create(track)
-    -- end
-
-    -- return Track.focusedTrack
 end
 
 function Track.getSelectedTracks(live)
@@ -257,10 +248,15 @@ function Track:getMetaKey()
 end
 
 function Track:getMetaData(extra)
-    -- local suc, res = reaper.GetProjExtState(0, 'D3CK', self:getMetaKey())
-    -- res = suc and res or {}
-    local res = self:getValue('d3ck', {})
-    return Collection:create(res)
+    if not self.metaData then
+        local res = self:getValue('d3ck', {})
+        -- rea.logPin(self.guid, {
+        --     res, res:trim()
+        -- })
+        self.metaData = Collection:create(res)
+    end
+
+    return self.metaData
 end
 
 function Track:setMetaData(coll)
@@ -310,6 +306,13 @@ function Track:touch()
 
 end
 
+function Track:getManager()
+    local manager = self:getMeta('managed')
+    if manager then
+        return Track.trackMap[manager]
+    end
+end
+
 function Track:focus()
     local instrument = self:getInstrument()
     if instrument and not instrument:canDoMultiOut() then
@@ -328,13 +331,16 @@ function Track:focus()
 end
 
 function Track:isFocused(slaves)
-    return self == Track.getFocusedTrack()
+    return self == Track.getFocusedTrack() or
+    (slaves and _.some(self:getManagedTracks(), function(track) return track:isFocused(slaves) end))
 end
 
-function Track:isSelected()
+function Track:isSelected(managed)
     return _.some(Track.getSelectedTracks(), function(track)
         return track == self and true or false
-    end)
+    end) or (managed and _.some(self:getManagedTracks(), function(track)
+        return track:isSelected(true)
+    end))
 end
 
 function Track:choose()
@@ -367,6 +373,7 @@ Track.stringMap = {
 }
 
 Track.valMap = {
+    fx = 'I_FXEN',
     chans = 'I_NCHAN',
     height = 'I_HEIGHTOVERRIDE',
     hlock = 'B_HEIGHTLOCK',
@@ -414,6 +421,7 @@ function Track:getInlineUI()
                 local DrumRackInlineUI = require 'DrumRackInlineUI'
                 return DrumRackInlineUI:create(DrumRack:create(self))
             else
+
                 local FXListItem = require 'FXListItem'
                 return FXListItem:create(self:getInstrument())
             end
@@ -435,6 +443,10 @@ end
 
 function Track:getDefaultName()
     return 'Track ' .. tostring(self:getIndex())
+end
+
+function Track:getSafeName()
+    return self:getName() or self:getDefaultName()
 end
 
 function Track:getName()
@@ -499,13 +511,27 @@ function Track:getInstrument()
     end
 end
 
+function Track:setManaged(track)
+    self:setMeta('managed', track and track.guid)
+end
+
+function Track:isManagedBy(track)
+    return track.guid == self:getMeta('managed')
+end
+
 function Track:remove(slaves)
 
-    if slaves then
-        _.forEach(self:getSlaves(), function(slave)
-            slave:remove(slaves)
+    if self:isBus() then
+        _.forEach(Track.getAllTracks(), function(track)
+            if track:getOutput() == self then
+                track:setOutput(self:getOutput())
+            end
         end)
     end
+
+    _.forEach(self:getManagedTracks(), function(slave)
+        slave:remove(slaves)
+    end)
 
     reaper.DeleteTrack(self.track)
     Track.trackMap[self.guid] = nil
@@ -595,13 +621,19 @@ function Track:isSlave()
     return self:getName():includes(':')
 end
 
-function Track:getSlaves()
-    return self:getLATracks()
+function Track:getMidiSlaves()
+    return _.map(self:getReceives(), function(rec)
+        if rec:isMidi() and rec:getTargetTrack():getType() == Track.typeMap.midi then
+            return rec:getSourceTrack()
+        end
+    end)
 end
 
-function Track:getMaster()
+function Track:getManagedTracks()
+    return _.filter(Track.getAllTracks(), function(track)
+        return track:isManagedBy(self)
+    end)
 end
-
 
 function Track:createMidiSlave()
 
@@ -610,23 +642,16 @@ function Track:createMidiSlave()
     slave:setValue('height', 40)
     slave:setValue('hlock', 1)
     slave:addFx('TrackTool')
+    slave:setManaged(self)
     slave:setType(Track.typeMap.midi)
     slave:setVisibility(true, false)
         :setIcon(self:getIcon() or 'midi.png')
         :setName(self:getName())
-        :setColor(self:getColor():lighten_by(2))
+        :setColor(colors.midi)
         :createSend(self, true)
             :setAudioIO(-1, -1)
 
     return slave
-end
-
-function Track:getMidiSlaves()
-    return _.map(self:getReceives(), function(rec)
-        if rec:isMidi() then
-            return rec:getSourceTrack()
-        end
-    end)
 end
 
 function Track:getColor()
@@ -646,6 +671,11 @@ function Track:getOutputConnection()
     return _.some(self:getSends(), function(send)
         return send:getType() == 'output' and send
     end)
+end
+
+function Track:setOpen(open)
+    open = open == nil and true
+    reaper.TrackFX_SetOpen(self.track, -1, open)
 end
 
 function Track:getOutput()
@@ -681,7 +711,6 @@ function Track:setOutput(target, la)
             end
         end
     end)
-    -- end
 
     self:removeSends(Send.isOutput)
     if not target then
@@ -690,8 +719,6 @@ function Track:setOutput(target, la)
         local send = self:createSend(target, true):setType('output')
         send:setMuted(multiOut)
     end
-
-
 
     return self
 end
@@ -715,7 +742,6 @@ function Track:sendsTo(track)
         return send:getTargetTrack() == track
     end)
 end
-
 
 function Track:getSends()
     local sends = {}
@@ -824,11 +850,11 @@ function Track:getFx(name, force, rec)
     end
     if not name then return nil end
 
-    local index = reaper.TrackFX_AddByName(self.track, name, rec or false, force and 1 or 0)
-
+    local index = reaper.TrackFX_AddByName(self.track, name, rec or false, 0)
     if index >= 0 then
-        self:updateFxRouting()
         return Plugin:create(self, index + (rec and 0x1000000 or 0)) or nil
+    elseif force then
+        return self:addFx(name, rec)
     end
 end
 
@@ -924,7 +950,6 @@ function Track:addChild(options)
 end
 
 function Track:getTrackTool(force)
-    -- local plugin = self:getFx('../Scripts/D3CK/test.jsfx', force or false)
     local plugin = self:getFx('TrackTool', force or false)
     if plugin then plugin:setIndex(0) end
     return plugin

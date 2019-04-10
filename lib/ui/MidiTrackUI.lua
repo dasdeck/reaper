@@ -18,8 +18,8 @@ function MidiTrackUI:create(track)
     self.track = track
     local img = paths.iconsDir:findFile('midi.png')
     self.image = self:addChildComponent(Image:create(img, 'fit'))
-    self.image.onClick = function()
-        if mouse:wasRightClick() then
+    self.image.onClick = function(s, mouse)
+        if mouse:wasRightButtonDown() then
 
         else
             rea.transaction('toggle track arm', function()
@@ -45,12 +45,9 @@ function MidiTrackUI:create(track)
         end
     end
 
-
-
     return self
 end
 
--- function MidiTrackUI:paintOverChildren(g)
 function MidiTrackUI:paint(g)
     if self.track:isArmed() then
         g:setColor(colors.arm:with_alpha(0.6))

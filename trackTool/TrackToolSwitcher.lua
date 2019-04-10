@@ -5,6 +5,7 @@ local ButtonList = require 'ButtonList'
 local TextButton = require 'TextButton'
 local Project = require 'Project'
 local Mouse = require 'Mouse'
+local Menu = require 'Menu'
 
 local rea = require 'rea'
 local _ = require '_'
@@ -36,7 +37,6 @@ function TrackToolSwitcher:create(...)
             self:update()
         end
     end)
-
 
     self:update()
 
@@ -95,6 +95,35 @@ function TrackToolSwitcher:update()
         }
     }, true))
 
+    self.debug = self:addChildComponent(TextButton:create('debug'))
+    self.debug.onButtonClick = function()
+        -- rea.logCount('debug')
+        local menu = Menu:create()
+        local selected = Track.getSelectedTrack()
+        if selected then
+            local selMenu = Menu:create()
+            selMenu:addItem({
+                name = selected:getType() or '--',
+                disabled = true
+            })
+            selMenu:addItem({
+                name = selected:getManager() and selected:getManager():getSafeName(),
+                disabled = true
+            })
+            menu:addItem('selected', selMenu)
+
+        end
+
+        if self:getTrack() then
+            local track = self:getTrack()
+            local man = track:getManager()
+            if man then
+                menu:addItem('manager:' .. (man:getName() or man:getDefaultName()))
+            end
+        end
+        menu:show()
+    end
+
 
     if self:getTrack() and self:getTrack():exists() then
         self.currentTrack = self:getTrack()
@@ -110,9 +139,15 @@ function TrackToolSwitcher:update()
 end
 
 function TrackToolSwitcher:resized()
-    self.nav:setBounds(0,0,self.w, 20)
+    local h = 20
+    self.nav:setBounds(0,0,self.w, h)
+    local y = self.nav:getBottom()
+
+    self.debug:setBounds(0,y,self.w, h)
+    y = self.debug:getBottom()
+
     if self.trackTool then
-        self.trackTool:setBounds(0,self.nav:getBottom(),self.w, self.h - self.nav:getBottom())
+        self.trackTool:setBounds(0,y, self.w, self.h - y)
     end
 end
 

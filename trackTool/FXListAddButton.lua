@@ -11,12 +11,21 @@ local paths = require 'paths'
 local colors = require 'colors'
 local rea = require 'rea'
 
-local FXlistAddButton = class(TextButton)
+local FXlistAddButton = class(Component)
 
 function FXlistAddButton:create(track, name, index)
-
-    local self = TextButton:create(name or '+fx')
+    local self = Component:create()
     setmetatable(self, FXlistAddButton)
+    self.name = self:addChildComponent(TextButton:create(name or '+fx'))
+    self.enabled = self:addChildComponent(TextButton:create('b'))
+    self.enabled.onButtonClick = function()
+        rea.transaction('toggle fx', function()
+            self.track:setValue('fx', self.track:getValue('fx') ~= 1 and 1 or 0)
+        end)
+    end
+    self.enabled.getToggleState = function()
+        return self.track:getValue('fx') == 0
+    end
 
     self.track = track
     self.index = index
@@ -25,7 +34,7 @@ function FXlistAddButton:create(track, name, index)
 
 end
 
-function TextButton:repaintOnMouse()
+function FXlistAddButton:repaintOnMouse()
     return true
 end
 
@@ -45,8 +54,25 @@ function FXlistAddButton:onButtonClick(mouse)
         end)
     end
 
-    add()
-
+    if mouse:wasRightButtonDown() then
+        local menu = Menu:create()
+        menu:addItem('show channel', function()
+            self.track:setOpen()
+        end)
+        -- menu:addItem('')
+        menu:show()
+    elseif mouse:isShiftKeyDown() then
+        rea.transaction('toggle fx', function()
+            self.track:setValue('fx', self.track:getValue('fx') ~= 1 and 1 or 0)
+        end)
+    elseif mouse:isAltKeyDown() then
+        local name = rea.prompt('name')
+        if name then
+            self.track:addFx(name)
+        end
+    else
+        add()
+    end
 end
 
 function FXlistAddButton:onDrop()
@@ -67,10 +93,20 @@ end
 
 function FXlistAddButton:paintOverChildren(g)
 
+    if self.track:getValue('fx') == 0 then
+        g:setColor(colors.mute:with_alpha(0.5))
+        g:rect(0, 0 ,self.w, self.h, true)
+    end
     if instanceOf(Component.dragging, Component) and Component.dragging.fx  and self:isMouseOver() then
         g:setColor(colors.mute:with_alpha(0.5))
         g:rect(0, 0 ,self.w, self.h, true)
     end
+end
+
+function FXlistAddButton:resized()
+    local h = 20
+    self.name:setBounds(0,0,self.w - h, h)
+    self.enabled:setBounds(self.w - h,0,h, h)
 end
 
 return FXlistAddButton

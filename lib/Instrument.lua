@@ -49,7 +49,7 @@ function Instrument.bang()
                 track:setColor(colors.instrument)
                 local name = splits[1]
 
-                track:getFx(name, true)
+                track:addFx(name)
                 local inst = track:getInstrument()
                 if inst then
                     track:setName(splits[2] or name)
