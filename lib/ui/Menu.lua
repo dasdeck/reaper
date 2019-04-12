@@ -102,7 +102,7 @@ function Menu:addItem(name, data, transaction)
     if type(data) == 'table' then
         _.assign(item, data)
     end
-
+    assert(item.name, 'menu items need a name')
     table.insert(self.items, item)
 end
 

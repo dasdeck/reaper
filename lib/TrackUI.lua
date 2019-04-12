@@ -61,7 +61,9 @@ function TrackUI.click(track, mouse)
             local wasSelected = track:isSelected()
             local sbSelected = 1
             if mouse:isCommandKeyDown() then sbSelected = not wasSelected end
-            track:setSelected(sbSelected)
+            rea.transaction('select track', function()
+                track:setSelected(sbSelected)
+            end)
         end
 
     end

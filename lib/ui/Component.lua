@@ -111,11 +111,11 @@ end
 function Component:getAllChildren(results)
     results = results or {}
 
-    table.insert(results, self)
-
     for k, child in rpairs(self.children) do
         child:getAllChildren(results)
     end
+
+    table.insert(results, self)
 
     return results
 end
@@ -274,6 +274,10 @@ function Component:setSize(w,h)
 end
 
 function Component:setPosition(x,y)
+
+    x = x == nil and self.x or x
+    y = y == nil and self.y or y
+
     self.x = x
     self.y = y
 end
@@ -369,15 +373,15 @@ function Component:setWindow(window)
 end
 
 function Component:addChildComponent(comp, key, doNotLayout)
-    comp.parent = self
-    comp.window = self.window -- optimize window access
-    if key then
-        self.children[key] = comp
-    else
-        table.insert(self.children, comp)
+    if comp then
+        comp.parent = self
+        comp.window = self.window -- optimize window access
+        if key then
+            self.children[key] = comp
+        else
+            table.insert(self.children, comp)
+        end
     end
-    -- self:relayout()
-
     return comp
 end
 

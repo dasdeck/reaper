@@ -47,8 +47,6 @@ function Graphics:loadColors()
     gfx.a = self.a
 end
 
-
-
 function Graphics:setColor(r, g, b, a)
 
     if type(r) == 'table' then

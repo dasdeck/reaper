@@ -76,22 +76,6 @@ function Pad:loadPad(file)
     return self
 end
 
--- function Pad:refreshConnections()
---     local fxBus = self.rack:getFx()
---     local fx = self:getFx()
---     local layers = self:getLayers()
-
---     if fx then fx:setOutput(fxBus) end
-
---     _.forEach(layers, function(layer)
---         if fx and fxBus then
---             layer:removeSends(send.isOutput)
---         end
---         layer:setOutput(fx or fxBus)
---     end)
---     return self
--- end
-
 function Pad:getNext()
     return self.rack.pads[self:getIndex() + 1]
 end
@@ -229,12 +213,12 @@ function Pad:setFx(track)
     self:removeFx()
     if track then
 
-        if track:isManagedBy(self) then
+        if track:isManagedBy(self.rack:getTrack()) then
             local currentOutPut = self:getOutput()
             track:setOutput(currentOutPut)
-            self:setOutput(track, currentOutPut)
             track:setName('pad' .. self:getName())
         end
+        self:setOutput(track, currentOutPut)
 
         local send = self.rack:getTrack():createSend(track)
         send:setType('bus')

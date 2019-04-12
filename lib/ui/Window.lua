@@ -409,7 +409,7 @@ function Window:defer()
 
     local allComps = self.component:getAllChildren()
     self:updateWindow()
-    local wasPainted = self:render(allComps)
+    local wasPainted = self:render(reversed(allComps))
     self:evalMouse(allComps)
     self:evalKeyboard(allComps)
 
