@@ -39,7 +39,7 @@ function RandomSound:create(text)
                 self:randomize()
             end
         end
-        self.filter.content:repaint()
+        self.filter:repaint()
         State.global.set('randomsound_filter', self.filter.content.text)
     end
 

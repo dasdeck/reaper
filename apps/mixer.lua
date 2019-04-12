@@ -5,7 +5,10 @@ require 'boot'
 local WindowApp = require 'WindowApp'
 local Mixer = require 'Mixer'
 
-WindowApp:create('mixer', Mixer:create()):start()
+WindowApp:create('mixer', Mixer:create()):start(
+{
+profile = false
+})
 
 
 

@@ -755,7 +755,7 @@ end
 
 function Track:receivesFrom(otherTrack)
     return _.some(self:getReceives(), function(rec)
-        return rec:getSourceTrack().track == otherTrack.track
+        return rec:getSourceTrack().track == otherTrack.track or rec:getSourceTrack().track:receivesFrom(otherTrack)
     end)
 end
 

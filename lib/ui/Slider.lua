@@ -79,10 +79,10 @@ function Slider:paint(g)
     g:setColor(self:getColor(true))
     local padding = 0
     g:roundrect(padding ,padding , self.w - 2 * padding, self.h - 2*padding, 5, false)
-
+    self:paintBar(g)
 end
 
-function Slider:paintOverChildren(g)
+function Slider:paintBar(g)
 
     local min = self:getMin()
     local max = self:getMax()

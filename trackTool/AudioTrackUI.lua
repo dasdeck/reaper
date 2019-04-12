@@ -12,6 +12,8 @@ local Output = require 'Output'
 local Type = require 'Type'
 local Slider = require 'Slider'
 local Track = require 'Track'
+local GainSlider = require 'GainSlider'
+local PanSlider = require 'PanSlider'
 
 local colors = require 'colors'
 local rea = require 'rea'
@@ -93,53 +95,13 @@ function AudioTrackUI:update()
         self.delay = self:addChildComponent(DelaySlider:create(track))
     end
 
-    self.gain = self:addChildComponent(Slider:create())
+    self.gain = self:addChildComponent(GainSlider:create(track))
     self.gain.colorValue = colors[track:getType()] or colors.default
-    self.watchers:watch(function()
-        return self.track:getVolume()
-    end, function()
-        self.gain:repaint(true)
-    end)
-    self.gain.pixelsPerValue = 10
-    self.gain.getValue = function()
-        return round(self.track:getVolume(),10)
-    end
-    self.gain.setValue = function(s, volume)
-        self.track:setVolume(volume)
-    end
-    self.gain.getMin = function()
-        return -60
-    end
-    self.gain.getMax = function()
-        return 10
-    end
 
-    self.pan = self:addChildComponent(Slider:create())
+
+    self.pan = self:addChildComponent(PanSlider:create(track))
     self.pan.colorValue = colors[track:getType()] or colors.default
 
-    self.watchers:watch(function()
-        return self.track:getPan()
-    end, function()
-        self.pan:repaint(true)
-    end)
-    self.pan.pixelsPerValue = 100
-    self.pan.bipolar = 0
-    self.pan.wheelscale = 0.01
-    self.pan.getText = function()
-        return tostring(round(self.pan:getValue() * 100)) .. ' %'
-    end
-    self.pan.getValue = function()
-        return self.track:getPan()
-    end
-    self.pan.setValue = function(s, volume)
-        self.track:setPan(volume)
-    end
-    self.pan.getMin = function()
-        return -1
-    end
-    self.pan.getMax = function()
-        return 1
-    end
 
     self.output = self:addChildComponent(Output:create(track))
 

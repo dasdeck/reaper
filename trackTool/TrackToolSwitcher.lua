@@ -107,7 +107,7 @@ function TrackToolSwitcher:update()
                 disabled = true
             })
             selMenu:addItem({
-                name = selected:getManager() and selected:getManager():getSafeName(),
+                name = selected:getManager() and selected:getManager():getSafeName() or '-',
                 disabled = true
             })
             menu:addItem('selected', selMenu)

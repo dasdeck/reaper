@@ -18,6 +18,9 @@ local FXListItem = class(Component)
 function FXListItem.getMenu()
 end
 
+function FXListItem:canClickThrough()
+    return false
+end
 
 function FXListItem.replace(fx)
     PluginListApp.pick(PluginListApp.cats.effects, function(name)

@@ -37,7 +37,7 @@ function MidiTrackUI:create(track)
 
     local targetTrack = _.some(sends, function(send) return send:getTargetTrack() end)
 
-    if targetTrack then
+    if targetTrack and false then
         self.midiOutputs.content.text = targetTrack:getName()
         local ui = targetTrack:createUI()
         if ui then
