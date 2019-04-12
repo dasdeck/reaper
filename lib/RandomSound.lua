@@ -15,8 +15,6 @@ local RandomSound = class()
 
 RandomSound = class(Component)
 
-
-
 function RandomSound:create(text)
 
     local self = Component:create()
@@ -55,6 +53,7 @@ function RandomSound:create(text)
         end
         return _.map(entries, function(entry)
             return {
+                size = 20,
                 args = _.last(entry.path:split('/')),
                 getToggleState = function()
                     return entry == self.current

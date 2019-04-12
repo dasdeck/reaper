@@ -207,7 +207,8 @@ function Window:toggleDock()
     if dock > 0 then
         gfx.dock(0)
     else
-        gfx.dock(self.dock)
+        rea.log('dock' .. tostring(self.dock))
+        gfx.dock(self.dock or 1)
     end
 
     self:updateWindow()

@@ -18,14 +18,16 @@ function LAItem:create(group)
 
     self.repaintOnMouseEnterOrLeave = true
 
-    -- self.first = group.first
     self.fxs = group.fx
     self.fx = group.first
     self.name = self:addChildComponent(Label:create('LA'))
     self.name.onClick = function(s,mouse)
-        if mouse:isAltKeyDown() then
+        if mouse:wasRightButtonDown() then
+            local menu = FXListItem.getMoveMenu(self)
+            menu:show()
+        elseif mouse:isAltKeyDown() then
             rea.transaction('remove fx', function()
-                self.la:remove()
+                self.last:remove()
                 self.fx:remove()
             end)
         end
@@ -65,16 +67,36 @@ function LAItem:create(group)
     self.gain.setValue = function(s, value)
         group.last:setParam(1, value)
     end
-    self.la = group.last
+    self.last = group.last
+
 
     self.items = self:addChildComponent(FXList:create(group.fx))
 
     return self
 end
 
+function LAItem:setIndex(index, track)
+
+    local fxs = _.concat({self.fx}, self.fxs, {self.last})
+
+    if track == self.fx.track and index <= self.fx.index then
+        fxs = reversed(fxs)
+        -- rea.log('rev')
+    end
+    -- rea.log(_.size(self.fxs))
+    -- rea.log(self.fxs)
+    -- rea.log(fxs)
+    _.forEach(fxs, function(fx)
+        -- rea.log(index)
+        fx:setIndex(index, track)
+    end)
+end
+
+function LAItem:onDrag()
+    Component.dragging = self
+end
 
 function LAItem:paint(g)
-
     Label.drawBackground(self, g, colors.default)
 end
 
@@ -93,7 +115,7 @@ function LAItem:onDrop()
                 local offset = after and 1 or 0
 
                 from = Component.dragging.fx.index
-                to  = (after and self.la.index or self.fx.index) + offset
+                to  = (after and self.last.index or self.fx.index) + offset
 
                 to = math.max(0, to)
 
@@ -136,7 +158,7 @@ function LAItem:resized()
     self.solo:setBounds(self.mute:getRight(),0,h, h)
     y = self.solo:getBottom()
 
-    if self.la:getParam(2) == 1 or _.size(self.fxs) == 0 then
+    if self.last:getParam(2) == 1 or _.size(self.fxs) == 0 then
         self.addFx:setBounds(0,y,self.w, h)
         y = self.addFx:getBottom()
     else
@@ -151,6 +173,5 @@ function LAItem:resized()
     self.h = y
 
 end
-
 
 return LAItem

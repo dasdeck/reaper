@@ -130,15 +130,18 @@ local function reduce(data, callback, carry)
     return carry
 end
 
-local function join(t, glue)
-    -- local res = ''
+local function concat(...)
+    local p = {...}
+    local res = {}
+    forEach(p, function(arr)
+        forEach(arr, function(v)
+            table.insert(res, v)
+        end)
+    end)
+    return res
+end
 
-    -- local i = 1
-    -- for key, row in pairs(table or {}) do
-    --     res = res .. tostring(row) .. (i < #table and glue or '')
-    --     i = i + 1
-    -- end
-    -- return res
+local function join(t, glue)
     return table.concat(t, glue)
 end
 
@@ -146,11 +149,11 @@ local function empty(table)
     return size(table) == 0
 end
 
-local function concat(a, b)
-    local res = table.clone(a)
-    forEach(b, function(val) table.insert(res, val) end)
-    return res
-end
+-- local function concat(a, b)
+--     local res = table.clone(a)
+--     forEach(b, function(val) table.insert(res, val) end)
+--     return res
+-- end
 
 local function removeValue(table, needle)
     forEach(table, function(value, key)
@@ -161,6 +164,7 @@ local function removeValue(table, needle)
 end
 
 return {
+
     concat = concat,
     indexOf = indexOf,
     reverse = reverse,

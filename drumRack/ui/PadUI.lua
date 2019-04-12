@@ -204,7 +204,7 @@ function PadUI:onFilesDrop(files)
     rea.transaction('add layer', function()
         for v, k in pairs(files) do
             local layer = self.pad:addLayer(k)
-            if not layer:getName() then
+            if not layer:getName() or layer:getName():len() == 0 or layer:getName() == layer:getDefaultName() then
                 local fileName = _.last(k:split('/'))
                 local name = rea.prompt('name', fileName)
                 layer:setName(name or fileName)

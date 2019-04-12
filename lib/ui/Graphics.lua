@@ -14,22 +14,29 @@ function Graphics:create()
     return self
 end
 
-function Graphics:setFromComponent(comp, slot)
+function Graphics:applyBuffer(slot, x, y, alpha, dest)
+    gfx.dest = dest
+    gfx.a = alpha
+    gfx.x = x
+    gfx.y = y
+    gfx.blit(slot, 1, 0)
+end
 
-        self.a = 1
-        gfx.mode = 0
 
-        assert(comp.w > 0)
-        assert(comp.h > 0)
-        assert(slot >= 0)
+function Graphics:startBuffering(comp, slot, paint)
 
-        gfx.setimgdim(slot, -1, -1)
-        gfx.setimgdim(slot, comp.w, comp.h)
-        gfx.dest = slot
-        gfx.x = 0
-        gfx.y = 0
-        self.x = 0
-        self.y = 0
+    assert(comp.w > 0)
+    assert(comp.h > 0)
+    assert(slot >= 0)
+
+    self.a = 1
+    gfx.setimgdim(slot, -1, -1)
+    gfx.setimgdim(slot, comp.w, comp.h)
+    gfx.dest = slot
+    self.x = 0
+    self.y = 0
+    gfx.y = 0
+    gfx.x = 0
 
 end
 

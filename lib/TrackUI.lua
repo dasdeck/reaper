@@ -44,8 +44,6 @@ function TrackUI.click(track, mouse)
                     track:remove(true)
                 end
             end)
-        elseif mouse:isShiftKeyDown() then
-            track:setMuted(not track:isMuted())
         elseif mouse:isCommandKeyDown() and mouse:isShiftKeyDown() and _.size(Track.getSelectedTracks()) > 0 then
 
             local firstSelected = _.first(Track.getSelectedTracks()):getIndex()
@@ -57,6 +55,8 @@ function TrackUI.click(track, mouse)
                 tracks[i]:setSelected(true)
             end
 
+        elseif mouse:isShiftKeyDown() then
+            track:setMuted(not track:isMuted())
         else
             local wasSelected = track:isSelected()
             local sbSelected = 1

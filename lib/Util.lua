@@ -167,20 +167,12 @@ end
 
 function reversed (arr)
 
-    local keys = {}
-	for k, v in pairs(arr) do
-		table.insert(keys, k)
-    end
-
     local res = {}
-    local i = #keys
-    while i >= 1 do
-        local key = keys[i]
-        i = i - 1
-        res[key] = arr[key]
+	for k = #arr, 1, -1  do
+		table.insert(res, arr[k])
     end
-
     return res
+
 end
 
 function rpairs(t)

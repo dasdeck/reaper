@@ -326,38 +326,29 @@ function Component:evaluate(g, dest, x, y)
     local area = self.w * self.h * alpha
     local hasVisibleArea = area > 0
 
-    local doPaint = (self.paint or self.paintOverChildren) and (self.needsPaint or (self:getWindow() or {}).doPaint == 'all')
+    local doRePaint = (self.needsPaint or (self:getWindow() or {}).doRePaint == 'all')
 
     if self.paint and hasVisibleArea then
         local pslot = self:getSlot('component:' .. tostring(self.id) .. ':paint')
-        if doPaint then
-            g:setFromComponent(self, pslot)
+        if doRePaint then
+            g:startBuffering(self, pslot)
             self:paint(g)
         end
-
-        gfx.dest = dest
-        gfx.x = x
-        gfx.y = y
-        gfx.a = alpha
-        gfx.blit(pslot, 1, 0)
+        g:applyBuffer(pslot, x, y, alpha, dest)
 
     end
 
     self:evaluateChildren(g, dest, x, y)
 
     if self.paintOverChildren and hasVisibleArea then
-
         local poslot = self:getSlot('component:' .. tostring(self.id) .. ':paintOverChildren')
-        if doPaint then
-            g:setFromComponent(self, poslot)
+        if doRePaint then
+            g:startBuffering(self, poslot)
             self:paintOverChildren(g)
         end
 
-        gfx.dest = dest
-        gfx.a = alpha
-        gfx.x = x
-        gfx.y = y
-        gfx.blit(poslot, 1, 0)
+        g:applyBuffer(poslot, x, y, alpha, dest)
+
     end
 
     self.needsPaint = false

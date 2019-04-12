@@ -1,6 +1,13 @@
 Ideas:
+    ☐ exlude invalid tracks from move menu
+    ☐ generelaize move menu
+        ☐ add create of busses and aux
+    ☐ automation ?
+    ✔ move la chain @done(19-04-11 20:45)
+    ☐ indicate insert before and after
+    ☐ overlay power button per fx
     ☐ refresh chain routing in all cases
-    ☐ minimize chain
+    ☐ minimize sub/la chain
     ☐ error fail when only one la is present (use as last?)
     ✔ drop to chain (minimize if empty) @done(19-04-09 15:11)
     ☐ save chain
@@ -8,15 +15,18 @@ Ideas:
     ☐ assign track templates for isntruments/aux/busses
     ☐ assign chains for effecst
     ☐ access normal plugin browser
+    ☐ minimized view for fx (small images)
 
-    ☐ store to scratchpad / ide pad
+    ☐ store to scratchpad / idea pad
 
     ☐ delete managed tracks on track delete
         ☐ la slaves
         ☐ managed fx
         ☐ layers
         ☐ outputs
+
     ☐ tracklist tblclick edit first fx
+
     ☐ A/B reference tool
     ☐ drag samples to A/B tool / tag editor
     ✔ reopen pluginwindow on pick @done(19-04-04 12:33)
@@ -35,7 +45,6 @@ Ideas:
         ☐ monitor
         ☐ fx list
 
-
     ☐ split mode drop keyboard ui
     ☐ pad-mode per zone
     ☐ bussing
@@ -53,7 +62,6 @@ Ideas:
             la
         ☐ get contexts
             on track selection change, change contexts
-
 
     ✔ move eventloop outside window @done(19-03-27 12:28)
         app

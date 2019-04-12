@@ -283,7 +283,11 @@ function Pad:addLayer(path, name)
             reaper.Main_openProject(path)
             newTrack = Track.getSelectedTrack()
         else
-            newTrack = Track.insert():setName(name)
+            newTrack = Track.insert()
+
+            if name then
+                newTrack:setName(name)
+            end
 
             local fx
             if reaper.file_exists(path) then

@@ -17,12 +17,12 @@ function DelaySlider:getPlugin(create)
 end
 
 function DelaySlider:getText()
-    return self:getPlugin() and tostring(self:getValue()) or '--'
+    return self:getPlugin() and tostring(math.floor(self:getValue())) or '--'
 end
 
 function DelaySlider:getValue()
     local plugin = self:getPlugin()
-    return plugin and plugin:getParam(0) or 0
+    return plugin and math.floor(plugin:getParam(0) or 0)
 end
 
 function DelaySlider:isDisabled()

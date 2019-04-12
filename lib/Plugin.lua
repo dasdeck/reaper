@@ -29,7 +29,11 @@ function Plugin:setIO(i, o)
     reaper.TrackFX_SetPinMappings(self.track.track, self.index, 1, 1, 2^(o*2+1),0)
     reaper.TrackFX_SetPinMappings(self.track.track, self.index, 0, 0, 2^(i*2),0)
     reaper.TrackFX_SetPinMappings(self.track.track, self.index, 0, 1, 2^(i*2+1),0)
+end
 
+function Plugin:getIO()
+    local res, i ,o reaper.TrackFX_GetIOSize(self.track.track, self.index)
+    if res then return i , o end
 end
 
 function Plugin.getByGUID(track, guid)
@@ -122,6 +126,7 @@ end
 
 function Plugin:setIndex(index, targetTrack)
 
+    self:refresh()
     targetTrack = targetTrack or self.track
     if self.index ~= index or targetTrack ~= self.track then
         reaper.TrackFX_CopyToTrack(self.track.track, self.index, targetTrack.track, index, true)

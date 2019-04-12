@@ -22,13 +22,13 @@ function TrackToolSwitcher:create(...)
     self.watchers:watch(Track.watch.selectedTrack,
     function(track)
 
-        if self.history.track ~= track then
-            self.history.next = {prev = self.history, track = track}
-            self.history = self.history.next
-        end
         if track then
-            track:focus()
-            track:touch()
+            if self.history.track ~= track then
+                self.history.next = {prev = self.history, track = track}
+                self.history = self.history.next
+            end
+            -- track:focus()
+            -- track:touch()
         end
 
     end)

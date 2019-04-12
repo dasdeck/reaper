@@ -10,7 +10,6 @@ local colors = require 'colors'
 local _ = require '_'
 local Track = class()
 
-
 -- static --
 
 Track.mem = Mem:create('track')
@@ -106,8 +105,6 @@ function Track.getAllTracks(live)
     return Track.tracks
 end
 
---function Track.getUniqueName()
-
 function Track.get(index)
     local track = Track.getAllTracks()[index+1]
     return track and track:exists() and track
@@ -118,6 +115,12 @@ function Track.insert(index)
     reaper.InsertTrackAtIndex(index, true)
     Track.deferAll()
     return Track.get(index)
+end
+
+function Track.disarmAll()
+    _.forEach(Track.getAllTracks(), function(track)
+        track:setArmed(false)
+    end)
 end
 
 Track.watch = {
@@ -156,7 +159,6 @@ function Track:iconize()
     self:setIcon(self:getImage())
 end
 
-
 function Track:createSlave(name, indexOffset)
     local t = Track.insert(self:getIndex() + indexOffset)
     self:setName(self:getName() or self:getDefaultName())
@@ -166,12 +168,6 @@ end
 
 function Track:onChange(listener)
     table.insert(self.listeners, listener)
-end
-
-function Track.disarmAll()
-    _.forEach(Track.getAllTracks(), function(track)
-        track:setArmed(false)
-    end)
 end
 
 function Track:isArmed()
@@ -199,7 +195,6 @@ function Track:triggerChange(message)
     return self
 end
 
--- get
 
 function Track:defer()
     self.state = nil
@@ -210,10 +205,7 @@ function Track:isAux()
 end
 
 function Track:exists()
-
     return reaper.ValidatePtr2(0, self.track, 'MediaTrack*')
-    -- return _.find(Track.getAllTracks(true), self)
-    -- body
 end
 
 function Track:wantsAudioControlls()
@@ -250,9 +242,6 @@ end
 function Track:getMetaData(extra)
     if not self.metaData then
         local res = self:getValue('d3ck', {})
-        -- rea.logPin(self.guid, {
-        --     res, res:trim()
-        -- })
         self.metaData = Collection:create(res)
     end
 
@@ -260,7 +249,6 @@ function Track:getMetaData(extra)
 end
 
 function Track:setMetaData(coll)
-    -- reaper.SetProjExtState(0, 'D3CK', self:getMetaKey(), tostring(coll))
     self:setValue('d3ck', tostring(coll))
     return track
 end
@@ -271,7 +259,6 @@ function Track:setMeta(name, value)
     self:setMetaData(data)
     return self
 end
-
 
 function Track:getMeta(name, default)
     local data = self:getMetaData()
@@ -451,7 +438,6 @@ end
 
 function Track:getName()
     local res, name = reaper.GetTrackName(self.track, '')
-    -- return res and name ~= self:getDefaultName() and name or nil
     return res and name or nil
 end
 
@@ -635,6 +621,12 @@ function Track:getManagedTracks()
     end)
 end
 
+function Track:canDoSideChain()
+    return _.some(self:getFxList(), function(fx)
+        -- return fx:
+    end)
+end
+
 function Track:createMidiSlave()
 
     local slave = Track.insert(self:getIndex())
@@ -796,7 +788,6 @@ end
 
 function Track:getType()
     return self:getMeta('type')
-    -- return type
 end
 
 function Track:autoName()
