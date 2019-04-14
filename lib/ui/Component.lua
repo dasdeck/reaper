@@ -149,28 +149,13 @@ function Component:getAlpha()
 end
 
 function Component:fitToWidth(wToFit)
-
     self:setSize(wToFit, self.h * wToFit / self.w)
     return self
 end
 
 function Component:fitToHeight(hToFit)
-
     self:setSize(self.w * hToFit / self.h, hToFit)
     return self
-end
-
-function Component:clone()
-
-    local comp = _.assign(Component:create(), self)
-    setmetatable(comp, getmetatable(self))
-
-    comp.children = _.map(self.children, function(child)
-        local clone = child:clone()
-        clone.parent = comp
-        return clone
-    end)
-    return comp
 end
 
 function Component:canClickThrough()
@@ -326,7 +311,7 @@ function Component:evaluate(g, dest, x, y, overlay)
     g = g or Graphics:create()
 
     self.isCurrentlyVisible = self:isVisible()
-    if not self.isCurrentlyVisible or (self.overlayPaint and not overlay) then
+    if not self.isCurrentlyVisible or self.inline == true or (self.overlayPaint and not overlay) then
         return
     end
 
@@ -376,12 +361,12 @@ function Component:setWindow(window)
     end)
 end
 
-function Component:addChildComponent(comp, key, doNotLayout)
+function Component:addChildComponent(comp, key)
     if comp then
         comp.parent = self
         comp.window = self.window -- optimize window access
         if key then
-            self.children[key] = comp
+           assert(false, 'key usage is deprecated')
         else
             table.insert(self.children, comp)
         end

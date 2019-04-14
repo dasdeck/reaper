@@ -5,13 +5,16 @@ local Image = require 'Image'
 local TrackStateButton = require 'TrackStateButton'
 local Track = require 'Track'
 local Menu = require 'Menu'
+local DelaySlider = require 'DelaySlider'
+
 local _ = require '_'
 local colors = require 'colors'
 local icons = require 'icons'
-
 local rea = require 'rea'
 
 local Layer = class(Component)
+
+
 
 function Layer:create(track, pad)
 
@@ -23,6 +26,8 @@ function Layer:create(track, pad)
     self.track = track
 
     self.icon = self:addChildComponent(Image:create(track:getIcon(), 'fit'))
+
+    self.delay = self:addChildComponent(DelaySlider:create(track))
 
     self.mute = self:addChildComponent(TrackStateButton:create(self.track, 'mute', 'M'))
     self.mute.color = colors.mute
@@ -129,11 +134,18 @@ end
 function Layer:resized()
 
     local h = 20
+
     self.icon:setSize(h,h)
 
     self.name:setBounds(h, self.lock:getBottom(), self.w-h, h)
 
-    self.h = h
+    local y = self.name:getBottom()
+
+    self.mute:setBounds(0, y, h, h)
+    self.solo:setBounds(h, y, h, h)
+    self.delay:setBounds(h*2, y, self.w - h*2, h)
+
+    self.h = self.delay:getBottom()
     if self.instrument then
         self.instrument:setBounds(0,self.name:getBottom(), self.w)
         self.h = self.instrument:getBottom()

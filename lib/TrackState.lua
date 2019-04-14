@@ -5,24 +5,43 @@ local _ = require '_'
 local TrackState = class()
 
 function TrackState.fromTemplate(templateData)
+    local Track = require 'Track'
 
-    local res = {}
-    for match in  templateData:gmatch('(<TRACK.->)') do
-        state = TrackState:create(match)
-        aux = state:getAuxRecs()
-        table.insert(res, state)
-    end
+    local res = _.map(_.map(templateData:split('\n\n'), string.trim), TrackState.create)
+    local firstIndex = _.size(Track.getAllTracks())
 
-    return res
+    local tracks = {}
+    _.forEach(res, function(state, i)
+
+        local track = Track.insert()
+        table.insert(tracks, track)
+
+        _.forEach(state:getAuxRecs(), function(index)
+
+            res[i] = state:withAuxRec(index, index + firstIndex)
+        end)
+    end)
+
+    _.forEach(res, function(state, i)
+        local track = tracks[i]
+        track:setState(state)
+        track.guid = reaper.GetTrackGUID(track.track)
+    end)
+
+
+    return tracks
 end
 
 function TrackState.fromTracks(tracks)
 
     local Track = require 'Track'
 
+    local guids = {}
     local states = {}
     _.forEach(tracks, function(track, i)
         local state = track:getState()
+        guids[reaper.genGuid('')] = track.guid
+
         local sourceTracks = _.map(state:getAuxRecs(), Track.get)
         _.forEach(sourceTracks, function(sourceTrack)
             local currentIndex = sourceTrack:getIndex() - 1
@@ -31,8 +50,7 @@ function TrackState.fromTracks(tracks)
             if indexInTemplate then
                 state = state:withAuxRec(currentIndex, indexInTemplate - 1)
             else
-                local sourceTrackIndex = sourceTrack:getIndex() - 1
-                state = state:withoutAuxRec(sourceTrackIndex)
+                state = state:withoutAuxRec(currentIndex)
             end
         end)
 
@@ -40,8 +58,20 @@ function TrackState.fromTracks(tracks)
 
     end)
 
-    return states
+    return _.map(states, function(state)
+        return TrackState.create(_.reduce(guids, function(carr, guid, replace)
+            return carr:gsub(guid:escaped(), replace)
+        end, state.text))
+    end)
 
+end
+
+function TrackState.create(text)
+    local self = {
+        text = text
+    }
+    setmetatable(self, TrackState)
+    return self
 end
 
 function TrackState:getPlugins()
@@ -61,20 +91,12 @@ function TrackState:withLocking(locked)
         end
     end
 
-    return TrackState:create(text)
+    return TrackState.create(text)
 end
 
 function TrackState:isLocked()
     local locker = tonumber(self.text:match('LOCK (%d)'))
     return locker and (locker & 1 > 0) or false
-end
-
-function TrackState:create(text)
-    local self = {
-        text = text
-    }
-    setmetatable(self, TrackState)
-    return self
 end
 
 function TrackState:getAuxRecs()
@@ -91,12 +113,12 @@ end
 
 function TrackState:withAutoRecArm(enabled)
     local value = tostring(enabled and 1 or 0)
-    return TrackState:create(self.text:gsub('AUTO_RECARM %d', 'AUTO_RECARM ' .. value))
+    return TrackState.create(self.text:gsub('AUTO_RECARM %d', 'AUTO_RECARM ' .. value))
 end
 
 function TrackState:withoutAuxRec(index)
     local rec = index and tostring(index) or '%d'
-    return TrackState:create(self.text:gsub('AUXRECV '..rec..' (.-)\n', ''))
+    return TrackState.create(self.text:gsub('AUXRECV '..rec..' (.-)\n', ''))
 end
 
 function TrackState:withAuxRec(from, to)
@@ -104,7 +126,7 @@ function TrackState:withAuxRec(from, to)
     to = tostring(math.floor(tonumber(to)))
     local a = 'AUXRECV '..from..' (.-)\n'
     local b = 'AUXRECV '..to..' %1\n'
-    return TrackState:create(self.text:gsub(a, b))
+    return TrackState.create(self.text:gsub(a, b))
 end
 
 return TrackState

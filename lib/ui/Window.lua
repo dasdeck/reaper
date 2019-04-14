@@ -66,7 +66,7 @@ function Window:render(allComps)
         self.g:clear()
         self.component:evaluate(self.g)
         self.paints = self.paints + 1
-        render = true
+        rendered = true
     end
 
     self.g:applyBuffer(1, 0, 0, 1, -1)

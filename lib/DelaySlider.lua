@@ -13,7 +13,6 @@ end
 
 function DelaySlider:getPlugin(create)
     return self.track:getTrackTool(create)
-
 end
 
 function DelaySlider:getText()

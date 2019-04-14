@@ -12,6 +12,7 @@ function TransposeControll:create(track)
     self.value = self:addChildComponent(Slider:create())
 
     function getPlugin()
+        rea.log('p')
         return track:getTrackTool(true)
     end
 
@@ -24,13 +25,13 @@ function TransposeControll:create(track)
     end
 
     self.semDown = self:addChildComponent(TextButton:create('<'))
-    self.semDown.onClick = function(s, mouse)
+    self.semDown.onButtonClick = function(s, mouse)
         rea.transaction('change transpose', function()
             self.value:setValue(self.value:getValue() - (mouse:isAltKeyDown() and 12 or 1))
         end)
     end
     self.semUp = self:addChildComponent(TextButton:create('>'))
-    self.semUp.onClick = function(s, mouse)
+    self.semUp.onButtonClick = function(s, mouse)
         rea.transaction('change transpose', function()
             self.value:setValue(self.value:getValue() + (mouse:isAltKeyDown() and 12 or 1))
         end)

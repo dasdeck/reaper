@@ -8,6 +8,8 @@ local Mem = require 'Mem'
 local color = require 'color'
 local colors = require 'colors'
 local _ = require '_'
+local paths = require 'paths'
+
 local Track = class()
 
 -- static --
@@ -543,7 +545,7 @@ end
 function Track:getState(live)
     if live or not self.state then
         local success, state = reaper.GetTrackStateChunk(self.track, '', false)
-        self.state = TrackState:create(state)
+        self.state = TrackState.create(state)
     end
     return self.state
 end
@@ -566,11 +568,11 @@ function Track:removeReceives()
 end
 
 function Track:clone()
-    local index = self:getIndex()
-    reaper.InsertTrackAtIndex(index, false)
-    local track = Track:create(reaper.GetTrack(0, index))
-    track:setState(self:getState())
-    return track
+
+    local tracks = _.concat({self}, self:getManagedTracks())
+    local state = _.join(TrackState.fromTracks(tracks), '\n')
+    return table.unpack(TrackState.fromTemplate(state))
+
 end
 
 function Track:hasMedia()
@@ -787,6 +789,12 @@ function Track:getPeakInfo()
     reaper.Track_GetPeakInfo(self.track, 1)) / 2
 end
 
+function Track:getPeakHoldInfo(clear)
+    clear = clear and true or false
+    return math.max(reaper.Track_GetPeakHoldDB(self.track, 0, clear),
+    reaper.Track_GetPeakHoldDB(self.track, 1, clear))
+end
+
 function Track:setIcon(name)
     _.forEach(self:getManagedTracks(), function(track)
         if track:getIcon() == self:getIcon() then
@@ -962,8 +970,8 @@ function Track:addChild(options)
 end
 
 function Track:getTrackTool(force)
-    local plugin = self:getFx('TrackTool', force or false)
-    if plugin then plugin:setIndex(0) end
+    local plugin = self:getFx('TrackTool', force and true or false)
+    -- if plugin then plugin:setIndex(0) end
     return plugin
 end
 

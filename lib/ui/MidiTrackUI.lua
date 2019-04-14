@@ -54,8 +54,8 @@ function MidiTrackUI:paint(g)
     else
         g:setColor(colors.default:with_alpha(0.6))
     end
-        g:circle(self.w / 2, self.image.h/2, self.image.h/2, true )
-        g:rect(0,0, self.w, self.solo:getBottom(), true )
+    g:circle(self.w / 2, self.image.h/2, self.image.h/2, true )
+    g:rect(0,0, self.w, self.solo:getBottom(), true )
 end
 
 function MidiTrackUI:resized()

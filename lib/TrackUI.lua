@@ -10,6 +10,10 @@ function TrackUI.click(track, mouse)
 
     if mouse:wasRightButtonDown() then
         local menu = Menu:create()
+        menu:addItem('clone', function()
+
+            track:clone()
+        end, 'clone')
         menu:addItem(TrackStateButton:create(track, 'tcp', 'T'):getMenuEntry())
         menu:addItem(TrackStateButton:create(track, 'mcp', 'M'):getMenuEntry())
         if track:getType() == Track.typeMap.instrument then

@@ -40,7 +40,15 @@ function MixerChannel:update()
     self.name:setVisible(false)
     local image = self.track:getImage() and Image:create(self.track:getImage(), 'fit') or ''
     self.image = self:addChildComponent(Label:create(image))
-    self.image:setVisible(false)
+    self.image.canClickThrough = function()
+        return false
+    end
+    self.image.inline = true
+    self.image.onDblClick = function()
+        if self.track:getManager() and self.track:getManager():getInstrument() then
+            self.track:getManager():getInstrument():toggleOpen()
+        end
+    end
 
     self.meter = self:addChildComponent(Meter:create(self.track))
 

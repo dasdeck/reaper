@@ -10,5 +10,3 @@ WindowApp:create('mixer', Mixer:create()):start(
 profile = false
 })
 
-
-

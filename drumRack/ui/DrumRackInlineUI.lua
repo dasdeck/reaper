@@ -23,14 +23,11 @@ function DrumRackInlineUI:create(rack)
 
     local self = Component:create()
 
-    -- rea.logCount('DrumRackInlineUI')
-
     setmetatable(self, DrumRackInlineUI)
 
     self.rack = rack
 
     self.padgrid = self:addChildComponent(PadGrid:create(rack))
-
 
     local change = function()
         self.padgrid:repaint(true)
@@ -80,7 +77,6 @@ function DrumRackInlineUI:resized()
     if self.padEditor then
         self.padEditor:setBounds(0, y, self.w)
         y = self.padEditor:getBottom()
-
     end
 
     self.rackFx:setBounds(0,y,self.w, h)
@@ -90,8 +86,6 @@ function DrumRackInlineUI:resized()
         self.rackFxTrack:setBounds(0, y, self.w)
         y = self.rackFxTrack:getBottom()
     end
-
-
 
     self.h = y
 

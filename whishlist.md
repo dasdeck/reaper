@@ -9,3 +9,4 @@
 - reasamplomatic motulation matrix
 - advanced note api (pitch, pan, etc. per note)
 - return offline instruments (getInstrument)
+- Track_GetPeakHoldDB not working when no mixer shown?

@@ -15,7 +15,7 @@ function ReaState.parse(string)
         local entry = line:split(' ', '"')
         if _.size(entry) > 1 then
             local name = entry[1]
-            local values = clone(entry)
+            local values = table.clone(entry)
             values[1] = nil
 
             if line:startsWith('<') then

@@ -168,8 +168,6 @@ function Pad:getUniqueName()
     return self.rack:getTrack().guid .. 'pad' .. tostring(self:getIndex())
 end
 
-
-
 function Pad:getOutput()
     return self:getFx() or self.rack:getFx() or nil
 end
@@ -281,7 +279,6 @@ function Pad:addLayer(path, name)
                 newTrack = Instrument.createInstrument(path)
             end
 
-
             if name then
                 newTrack:setName(name)
             end
@@ -355,7 +352,7 @@ end
 
 function Pad:copyPad(otherPad)
     _.forEach(otherPad:getLayers(), function(layer)
-        self:addTrack(layer:clone():removeReceives())
+        self:addTrack(layer:clone())
     end)
 end
 

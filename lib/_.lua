@@ -141,7 +141,7 @@ local function concat(...)
 end
 
 local function join(t, glue)
-    return table.concat(t, glue)
+    return table.concat(map(t, tostring), glue)
 end
 
 local function empty(table)

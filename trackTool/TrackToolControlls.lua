@@ -8,30 +8,33 @@ local Menu = require 'Menu'
 local Mem = require 'Mem'
 local TransposeControll = require 'TransposeControll'
 local DirFlipper = require 'DirFlipper'
+
 local rea = require 'rea'
-
-
 local _ = require '_'
 
 local TrackToolControlls = class(Component)
 
 function TrackToolControlls:create(track)
     local self = Component:create()
+
     setmetatable(self, TrackToolControlls)
 
+    -- rea.log('create')
     self.track = track
 
-    self.transpose = self:addChildComponent(TransposeControll:create(track), 'transpose')
+    self.transpose = self:addChildComponent(TransposeControll:create(track))
 
-    self.delay = self:addChildComponent(DelaySlider:create(track), 'delay')
+    self.delay = self:addChildComponent(DelaySlider:create(track))
 
     self.globalTranspose = self:addChildComponent(TextButton:create(''))
     self.globalTranspose.getText = function()
         return tostring(math.floor(Mem.read('tracktool', 0)))
     end
     self.globalTranspose.onClick = function()
-        local state = track:getTrackTool():getParam(3) == 0
-        track:getTrackTool():setParam(3, state and 1 or 0)
+        rea.transaction('toggle global transpose', function()
+            local state = track:getTrackTool():getParam(3) == 0
+            track:getTrackTool():setParam(3, state and 1 or 0)
+        end)
     end
     self.globalTranspose.getToggleState = function()
         return track:getTrackTool():getParam(3) > 0
