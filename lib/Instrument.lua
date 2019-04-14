@@ -7,30 +7,34 @@ local colors = require 'colors'
 local _ = require '_'
 
 
-function Instrument.createInstrument(name)
-    local track
-    rea.transaction('add instrument', function()
+function Instrument.createInstrument(instrName)
 
-        track = Track.insert()
-        track:setName(name)
-        track:setType(Track.typeMap.instrument)
-        -- track:setType(name == DrumRack.fxName and Track.typeMap.drumrack or Track.typeMap.instrument)
-        track:setVisibility(false,false)
-        track:setColor(colors.instrument)
-
-        if name then
-            local instrument = track:addFx(name)
-            if not instrument then
-                track:remove()
-                track = nil
-                return false
-            end
+    local track = Track.insert()
+    track:setName(instrName)
+    Instrument.init(track)
+    if instrName then
+        local instrument = track:addFx(instrName)
+        if not instrument then
+            track:remove()
+            return nil
         end
-        track:iconize()
-        track = track:createMidiSlave()
 
-    end)
+        track:iconize()
+
+        local res = instrument:getOutputs()
+        if _.size(res) > 0 then
+            res[1]:createConnection()
+        end
+    end
+
     return track
+end
+
+function Instrument.init(track)
+    track:setType(Track.typeMap.instrument)
+    track:setVisibility(false,false)
+    track:setColor(colors.instrument)
+    track:setValue('toParent', 0)
 end
 
 function Instrument.bang()

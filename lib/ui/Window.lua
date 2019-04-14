@@ -58,39 +58,51 @@ end
 
 function Window:render(allComps)
 
-    local fromComp = _.some(allComps, function(comp)return comp.needsPaint and comp.isCurrentlyVisible end)
-    if fromComp or self.doPaint or Component.dragging then
-        gfx.dest = -1
-        gfx.clear = 0
+    local rendered = false
 
+
+
+    if self.doPaint or _.some(allComps, function(comp)return not comp.overlayPaint and comp.needsPaint and comp.isCurrentlyVisible end) then
+        self.g:clear()
         self.component:evaluate(self.g)
-
-        if Component.dragging then
-            if Component.dragging and instanceOf(Component.dragging, Component) then
-
-                gfx.setimgdim(0, -1,-1)
-                gfx.setimgdim(0, Component.dragging.w, Component.dragging.h)
-
-                Component.dragging:evaluate(self.g, 0)
-
-                gfx.dest = -1
-                gfx.x = gfx.mouse_x - Component.dragging.w/2
-                gfx.y = gfx.mouse_y - Component.dragging.h/2
-                gfx.a = 0.5
-                gfx.blit(0, 1, 0)
-
-            else
-                self.g:setColor(1,1,1,0.5)
-                self.g:circle(gfx.mouse_x, gfx.mouse_y, 10, true, true)
-            end
-        end
-
-        self.doPaint = false
-
         self.paints = self.paints + 1
-
-        return true
+        render = true
     end
+
+    self.g:applyBuffer(1, 0, 0, 1, -1)
+
+    _.some(allComps, function(comp)
+        if comp.overlayPaint then
+            comp:evaluate(self.g, -1, comp:getAbsoluteX(), comp:getAbsoluteY(), true)
+            rendered = true
+        end
+    end)
+
+    if Component.dragging then
+        if Component.dragging and instanceOf(Component.dragging, Component) then
+
+            gfx.setimgdim(0, -1,-1)
+            gfx.setimgdim(0, Component.dragging.w, Component.dragging.h)
+
+            Component.dragging:evaluate(self.g, 0)
+
+            gfx.dest = -1
+            gfx.x = gfx.mouse_x - Component.dragging.w/2
+            gfx.y = gfx.mouse_y - Component.dragging.h/2
+            gfx.a = 0.5
+            gfx.blit(0, 1, 0)
+
+        else
+            self.g:setColor(1,1,1,0.5)
+            self.g:circle(gfx.mouse_x, gfx.mouse_y, 10, true, true)
+        end
+    end
+
+    self.doPaint = false
+
+
+
+    return rendered
 
 end
 
@@ -207,7 +219,7 @@ function Window:toggleDock()
     if dock > 0 then
         gfx.dock(0)
     else
-        rea.log('dock' .. tostring(self.dock))
+        -- rea.log('dock' .. tostring(self.dock))
         gfx.dock(self.dock or 1)
     end
 
@@ -409,7 +421,7 @@ function Window:defer()
 
     local allComps = self.component:getAllChildren()
     self:updateWindow()
-    local wasPainted = self:render(reversed(allComps))
+    self.wasPainted = self:render(reversed(allComps))
     self:evalMouse(allComps)
     self:evalKeyboard(allComps)
 

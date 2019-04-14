@@ -26,10 +26,15 @@ function PluginListApp:create(name)
             end
         elseif value < 0 then
 
-            if self.onClose then self:onClose() end
             if self:getWindow() then
                 self.window:close()
+            else
             end
+
+            if self.onClose then
+                self:onClose()
+            end
+
         end
     end, false)
 
@@ -56,13 +61,14 @@ function PluginListApp.pick(cat, callback)
     end
 
     instance:showModal(cat)
-    local shownAgain = false
+
+    local shown = false
     instance.onShow = function()
-        if shownAgain then
+        if shown then
             instance.onClick = nil
             instance:delete()
         end
-        shownAgain = true
+        shown = true
     end
 
 end

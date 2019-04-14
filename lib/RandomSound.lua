@@ -114,6 +114,7 @@ end
 
 function RandomSound:randomize()
 
+
     if self.db then
         local entry = self.db:getRandomEntry(self.filter.content.text)
         if entry then

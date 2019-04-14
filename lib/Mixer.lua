@@ -11,6 +11,7 @@ local Mixer = class(Component)
 function Mixer:create()
     local self = Component:create()
     setmetatable(self, Mixer)
+
     self.watchers:watch(Project.watch.project, function()
         if not Mouse.capture():isButtonDown() then
             self:update()
@@ -21,17 +22,29 @@ end
 
 function Mixer:update()
     self:deleteChildren()
-    local tracks = Track.getAllTracks()
-    _.forEach(tracks, function(track)
+    self.tracks = {}
+    self.aux = {}
+    _.forEach(Track.getAllTracks(), function(track)
         if track:getValue('toParent') == 1 then
-            self:addChildComponent(MixerChannel:create(track))
+            local comp = self:addChildComponent(MixerChannel:create(track))
+            if comp then
+                if track:getType() == 'aux' then
+                    table.insert(self.aux, comp)
+                else
+                    table.insert(self.tracks, comp)
+                end
+            end
         end
     end)
+
+    -- rea.log('mixer update')
+    -- rea.log(#self.children)
     self:resized()
+    self:repaint(true)
 end
 
 function Mixer:onDrop()
-    rea.log('drop')
+    -- rea.log('drop')
     local droppedTrack = instanceOf(Component.dragging, MixerChannel) and Component.dragging.track
     if droppedTrack then
         rea.transaction('change routing', function()
@@ -42,11 +55,17 @@ end
 
 function Mixer:resized()
     local x = 0
-    _.forEach(self.children, function(child)
+    _.forEach(self.tracks, function(child)
         child:setBounds(x, 0, nil, self.h)
         x = x + child.w
     end)
     -- self.w = x
+    x = self.w
+    _.forEach(self.aux, function(child)
+        child:setSize(nil, self.h)
+        x = x - child.w
+        child:setPosition(x, 0)
+    end)
 end
 
 return Mixer

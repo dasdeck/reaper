@@ -43,10 +43,10 @@ function DrumRackInlineUI:create(rack)
 
     self.rackFx = self:addChildComponent(FXButton:create(rack, 'rack:fx'))
 
-    if rack:getFx() then
-        local AudioTrackUI = require 'AudioTrackUI'
-        self.rackFxTrack = self:addChildComponent(AudioTrackUI:create(rack:getFx()))
-    end
+    -- if rack:getFx() then
+    --     local AudioTrackUI = require 'AudioTrackUI'
+    --     self.rackFxTrack = self:addChildComponent(AudioTrackUI:create(rack:getFx()))
+    -- end
 
     change()
 

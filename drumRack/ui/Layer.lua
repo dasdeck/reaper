@@ -38,7 +38,7 @@ function Layer:create(track, pad)
     self.solo = self:addChildComponent(TrackStateButton:create(self.track, 'solo', 'S'))
     self.solo.color = colors.solo
 
-    self.name = self:addChildComponent(TextButton:create('layer'))
+    self.name = self:addChildComponent(TextButton:create(''))
 
     self.name.getText = function()
         return self.track:getInstrument() and self.track:getInstrument():getName() or self.track:getName()
@@ -94,6 +94,7 @@ end
 
 function Layer:setSelected(selected)
     if selected == 1 then
+
     end
 
     selected = selected == nil and true or selected
@@ -101,18 +102,18 @@ function Layer:setSelected(selected)
 end
 
 function Layer:update()
-    if self:isSelected() then
-        local InstrumentUI = require 'InstrumentUI'
-        if self.instrument then self.instrument:delete() end
-        self.instrument = self:addChildComponent(InstrumentUI:create(self.track))
+    -- if self:isSelected() then
+    --     local InstrumentUI = require 'InstrumentUI'
+    --     if self.instrument then self.instrument:delete() end
+    --     self.instrument = self:addChildComponent(InstrumentUI:create(self.track))
 
-        if self.pad:getOutput() and self.track:getOutput() == self.pad:getOutput() then
-            self.instrument.audioTrack.next:delete()
-            self.instrument.audioTrack.next = nil
-        end
+    --     if self.pad:getOutput() and self.track:getOutput() == self.pad:getOutput() then
+    --         self.instrument.audioTrack.next:delete()
+    --         self.instrument.audioTrack.next = nil
+    --     end
 
-        self:resized()
-    end
+    --     self:resized()
+    -- end
     if self.parent then self.parent:resized() end
 end
 

@@ -4,6 +4,7 @@ local Component = require 'Component'
 local TextButton = require 'TextButton'
 local PluginListApp = require 'PluginListApp'
 local Menu = require 'Menu'
+local Mouse = require 'Mouse'
 local Aux = require 'Aux'
 local Bus = require 'Bus'
 local Track = require 'Track'
@@ -38,7 +39,14 @@ function FXListItem.getMoveMenu(item)
 
     local menu = Menu:create(
         _.map(Track.getAllTracks(), function(track)
-            local use = track ~= item.fx.track and not track:isMidiTrack()
+
+            local use = track ~= item.fx.track and _.find({
+                Track.typeMap.aux,
+                Track.typeMap.bus,
+                Track.typeMap.output,
+                Track.typeMap.audio
+            }, track:getType())
+
             return use and {
                 name = track:getName() or track:getDefaultName(),
                 callback = function()
@@ -164,7 +172,7 @@ function FXListItem:onMouseUp()
 end
 
 function FXListItem:setIndex(index, track)
-    self.fx:setIndex(index, track)
+    self.fx:setIndex(index, track, Mouse.capture():isCommandKeyDown())
 end
 
 function FXListItem:onDrop()

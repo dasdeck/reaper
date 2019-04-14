@@ -155,8 +155,8 @@ function PadUI:create(pad)
         else
             local key = self.mouse.x / self.w * 127
             local velo = 127 - self.mouse.y / self.h * 127
-            Mem.write('drumrack', DrumRack.maxNumPads + self.pad:getIndex() - 1, velo)
-            Mem.write('drumrack', DrumRack.maxNumPads * 2 + self.pad:getIndex() - 1, key)
+            self.pad.rack.mem:set(DrumRack.maxNumPads + self.pad:getIndex() - 1, velo)
+            self.pad.rack.mem:set(DrumRack.maxNumPads * 2 + self.pad:getIndex() - 1, key)
         end
     end
 
@@ -169,26 +169,34 @@ function PadUI:create(pad)
     end
 
     self.padButton.onClick = function (s, mouse)
-        local wasSelected = pad:setSelected()
 
-        if pad:getFx() then
-            pad:getFx():focus()
+        if mouse:isAltKeyDown() then
+            rea.transaction('clear pad', function()
+                self.pad:clear()
+            end)
         else
-            local firstLayer = _.first(pad:getLayers())
-            if firstLayer then
-                firstLayer:focus()
-                if firstLayer:isSampler() and pad.rack.samplerIsOpen() then
-                    pad.rack.closeSampler()
-                    firstLayer:getInstrument():open()
+
+            local wasSelected = pad:setSelected()
+
+            if pad:getFx() then
+                pad:getFx():focus()
+            else
+                local firstLayer = _.first(pad:getLayers())
+                if firstLayer then
+                    firstLayer:focus()
+                    if firstLayer:isSampler() and pad.rack.samplerIsOpen() then
+                        pad.rack.closeSampler()
+                        firstLayer:getInstrument():open()
+                    end
                 end
+
             end
 
-        end
+            pad:noteOff()
 
-        pad:noteOff()
-
-        if mouse:wasRightButtonDown() then
-            PadUI.showMenu(self.pad)
+            if mouse:wasRightButtonDown() then
+                PadUI.showMenu(self.pad)
+            end
         end
     end
 
@@ -203,12 +211,12 @@ function PadUI:onFilesDrop(files)
 
     rea.transaction('add layer', function()
         for v, k in pairs(files) do
-            local layer = self.pad:addLayer(k)
-            if not layer:getName() or layer:getName():len() == 0 or layer:getName() == layer:getDefaultName() then
-                local fileName = _.last(k:split('/'))
-                local name = rea.prompt('name', fileName)
-                layer:setName(name or fileName)
-            end
+            local layer = self.pad:addLayer(k, _.last(k:split('/')))
+            -- if not layer:getName() or layer:getName():len() == 0 or layer:getName() == layer:getDefaultName() then
+            --     local fileName = _.last(k:split('/'))
+            --     local name = rea.prompt('name', fileName)
+            --     layer:setName(name or fileName)
+            -- end
         end
     end)
 

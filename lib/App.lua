@@ -99,7 +99,7 @@ function App:start(options)
             end)
 
             local limitedRank = {}
-            for i=1,100 do
+            for i=1, math.min(100,#rank) do
                 local sub = _.map(rank[i].children, function(meth) return meth end)
                 table.sort(sub, function (a,b)
                     return a.time > b.time

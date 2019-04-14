@@ -71,10 +71,10 @@ function PadEditor:create(pad)
 
     self.fx = self:addChildComponent(FXButton:create(pad, 'pad:fx'))
 
-    if pad:getFx() then
-        local AudioTrackUI = require 'AudioTrackUI'
-        self.fxTrack = self:addChildComponent(AudioTrackUI:create(pad:getFx()))
-    end
+    -- if pad:getFx() then
+    --     local AudioTrackUI = require 'AudioTrackUI'
+    --     self.fxTrack = self:addChildComponent(AudioTrackUI:create(pad:getFx()))
+    -- end
 
 
     setmetatable(self, PadEditor)

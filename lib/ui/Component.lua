@@ -12,8 +12,8 @@ local Component = class()
 
 Component.componentIds = 1
 
-Component.slots = {}
-for i = 1, 1023 do
+Component.slots = {[1] = true}
+for i = 2, 1023 do
     Component.slots[i] = false
 end
 
@@ -307,6 +307,8 @@ function Component:repaint(children)
         end)
     end
 
+    -- rea.log('repaint')
+    -- rea.log('repaint' .. tostring(debug.traceback()))
 end
 
 function Component:resized()
@@ -315,16 +317,18 @@ function Component:resized()
     end)
 end
 
-function Component:evaluate(g, dest, x, y)
+function Component:evaluate(g, dest, x, y, overlay)
 
     x = x or 0
     y = y or 0
 
-    dest = dest or -1
+    dest = dest or 1
     g = g or Graphics:create()
 
     self.isCurrentlyVisible = self:isVisible()
-    if not self.isCurrentlyVisible then return end
+    if not self.isCurrentlyVisible or (self.overlayPaint and not overlay) then
+        return
+    end
 
     local alpha = self:getAlpha()
     local area = self.w * self.h * alpha

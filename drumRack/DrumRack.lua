@@ -3,6 +3,7 @@ local Bus = require 'Bus'
 local Mapper = require 'Mapper'
 local _ = require '_'
 local Directory = require 'Directory'
+local Mem = require 'Mem'
 
 local Track = require 'Track'
 
@@ -62,7 +63,6 @@ function DrumRack.init(track)
 
     if not track then track = Track.insert()end
 
-    track:setType('drumrack')
     track:setIcon(track:getIcon() or 'drumbox.png')
     track:setVisibility(true, false)
     track:setName(track:getName() or 'drumrack')
@@ -82,9 +82,10 @@ end
 
 function DrumRack:create(track)
 
-    reaper.gmem_attach('drumrack')
 
     local self = {}
+
+    self.mem = Mem:create('drumrack')
 
     setmetatable(self, DrumRack)
 

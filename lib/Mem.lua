@@ -1,10 +1,11 @@
 
+local rea = require 'rea'
 local Mem = class()
 local Watcher = require 'Watcher'
 Mem.current = nil
 
 function Mem.refreshConnection(name)
-
+    assert(name)
     if Mem.current ~= name then
         reaper.gmem_attach(name)
         Mem.current = name
@@ -22,6 +23,7 @@ function Mem.read(name, index)
 end
 
 function Mem:create(name)
+    assert(name)
     local self = {name = name}
     setmetatable(self, Mem)
     return self

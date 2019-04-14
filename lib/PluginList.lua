@@ -52,7 +52,8 @@ function PluginList:update()
 
         function child.onDblClick(mouse)
             State.app:set('lastclicked', file:sub(self.dir.dir:len() + 2, -5))
-            Mem.app:set(1, Mem.app:get(1) + 1)
+            local next = Mem.app:get(1) + 1
+            Mem.app:set(1, next)
         end
 
     end)

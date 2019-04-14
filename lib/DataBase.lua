@@ -56,7 +56,9 @@ function DataBase:getRandomEntry(filter)
         end, true)
     end
     local numEntries = _.size(entries)
+
     if numEntries > 0 then
+        math.randomseed(reaper.time_precise()*1000)
         local index = math.random(1, _.size(entries))
         return entries[index]
     end

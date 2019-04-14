@@ -10,6 +10,7 @@ local Bus = require 'Bus'
 local paths = require 'paths'
 local colors = require 'colors'
 local rea = require 'rea'
+local _ = require '_'
 
 local FXlistAddButton = class(Component)
 
@@ -17,6 +18,9 @@ function FXlistAddButton:create(track, name, index)
     local self = Component:create()
     setmetatable(self, FXlistAddButton)
     self.name = self:addChildComponent(TextButton:create(name or '+fx'))
+    self.name.onDrop = function(s, ...)
+        self:onDrop(...)
+    end
     self.name.onButtonClick = function(s, mouse)
 
         local add = function()
@@ -54,14 +58,16 @@ function FXlistAddButton:create(track, name, index)
         end
     end
 
-    self.enabled = self:addChildComponent(TextButton:create('b'))
-    self.enabled.onButtonClick = function()
-        rea.transaction('toggle fx', function()
-            self.track:setValue('fx', self.track:getValue('fx') ~= 1 and 1 or 0)
-        end)
-    end
-    self.enabled.getToggleState = function()
-        return self.track:getValue('fx') == 0
+    if _.size(track:getFxList()) > 0 then
+        self.enabled = self:addChildComponent(TextButton:create('b'))
+        self.enabled.onButtonClick = function()
+            rea.transaction('toggle fx', function()
+                self.track:setValue('fx', self.track:getValue('fx') ~= 1 and 1 or 0)
+            end)
+        end
+        self.enabled.getToggleState = function()
+            return self.track:getValue('fx') == 0
+        end
     end
 
     self.track = track
@@ -76,15 +82,10 @@ function FXlistAddButton:repaintOnMouse()
 end
 
 function FXlistAddButton:onDrop()
-    if instanceOf(Component.dragging, Component) and Component.dragging.fx then
+    rea.log('drop')
+    if instanceOf(Component.dragging, Component) and Component.dragging.setIndex then
             rea.transaction('move fx', function()
-                local from = Component.dragging.fx.index
-                local to = self.index or 9999
-                if to > from then
-                    to = to - 1
-                end
-
-                Component.dragging.fx:setIndex(to, self.track)
+                Component.dragging:setIndex(99999, self.track)
             end)
     else
         self:repaint('all')
@@ -105,8 +106,15 @@ end
 
 function FXlistAddButton:resized()
     local h = 20
-    self.name:setBounds(0,0,self.w - h, h)
-    self.enabled:setBounds(self.w - h,0,h, h)
+    local w = self.w
+
+    if self.enabled then
+        self.enabled:setBounds(self.w - h,0,h, h)
+        w = w - self.enabled.w
+    end
+
+    self.name:setBounds(0,0,w, h)
+
 end
 
 return FXlistAddButton

@@ -13,6 +13,8 @@ function Image:create(file, scale, alpha)
     local self = Component:create()
     setmetatable(self, Image)
 
+    self.padding = 4
+
     self.scale = scale or 1
     if alpha ~= nil then
         self:setAlpha(alpha)
@@ -62,9 +64,8 @@ end
 function Image:paint(g)
 
     if self.scale == 'fit' then
-        local padding = 4
         local w, h = gfx.getimgdim(self.imgSlot)
-        local scale = math.min((self.w - padding) / w, (self.h - padding) / h)
+        local scale = math.min((self.w - self.padding) / w, (self.h - self.padding) / h)
 
         w = w * scale
         h = h * scale

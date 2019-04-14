@@ -37,7 +37,8 @@ function Send:getType()
 end
 
 function Send:isOutput()
-    return self:getType() == 'output'
+    local Track = require 'Track'
+    return self:getType() == Track.typeMap.output
 end
 
 function Send:getSourceTrack()

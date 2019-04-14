@@ -3,13 +3,16 @@ local MasterUI = require 'MasterUI'
 local Track = require 'Track'
 local Project = require 'Project'
 local MonitorPresets = require 'MonitorPresets'
+local Mouse = require 'Mouse'
 local Master = class(Component)
 
 function Master:create()
     local self = Component:create()
     setmetatable(self, Master)
     self.watchers:watch(Project.watch.project, function()
-        self:update()
+        if not Mouse.capture():isButtonDown() then
+            self:update()
+        end
     end)
 
     self:update()

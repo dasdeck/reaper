@@ -22,6 +22,22 @@ function Graphics:applyBuffer(slot, x, y, alpha, dest)
     gfx.blit(slot, 1, 0)
 end
 
+function Graphics:clear()
+    gfx.dest = 1
+
+    self:resetSlot(1, gfx.w, gfx.h)
+
+    self:setColor(32/255,32/255,32/255,1)
+    self:rect(0,0,gfx.w,gfx.h, true)
+
+end
+
+function Graphics:resetSlot(slot, w, h)
+    gfx.setimgdim(slot, -1, -1)
+    gfx.setimgdim(slot, w, h)
+    gfx.dest = slot
+end
+
 
 function Graphics:startBuffering(comp, slot, paint)
 
@@ -30,9 +46,7 @@ function Graphics:startBuffering(comp, slot, paint)
     assert(slot >= 0)
 
     self.a = 1
-    gfx.setimgdim(slot, -1, -1)
-    gfx.setimgdim(slot, comp.w, comp.h)
-    gfx.dest = slot
+    self:resetSlot(slot, comp.w, comp.h)
     self.x = 0
     self.y = 0
     gfx.y = 0
@@ -68,8 +82,8 @@ end
 function Graphics:drawImage(slot, x, y, scale)
 
     self:loadColors()
-    gfx.x = x
-    gfx.y = y
+    gfx.x = self.x + x
+    gfx.y = self.y + y
 
     assert(scale > 0)
     assert(scale < 50)
@@ -117,7 +131,7 @@ function Graphics:roundrect(x, y, w, h, r, fill, aa)
 
     self:loadColors()
 
-
+    r = r or 3
     r = math.ceil(math.min(math.min(w,h)/2, r))
 
     if fill then

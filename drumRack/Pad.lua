@@ -2,7 +2,6 @@ local Track = require 'Track'
 local Mem = require 'Mem'
 local TrackState = require 'TrackState'
 local Bus = require 'Bus'
-
 local colors = require 'colors'
 local _ = require '_'
 local rea = require 'rea'
@@ -213,8 +212,8 @@ function Pad:setFx(track)
     self:removeFx()
     if track then
 
+        local currentOutPut = self:getOutput()
         if track:isManagedBy(self.rack:getTrack()) then
-            local currentOutPut = self:getOutput()
             track:setOutput(currentOutPut)
             track:setName('pad' .. self:getName())
         end
@@ -236,11 +235,11 @@ function Pad:addTrack(newTrack)
         local send = self.rack:getTrack():createSend(newTrack)
         send:setMidiBusIO(self:getIndex(), 1)
         send:setAudioIO(-1, -1)
-        newTrack:setParent(self:getFx() or self.rack:getTrack():getParent())
+        -- newTrack:setParent(self:getFx() or self.rack:getTrack():getParent())
         newTrack:setIcon(newTrack:getIcon() or 'fx.png')
-        newTrack:setVisibility(false, true)
+        newTrack:setVisibility(false, false)
         newTrack:focus()
-        newTrack:setType('layer')
+        -- newTrack:setType(Track.typeMap.layer)
         newTrack:autoName()
         newTrack:getTrackTool(true)
         newTrack:setOutput(self:getOutput())
@@ -267,20 +266,24 @@ function Pad:addLayer(path, name)
             reaper.Main_openProject(path)
             newTrack = Track.getSelectedTrack()
         else
-            newTrack = Track.insert()
+
+            local Instrument = require 'Instrument'
+
+            if reaper.file_exists(path) then
+                newTrack = Instrument.createInstrument('ReaSamplomatic5000')
+                if newTrack then
+                    local fx = newTrack:getInstrument()
+                    fx:setParam('FILE0', path)
+                    fx:setParam('DONE', '')
+                    newTrack:setIcon(rea.findIcon('wave decrease'))
+                end
+            else
+                newTrack = Instrument.createInstrument(path)
+            end
+
 
             if name then
                 newTrack:setName(name)
-            end
-
-            local fx
-            if reaper.file_exists(path) then
-                fx = newTrack:addFx('ReaSamplomatic5000')
-                fx:setParam('FILE0', path)
-                fx:setParam('DONE', '')
-                newTrack:setIcon(rea.findIcon('wave decrease'))
-            else
-                fx = newTrack:addFx(path)
             end
 
         end
@@ -316,7 +319,7 @@ function Pad:getLayerConnections()
     local layers = {}
 
     _.forEach(self.rack:getTrack():getSends(), function(send)
-        if send:getMidiSourceBus() == self:getIndex() and send:getTargetTrack():getType() == 'layer' then
+        if send:getMidiSourceBus() == self:getIndex() and send:getTargetTrack():isManagedBy(self.rack:getTrack()) and send:getTargetTrack():isInstrument() then
             table.insert(layers, send)
         end
     end)
@@ -358,12 +361,12 @@ end
 
 function Pad:noteOff()
     if self:getVelocity() > 0 then
-        Mem.write('drumrack', self.rack.maxNumPads + self:getIndex() - 1, -1)
+       self.rack.mem:set(self.rack.maxNumPads + self:getIndex() - 1, -1)
     end
 end
 
 function Pad:getVelocity()
-    return Mem.read('drumrack', self:getIndex() - 1)
+    return self.rack.mem:get(self:getIndex() - 1)
 end
 
 return Pad

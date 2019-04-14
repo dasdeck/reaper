@@ -20,7 +20,7 @@ function PanSlider:create(panSource)
 end
 
 function PanSlider:getText()
-    return tostring(round(self:getValue() * 100)) .. ' %'
+    return tostring(math.floor(self:getValue() * 100)) .. ' %'
 end
 
 function PanSlider:getValue()

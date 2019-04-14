@@ -50,7 +50,7 @@ function InstrumentUI:update()
         self.inline = self:addChildComponent(inlineUI)
     end
 
-    if self.instrument:canDoMultiOut() then
+    -- if self.instrument:canDoMultiOut() then
         self.mute = self:addChildComponent(TrackStateButton:create(track, 'mute', 'M'))
         self.solo = self:addChildComponent(TrackStateButton:create(track, 'solo', 'S'))
 
@@ -67,9 +67,9 @@ function InstrumentUI:update()
             end
 
         end
-    else
-        self.audioTrack = self:addChildComponent(AudioTrackUI:create(self.track))
-    end
+    -- else
+    --     self.audioTrack = self:addChildComponent(AudioTrackUI:create(self.track))
+    -- end
 
 end
 

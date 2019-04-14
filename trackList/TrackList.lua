@@ -46,7 +46,9 @@ function TrackList:create(...)
             if TrackListFilter.all.getToggleState() then
                 table.insert(tracks, opt)
             elseif TrackListFilter.inst.getToggleState() and track:getType() == Track.typeMap.instrument then
-                table.insert(tracks, opt)
+                if not track:getManager() then
+                    table.insert(tracks, opt)
+                end
             elseif TrackListFilter[type] and TrackListFilter[type].getToggleState()then
                 table.insert(tracks, opt)
             end

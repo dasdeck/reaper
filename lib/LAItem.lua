@@ -25,6 +25,8 @@ function LAItem:create(group)
         if mouse:wasRightButtonDown() then
             local menu = FXListItem.getMoveMenu(self)
             menu:show()
+        elseif mouse:isShiftKeyDown() then
+            self.mute:onButtonClick()
         elseif mouse:isAltKeyDown() then
             rea.transaction('remove fx', function()
                 self.last:remove()
@@ -152,10 +154,16 @@ function LAItem:resized()
 
     local h = 20
     local y = 0
-
-    self.name:setBounds(0,0,self.w - h*2, h)
-    self.mute:setBounds(self.name:getRight(),0,h, h)
-    self.solo:setBounds(self.mute:getRight(),0,h, h)
+    local x = 0
+    if self.w <= h*2 then
+        self.name:setBounds(0,0,self.w, h)
+        y = h
+    else
+        self.name:setBounds(0,0,self.w - h*2, h)
+        x = self.name:getRight()
+    end
+    self.mute:setBounds(x,y,h, h)
+    self.solo:setBounds(self.mute:getRight(),y,h, h)
     y = self.solo:getBottom()
 
     if self.last:getParam(2) == 1 or _.size(self.fxs) == 0 then

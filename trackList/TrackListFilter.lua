@@ -28,15 +28,21 @@ local options = {
         key = 'inst',
         onDblClick = function()
             PluginListApp.pick(PluginListApp.cats.instruments,function(res)
-                local track = Instrument.createInstrument(res)
-                if track then
-                    track:setSelected(1)
-                    track:setArmed(1)
-                    track:focus()
-                    if track:getInstrument() and not track:getInstrument().track:getFx('DrumRack') then
-                        track:getInstrument():open(true)
+                rea.transaction('add instrument', function()
+                    local track = Instrument.createInstrument(res)
+                    if track then
+                        track = track:createMidiSlave()
+                        track:setSelected(1)
+                        track:setArmed(1)
+                        track:focus()
+                        if track:getInstrument() and not track:getInstrument().track:getFx('DrumRack') then
+                            track:getInstrument():open(true)
+                        end
+                    else
+                        rea.log('notrack')
+                        return false
                     end
-                end
+                end)
             end)
         end
     },

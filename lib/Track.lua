@@ -19,7 +19,6 @@ Track.typeMap = {
     bus = 'bus',
     instrument = 'instrument',
     midi = 'midi',
-    drumrack = 'drumrack',
     audio = 'audio',
     la = 'la',
     output = 'output'
@@ -33,7 +32,7 @@ Track.metaMatch = 'TRACK:({.*}):META'
 function Track.getSelectedTrack()
     if nil == Track.selectedTrack then
         local track = reaper.GetSelectedTrack(0,0)
-        Track.selectedTrack = track and Track:create(track)
+        Track.selectedTrack = track and Track:create(track) or nil
     end
 
     return Track.selectedTrack
@@ -157,6 +156,7 @@ end
 
 function Track:iconize()
     self:setIcon(self:getImage())
+
 end
 
 function Track:createSlave(name, indexOffset)
@@ -307,6 +307,7 @@ function Track:focus()
             local DrumRack = require 'DrumRack'
             local fx = DrumRack:create(instrument.track):getFx()
             if fx then fx:focus() end
+
         else
             Track.mem:set(0, instrument.track:getIndex())
         end
@@ -581,9 +582,11 @@ function Track:updateFxRouting()
     _.forEach(self:getFxList(), function(fx)
         if fx:getCleanName() == 'LA' then
             if track == 0 then track  = track + 1
+                fx:setParam(3, 0)
                 self:setValue('chans', 4)
-            else track = track -1
-
+            else
+                fx:setParam(3, 1)
+                track = track -1
             end
         else
             fx:setIO(track, track)
@@ -693,7 +696,7 @@ function Track:setOutput(target, la)
         end)
     end
 
-    local multiOut = self:isMultioutRouting()
+    local multiOut = self:isInstrument()--self:isMultioutRouting()
     local current = self:getOutput()
     _.forEach(self:getSends(), function(send)
         local track = send:getTargetTrack()
@@ -754,8 +757,10 @@ function Track:getReceives()
 end
 
 function Track:receivesFrom(otherTrack)
+    assert(otherTrack)
     return _.some(self:getReceives(), function(rec)
-        return rec:getSourceTrack().track == otherTrack.track or rec:getSourceTrack().track:receivesFrom(otherTrack)
+        return rec:getSourceTrack().track == otherTrack.track or
+        rec:getSourceTrack():receivesFrom(otherTrack)
     end)
 end
 
@@ -777,7 +782,18 @@ function Track:getIcon(name)
     return p and p:len() > 0 and p or nil
 end
 
+function Track:getPeakInfo()
+    return (reaper.Track_GetPeakInfo(self.track, 0) +
+    reaper.Track_GetPeakInfo(self.track, 1)) / 2
+end
+
 function Track:setIcon(name)
+    _.forEach(self:getManagedTracks(), function(track)
+        if track:getIcon() == self:getIcon() then
+            track:setIcon(name)
+        end
+    end)
+
     self:setValue('icon', name)
     return self
 end
@@ -801,6 +817,11 @@ function Track:autoName()
 end
 
 function Track:setName(name)
+    _.forEach(self:getManagedTracks(), function(track)
+        if track:getName() == self:getName() then
+            track:setName(name)
+        end
+    end)
     self:setValue('name', name)
     return self
 end

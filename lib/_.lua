@@ -25,7 +25,6 @@ local function assign(target, source)
     return target
 end
 
-
 local function size(collection)
     local i = 0
     for k,v in pairs(collection or {}) do i = i + 1 end

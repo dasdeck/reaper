@@ -124,12 +124,12 @@ function Plugin:refresh()
     return self:isValid()
 end
 
-function Plugin:setIndex(index, targetTrack)
+function Plugin:setIndex(index, targetTrack, copy)
 
     self:refresh()
     targetTrack = targetTrack or self.track
     if self.index ~= index or targetTrack ~= self.track then
-        reaper.TrackFX_CopyToTrack(self.track.track, self.index, targetTrack.track, index, true)
+        reaper.TrackFX_CopyToTrack(self.track.track, self.index, targetTrack.track, index, not copy and true or false)
         self.index = index
         self.track = targetTrack
         self.track:updateFxRouting()
@@ -148,14 +148,14 @@ end
 
 function Plugin:getImage()
     local pattern = self:getCleanName():escaped()
-    return paths.imageDir:findFile(function(file) return file:lower() == pattern:lower() end) or paths.imageDir:findFile(pattern)
+    return paths.imageDir:findFile(function(file) return file:lower() == pattern:lower() .. '.png' end) or paths.imageDir:findFile(pattern)
 end
 
 function Plugin:getOutputs()
     local succ, i, o = reaper.TrackFX_GetIOSize(self.track.track, self.index)
+    local res = {}
     if succ then
 
-        local res = {}
         local current = {}
         for i=0, o-1 do
             local succ, name = reaper.TrackFX_GetNamedConfigParm(self.track.track, self.index, 'out_pin_' .. tostring(i))
@@ -178,16 +178,19 @@ function Plugin:getOutputs()
         local name = self.track:getName()
 
         _.forEach(res, function(current)
-            local source = current.channels[1]
-            if  _.size(current.channels) == 1 then
-                source = source | 1024
-            end
 
-            current.sourceChan = source
+
+            current.sourceChan = function()
+                local source = current.channels[1]
+                if  _.size(current.channels) == 1 then
+                    source = source | 1024
+                end
+                return source
+            end
             current.createConnection = function()
                 local outputTrack = self.track.insert()
 
-                local numChansNeeded = current.sourceChan + _.size(current.channels)
+                local numChansNeeded = current.channels[1] + _.size(current.channels)
                 numChansNeeded = math.ceil(numChansNeeded / 2) * 2
                 self.track:setValue('chans', math.max(self.track:getValue('chans'), numChansNeeded))
 
@@ -197,10 +200,11 @@ function Plugin:getOutputs()
                 outputTrack:setIcon(paths.imageDir:findFile(name .. '/' .. current.name) or self.track:getIcon())
                 outputTrack:setVisibility(false, true)
                 outputTrack:setOutput(self.track:getOutput())
+                outputTrack:setManaged(self.track)
 
                 local send = self.track:createSend(outputTrack)
 
-                send:setAudioIO(current.sourceChan, 0)
+                send:setAudioIO(current.sourceChan(), 0)
                 send:setMidiBusIO(-1, -1)
                 send:setMode(3)
                 return send
@@ -208,12 +212,24 @@ function Plugin:getOutputs()
             current.getConnection = function()
                 return _.some(self.track:getSends(), function(send)
                     local i = send:getAudioIO()
-                    return send:getMode() == 3 and send:getTargetTrack():getName() == current.name and i == current.sourceChan and send
+                    return send:getMode() == 3 and send:getTargetTrack():getName() == current.name and i == current.sourceChan() and send
                 end)
             end
         end)
-        return res
+
+        if _.size(res) == 2 and _.reduce(res, function(car, val)
+            return car and _.size(val.channels) == 1
+        end, true) then
+            table.insert(res[1].channels, res[2].channels[1])
+            res[2] = nil
+        end
+
+        if _.size(res) == 1 then
+            res[1].name = self.track:getSafeName()
+        end
+
     end
+    return res
 end
 
 function Plugin:canDoMultiOut()
@@ -252,6 +268,7 @@ end
 function Plugin:remove()
     reaper.TrackFX_Delete(self.track.track, self.index)
     Plugin.plugins[self.guid] = nil
+    self.track:updateFxRouting()
 end
 
 function Plugin:isSampler()
