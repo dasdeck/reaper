@@ -8,7 +8,6 @@ addScope('pluginList')
 local WindowApp = require 'WindowApp'
 local Master = require 'Master'
 
--- WindowApp:create('monitor', MonitorPresets:create(0,0,170, 100)):start()
 WindowApp:create('monitor', Master:create()):start()
 
 

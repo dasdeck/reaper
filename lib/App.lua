@@ -72,7 +72,7 @@ function App:start(options)
     options = options or {}
     options.debug = true
     self.running = true
-    self.options = options
+    _.assign(self.options, options)
     App.current = self
     State.app = self.state
     Mem.app = self.mem

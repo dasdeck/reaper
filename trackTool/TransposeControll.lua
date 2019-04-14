@@ -12,7 +12,6 @@ function TransposeControll:create(track)
     self.value = self:addChildComponent(Slider:create())
 
     function getPlugin()
-        rea.log('p')
         return track:getTrackTool(true)
     end
 

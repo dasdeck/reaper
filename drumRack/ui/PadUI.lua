@@ -10,6 +10,7 @@ local Image = require 'Image'
 local PadUI = class(Component)
 local DrumRack = require 'DrumRack'
 local Collection = require 'Collection'
+local WindowApp = require 'WindowApp'
 
 local _ = require '_'
 local rea = require 'rea'
@@ -169,6 +170,8 @@ function PadUI:create(pad)
     end
 
     self.padButton.onClick = function (s, mouse)
+
+        WindowApp:create('mixer'):show()
 
         if mouse:isAltKeyDown() then
             rea.transaction('clear pad', function()

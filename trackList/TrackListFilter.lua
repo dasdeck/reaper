@@ -39,7 +39,7 @@ local options = {
                             track:getInstrument():open(true)
                         end
                     else
-                        rea.log('notrack')
+                        -- rea.log('notrack')
                         return false
                     end
                 end)

@@ -82,7 +82,7 @@ function FXlistAddButton:repaintOnMouse()
 end
 
 function FXlistAddButton:onDrop()
-    rea.log('drop')
+    -- rea.log('drop')
     if instanceOf(Component.dragging, Component) and Component.dragging.setIndex then
             rea.transaction('move fx', function()
                 Component.dragging:setIndex(99999, self.track)

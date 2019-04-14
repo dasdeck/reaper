@@ -17,11 +17,8 @@ local colors = require 'colors'
 local MixerChannel = class(Component)
 function MixerChannel:create(track)
 
-
     if track:getType() == 'instrument' then return end
     if track:getType() == 'midi' then return end
-    if track:getType() == 'midi' then return end
-    if Track.getSelectedTrack() and not track:receivesFrom(Track.getSelectedTrack()) then return end
 
     local self = Component:create()
     setmetatable(self, MixerChannel)
@@ -51,7 +48,6 @@ function MixerChannel:update()
     end
 
     self.meter = self:addChildComponent(Meter:create(self.track))
-
 
     self.mute = self:addChildComponent(TrackStateButton:create(self.track, 'mute', 'M'))
     self.solo = self:addChildComponent(TrackStateButton:create(self.track, 'solo', 'S'))
@@ -88,6 +84,11 @@ end
 function MixerChannel:paintOverChildren(g)
     g:setColor(0,0,0,1)
     g:roundrect(0,0, self.w, self.h)
+    if Track.getSelectedTrack() and not self.track:receivesFrom(Track.getSelectedTrack()) then
+        g:setColor(0,0,0,0.5)
+        g:roundrect(0,0, self.w, self.h, nil, true)
+    end
+
 end
 
 function MixerChannel:onDrag()

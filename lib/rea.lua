@@ -69,10 +69,6 @@ local function logError(key)
     showLogs()
 end
 
-
-
-
-
 local function logOnly(msg, deep)
     showLogs()
     log(msg, deep)
@@ -203,7 +199,6 @@ local function findIcon(name)
 
     return _.first(files)
 end
-
 
 local function setTrackAttrib(track, name, value)
     local success, state = reaper.GetTrackStateChunk(track, '', 0 , false)
