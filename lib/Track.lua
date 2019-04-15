@@ -135,7 +135,7 @@ Track.watch = {
 
 function Track:create(track)
 
-    assertDebug(not track, 'cant create empty track wrapper')
+    assert(track, 'cant create empty track wrapper')
 
     local wrapper = _.find(Track.tracks, function(t) return t.track == track end)
 
@@ -203,7 +203,7 @@ function Track:defer()
 end
 
 function Track:isAux()
-    return self:getType() == 'aux'
+    return self:getType() == Track.typeMap.aux
 end
 
 function Track:exists()
@@ -571,6 +571,7 @@ function Track:clone()
 
     local tracks = _.concat({self}, self:getManagedTracks())
     local state = _.join(TrackState.fromTracks(tracks), '\n')
+    -- rea.log(state)
     return table.unpack(TrackState.fromTemplate(state))
 
 end

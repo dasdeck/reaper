@@ -41,6 +41,11 @@ function find(table, value)
     end
 end
 
+function showMixer()
+    local WindowApp = require 'WindowApp'
+    WindowApp:create('mixer'):show()
+end
+
 local noteNames = {
     'c',
     'c#',
@@ -73,7 +78,7 @@ function class(...)
     local class = {}
     local parents = {...}
 
-    assertDebug(_.some(parents, function(p)
+    assert(not _.some(parents, function(p)
         return not p.__index
     end), 'base class needs __index:' .. tostring(#parents))
 
@@ -179,8 +184,12 @@ function rpairs(t)
     return pairs(reversed(t))
 end
 
-function assertDebug(cond, text)
-    if cond then assert(false, (text or '') .. '\n\n' .. debug.traceback()) end
+local _assert = assert
+
+function assert(cond, text)
+    if not cond then
+        _assert(false, text .. '\n\n' .. debug.traceback())
+    end
 end
 
 function table.clone(org)

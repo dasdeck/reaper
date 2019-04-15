@@ -1,5 +1,4 @@
 local Component = require 'Component'
-local TextButton = require 'TextButton'
 local Label = require 'Label'
 local Track = require 'Track'
 local TrackStateButton = require 'TrackStateButton'
@@ -9,6 +8,7 @@ local FXList = require 'FXList'
 local FXListAddButton = require 'FXListAddButton'
 local Image = require 'Image'
 local Meter = require 'Meter'
+local AuxSends = require 'AuxSends'
 
 local rea = require 'rea'
 local _ = require '_'
@@ -33,8 +33,12 @@ function MixerChannel:update()
 
     self.gain = self:addChildComponent(GainSlider:create(self.track))
     self.pan = self:addChildComponent(PanSlider:create(self.track))
+
     self.name = self:addChildComponent(Label:create(self.track:getName()))
     self.name:setVisible(false)
+
+    self.aux = self:addChildComponent(AuxSends:create(self.track))
+
     local image = self.track:getImage() and Image:create(self.track:getImage(), 'fit') or ''
     self.image = self:addChildComponent(Label:create(image))
     self.image.canClickThrough = function()
@@ -84,11 +88,17 @@ end
 function MixerChannel:paintOverChildren(g)
     g:setColor(0,0,0,1)
     g:roundrect(0,0, self.w, self.h)
-    if Track.getSelectedTrack() and not self.track:receivesFrom(Track.getSelectedTrack()) then
+    if Track.getSelectedTrack() and not (self.track:isSelected() or self.track:receivesFrom(Track.getSelectedTrack())) then
         g:setColor(0,0,0,0.5)
         g:roundrect(0,0, self.w, self.h, nil, true)
     end
 
+end
+
+function MixerChannel:onMouseMove()
+    if not _.some(self.tracks, function(track) return track:isMouseOver()end) then
+        self.track:focus()
+    end
 end
 
 function MixerChannel:onDrag()
@@ -125,30 +135,48 @@ function MixerChannel:resized()
     local h = 20
     self.w = h * 2
 
-    if self.fxlist then
-        self.fxlist:setSize(self.w)
-        self.fxlist:setPosition(0, self.h - h*8 - self.fxlist.h, h*2)
-    end
+    local h2 = h * 2
 
-    self.meter:setBounds(0,self.h - h*2, h*2, h*2)
+    self.image:setBounds(0, self.h - h2, h2, h2)
+    self.meter:setBounds(0, self.h - h2, h2, h2)
 
-    self.fxadd:setBounds(0,self.h - h*8,h*2,h)
+    local y = self.image.y
+
 
     self.pan:setBounds(0,self.h - h*3, h*2, h)
-    self.gain:setBounds(0,self.h - h*3 - h*4,h,h*4)
+    y = self.pan.y
 
-    self.mute:setBounds(h,self.h - h*4,h,h)
-    self.solo:setBounds(h,self.h - h*5,h,h)
 
-    self.image:setBounds(0, self.h - h*2, h*2, h*2)
+    self.gain:setBounds(0,y - h*4,h,h*4)
+
+    self.mute:setBounds(h,y-h,h,h)
+    y = self.mute.y
+    self.solo:setBounds(h,y-h,h,h)
+    y = self.solo.y
+
+    y = self.gain.y
+
+
+    self.aux:setBounds(0,y - self.aux.h, h2)
+    y = self.aux.y
+
+    self.fxadd:setBounds(0,y - h,h2,h)
+    y = self.fxadd.y
+
+    if self.fxlist then
+        self.fxlist:setSize(self.w)
+        self.fxlist:setPosition(0, y - self.fxlist.h, h2)
+    end
+
+
     local x = self.w
     _.forEach(self.tracks, function(child)
         child:setBounds(x, h, nil, self.h - h)
         x = x + child.w
     end)
     self.w = x
-
     self.name:setBounds(0,0,self.w, h)
+
 end
 
 return MixerChannel

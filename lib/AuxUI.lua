@@ -13,6 +13,7 @@ local colors = require 'colors'
 local AuxUI = class(Component)
 
 function AuxUI:create(send)
+    assert(send)
     local self = Component:create()
     setmetatable(self, AuxUI)
 
@@ -27,12 +28,16 @@ function AuxUI:create(send)
                 send:remove()
             end)
         else
-            track:focus()
+            rea.transaction('toggle send', function()
+                send:setMuted(not send:isMuted())
+            end)
         end
     end
 
     self.gain = self:addChildComponent(Slider:create())
-    self.gain.color = colors.aux
+    -- self.gain.color = colors.aux
+    self.gain.pixelsPerValue = 10
+
     self.gain.getValue = function()
         return linToDB(send:getVolume())
     end
@@ -40,15 +45,22 @@ function AuxUI:create(send)
         return send:setVolume(dbToLin(val))
     end
 
-    self.mute = self:addChildComponent(TextButton:create('M'))
-    self.mute.color = colors.mute
-    self.mute.getToggleState = function()
-        return send:isMuted()
+    self.gain.getText = function()
+        return nil
     end
-    self.mute.onButtonClick = function(s, mouse)
-        rea.transaction('mute send', function()
-            send:setMuted(not send:isMuted())
-        end)
+
+    function self.gain:getMin()
+        return -60
+    end
+
+    function self.gain:getMax()
+        return 10
+    end
+
+    -- self.mute = self:addChildComponent(TextButton:create('M'))
+    -- self.mute.color = colors.mute
+    self.name.getToggleState = function()
+        return not send:isMuted()
     end
 
     return self
@@ -60,9 +72,13 @@ function AuxUI:resized()
     local w = self.w / 3
 
     self.name:setBounds(0, 0, h , h)
-    self.gain:setBounds(self.name:getRight(), 0,self.w - h*2, h)
+    self.gain:setBounds(self.name:getRight(), 0,self.w - h, h)
 
-    self.mute:setBounds(self.gain:getRight(), 0,h, h)
+    -- self.mute:setBounds(self.gain:getRight(), 0,h, h)
+end
+
+function AuxUI:getAlpha()
+    return self.name:getToggleState() and 1 or 0.5
 end
 
 function AuxUI.pickOrCreateMenu(track)

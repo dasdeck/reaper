@@ -100,8 +100,6 @@ function Window:render(allComps)
 
     self.doPaint = false
 
-
-
     return rendered
 
 end

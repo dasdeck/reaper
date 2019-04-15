@@ -172,7 +172,19 @@ function FXListItem:onMouseUp()
 end
 
 function FXListItem:setIndex(index, track)
-    self.fx:setIndex(index, track, Mouse.capture():isCommandKeyDown())
+    local e =  Mouse.capture()
+    local copy = false
+    if self.mouse:wasRightButtonDown() then
+        local menu = Menu:create()
+        menu:addItem('copy', function()
+            copy = true
+        end)
+        menu:show()
+    else
+        copy = e:isCommandKeyDown()
+    end
+
+    self.fx:setIndex(index, track, copy)
 end
 
 function FXListItem:onDrop()

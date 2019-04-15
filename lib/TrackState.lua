@@ -7,22 +7,21 @@ local TrackState = class()
 function TrackState.fromTemplate(templateData)
     local Track = require 'Track'
 
-    local res = _.map(_.map(templateData:split('\n\n'), string.trim), TrackState.create)
-    local firstIndex = _.size(Track.getAllTracks())
+    local states = _.map(_.map(templateData:split('\n\n'), string.trim), TrackState.create)
+    local firstIndex = reaper.CountTracks(0)
 
     local tracks = {}
-    _.forEach(res, function(state, i)
+    _.forEach(states, function(state, i)
 
         local track = Track.insert()
         table.insert(tracks, track)
 
         _.forEach(state:getAuxRecs(), function(index)
-
-            res[i] = state:withAuxRec(index, index + firstIndex)
+            states[i] = state:withAuxRec(index, index + firstIndex)
         end)
     end)
 
-    _.forEach(res, function(state, i)
+    _.forEach(states, function(state, i)
         local track = tracks[i]
         track:setState(state)
         track.guid = reaper.GetTrackGUID(track.track)
@@ -41,13 +40,16 @@ function TrackState.fromTracks(tracks)
     _.forEach(tracks, function(track, i)
         local state = track:getState()
         guids[reaper.genGuid('')] = track.guid
+        -- rea.log('test:' .. tostring(track))
 
         local sourceTracks = _.map(state:getAuxRecs(), Track.get)
         _.forEach(sourceTracks, function(sourceTrack)
             local currentIndex = sourceTrack:getIndex() - 1
             local indexInTemplate = _.indexOf(tracks, sourceTrack)
 
+            -- rea.log('rec:' .. tostring(sourceTrack))
             if indexInTemplate then
+                -- rea.log('remap:' .. tostring(currentIndex) .. ':' .. tostring(indexInTemplate))
                 state = state:withAuxRec(currentIndex, indexInTemplate - 1)
             else
                 state = state:withoutAuxRec(currentIndex)
@@ -101,7 +103,7 @@ end
 
 function TrackState:getAuxRecs()
     local recs = {}
-    for index in self.text:gmatch('AUXRECV (%d) (.-)\n') do
+    for index in self.text:gmatch('AUXRECV (%d+) (.-)\n') do
         table.insert(recs, math.floor(tonumber(index)))
     end
     return recs

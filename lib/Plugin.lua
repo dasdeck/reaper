@@ -46,7 +46,7 @@ end
 function Plugin:create(track, index)
     local guid = reaper.TrackFX_GetFXGUID(track.track, index)
 
-    assertDebug(guid == nil, 'index' ..  tostring(index))
+    assert(guid, 'index:' ..  tostring(index))
 
     if not Plugin.plugins[guid] then
         local p = {}

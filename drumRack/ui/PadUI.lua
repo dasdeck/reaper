@@ -7,15 +7,16 @@ local Pad = require 'Pad'
 local Mem = require 'Mem'
 local Watcher = require 'Watcher'
 local Image = require 'Image'
-local PadUI = class(Component)
 local DrumRack = require 'DrumRack'
 local Collection = require 'Collection'
-local WindowApp = require 'WindowApp'
+
 
 local _ = require '_'
 local rea = require 'rea'
 local icons = require 'icons'
 local colors = require 'colors'
+
+local PadUI = class(Component)
 
 function PadUI.getChokeMenu(pad)
     local val = math.floor(pad.rack:getMapper():getParam(10))
@@ -171,7 +172,7 @@ function PadUI:create(pad)
 
     self.padButton.onClick = function (s, mouse)
 
-        WindowApp:create('mixer'):show()
+        showMixer()
 
         if mouse:isAltKeyDown() then
             rea.transaction('clear pad', function()
@@ -221,6 +222,7 @@ function PadUI:onFilesDrop(files)
             --     layer:setName(name or fileName)
             -- end
         end
+        showMixer()
     end)
 
     self.pad:setSelected()
@@ -248,6 +250,10 @@ function PadUI:onDrop(mouse)
                 menu:addItem('copy pad', function() self.pad:copyPad(pad) end, 'copy pad')
 
                 menu:show()
+            elseif mouse:isCommandKeyDown() then
+                rea.transaction('copy pad', function()
+                    self.pad:copyPad(pad)
+                end)
             else
                 rea.transaction('flip pads', function()
                     self.pad:flipPad(pad)
