@@ -188,7 +188,9 @@ local _assert = assert
 
 function assert(cond, text)
     if not cond then
-        _assert(false, text .. '\n\n' .. debug.traceback())
+        return _assert(false, text .. '\n\n' .. debug.traceback())
+    else
+        return cond
     end
 end
 

@@ -45,6 +45,12 @@ function Component:create(x, y, w, h)
     return self
 end
 
+function Component:__guessName()
+    local metatable = getmetatable(self)
+    local test = debug.getinfo(metatable.create)
+    return test
+end
+
 function Component:getSlot(name, create, error)
 
     if not self.uislots[name] then

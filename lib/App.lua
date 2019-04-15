@@ -128,7 +128,7 @@ function App:start(options)
     end
 
     self:defer()
-
+    return self
 end
 
 

@@ -11,6 +11,14 @@ function MediaItem.getSelectedItems()
     return {}
 end
 
+function MediaItem.getAllItems()
+    local res = {}
+    for i=0, reaper.CountMediaItems(0) - 1 do
+        table.insert(res, MediaItem:create(reaper.GetMediaItem(0, i)))
+    end
+    return res
+end
+
 function MediaItem:create(item)
     local self = {
         item = item

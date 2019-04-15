@@ -567,6 +567,18 @@ function Track:removeReceives()
     return self
 end
 
+function Track:setNoteName(note, name)
+    local current = reaper.GetTrackMIDINoteNameEx(0,self.track, note, 0)
+    if current ~= name then
+        reaper.SetTrackMIDINoteNameEx(0,self.track, note, 0, name)
+
+        _.forEach(self:getMidiSlaves(), function(midi)
+            rea.logCount('slave')
+            midi:setNoteName(note, name)
+        end)
+    end
+end
+
 function Track:clone()
 
     local tracks = _.concat({self}, self:getManagedTracks())
@@ -609,13 +621,9 @@ function Track:getLATracks()
     end)
 end
 
-function Track:isSlave()
-    return self:getName():includes(':')
-end
-
 function Track:getMidiSlaves()
     return _.map(self:getReceives(), function(rec)
-        if rec:isMidi() and rec:getTargetTrack():getType() == Track.typeMap.midi then
+        if rec:isMidi() and rec:getSourceTrack():getType() == Track.typeMap.midi then
             return rec:getSourceTrack()
         end
     end)

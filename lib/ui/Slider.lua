@@ -9,10 +9,10 @@ local Slider = class(Label)
 function Slider:create(...)
 
     local self = Label:create('', ...)
+    setmetatable(self, Slider)
     self.pixelsPerValue = 100
     self.colorValue = color.rgb(1,0,0)
     self.wheelscale = 1
-    setmetatable(self, Slider)
     return self
 
 end

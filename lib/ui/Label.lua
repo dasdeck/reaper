@@ -8,6 +8,7 @@ local Label = class(Component)
 function Label:create(content, ...)
 
     local self = Component:create(...)
+
     self.r = 6
     if content then
         if type(content) == 'string' then
