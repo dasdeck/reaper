@@ -62,7 +62,7 @@ function Window:render(allComps)
     local comp = _.some(allComps, function(comp)return not comp.overlayPaint and not comp.inline and comp.needsPaint and comp.isCurrentlyVisible and comp end)
     if self.doPaint or comp then
         self.g:clear()
-        rea.logCount('paint' .. self.name)
+        -- rea.logCount('paint' .. self.name)
         -- rea.logPin('repainter' .. (comp and dump(comp:__guessName()) or ''))
         self.component:evaluate(self.g)
         self.paints = self.paints + 1
