@@ -28,13 +28,11 @@ function AuxSends:getData()
             return send:getTargetTrack() == aux
         end)
 
-        if not send then
-            rea.log('add send')
+        if not send and self.track:canSendTo(aux) then
             send = self.track:createSend(aux):setMuted(true)
-            assert(send)
         end
 
-        return {
+        return send and {
             proto = AuxUI,
             args = send,
             size = 20

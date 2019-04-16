@@ -635,6 +635,10 @@ function Track:getManagedTracks()
     end)
 end
 
+function Track:canSendTo(otherTrack)
+    return not otherTrack:receivesFrom(self)
+end
+
 function Track:canDoSideChain()
     return _.some(self:getFxList(), function(fx)
         -- return fx:

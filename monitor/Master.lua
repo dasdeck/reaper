@@ -24,6 +24,7 @@ function Master:update()
     self:deleteChildren()
 
     self.monitor = self:addChildComponent(MonitorPresets:create())
+
     self.fx = self:addChildComponent(MasterUI:create(Track.master))
     self:resized()
 end

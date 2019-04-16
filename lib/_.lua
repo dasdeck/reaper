@@ -82,15 +82,17 @@ local function find(data, needle)
     local callback = type(needle) ~= 'function' and function(subj) return subj == needle end or needle
     for k,v in pairs(data or {}) do
         local res = callback(v, k)
-        if res then return v end
+        if res then return v, k end
     end
     return nil
 end
 
 local function indexOf(data, needle)
     local i = 1
+    local callback = type(needle) ~= 'function' and function(subj) return subj == needle end or needle
+
     return some(data, function(v)
-        if v == needle then return i end
+        if callback(v) then return i end
         i = i + 1
     end)
 end

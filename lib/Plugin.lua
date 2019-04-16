@@ -104,19 +104,22 @@ end
 
 function Plugin:getEnabled()
     return reaper.TrackFX_GetEnabled(self.track.track, self.index)
+end
 
+function Plugin:setEnabled(enabled)
+    reaper.TrackFX_SetEnabled(self.track.track, self.index, enabled)
+end
+
+function Plugin:toggleEnabled()
+    self:setEnabled(not self:getEnabled())
 end
 
 function Plugin:setOffline(enabled)
     reaper.TrackFX_SetOffline(self.track.track, self.index, enabled)
 end
+
 function Plugin:getOffline()
     return reaper.TrackFX_GetOffline(self.track.track, self.index)
-
-end
-
-function Plugin:setEnabled(enabled)
-    reaper.TrackFX_SetEnabled(self.track.track, self.index, enabled)
 end
 
 function Plugin:refresh()

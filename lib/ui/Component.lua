@@ -308,6 +308,24 @@ function Component:resized()
     end)
 end
 
+function Component:paintInline(g)
+
+    local x = g.x
+    local y = g.y
+
+    g.y = g.y + self.y
+    g.x = g.x + self.x
+
+    self:paint(g)
+    self.needsPaint = false
+
+    g.y = y
+    g.x = x
+
+
+
+end
+
 function Component:evaluate(g, dest, x, y, overlay)
 
     x = x or 0
@@ -317,7 +335,7 @@ function Component:evaluate(g, dest, x, y, overlay)
     g = g or Graphics:create()
 
     self.isCurrentlyVisible = self:isVisible()
-    if not self.isCurrentlyVisible or self.inline == true or (self.overlayPaint and not overlay) then
+    if not self.isCurrentlyVisible or (self.overlayPaint and not overlay) then
         return
     end
 

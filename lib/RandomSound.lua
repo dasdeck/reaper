@@ -12,7 +12,6 @@ local State = require 'State'
 local DataBaseEntryUI = require 'DataBaseEntryUI'
 local RandomSound = class()
 
-
 RandomSound = class(Component)
 
 function RandomSound:create(text)
@@ -53,14 +52,27 @@ function RandomSound:create(text)
         end
         return _.map(entries, function(entry)
             return {
-                size = 20,
-                args = _.last(entry.path:split('/')),
-                getToggleState = function()
-                    return entry == self.current
+                proto = function()
+                    local b = TextButton:create(_.last(entry.path:split('/')))
+                    b.getToggleState = function()
+                        return entry == self.current
+                    end
+                    b.onClick = function()
+                        self:setCurrent(entry)
+                    end
+                    b.onDrag = function(s)
+                        Component.dragging = s
+                    end
+                    b.onDragOutside = function()
+                        -- rea.log('drag outside' .. entry.path)
+                        Component.draggingOutside = entry.path
+                        -- State.global.set('dragging', entry.path)
+                    end
+                    return b
                 end,
-                onClick = function()
-                    self:setCurrent(entry)
-                end
+
+                size = 20,
+
             }
         end)
     end

@@ -48,7 +48,7 @@ function Label:paint(g)
 
     local c = self:getColor()
     self:drawBackground(g, c)
-    self.content:paint(g)
+    self.content:paintInline(g)
 
 end
 

@@ -59,11 +59,9 @@ end
 function Window:render(allComps)
 
     local rendered = false
-    local comp = _.some(allComps, function(comp)return not comp.overlayPaint and not comp.inline and comp.needsPaint and comp.isCurrentlyVisible and comp end)
+    local comp = _.some(allComps, function(comp)return not comp.overlayPaint and comp.needsPaint and comp.isCurrentlyVisible and comp end)
     if self.doPaint or comp then
         self.g:clear()
-        -- rea.logCount('paint' .. self.name)
-        -- rea.logPin('repainter' .. (comp and dump(comp:__guessName()) or ''))
         self.component:evaluate(self.g)
         self.paints = self.paints + 1
         rendered = true
@@ -272,6 +270,12 @@ function getDroppedFiles()
 
     gfx.getdropfile(-1)
 
+    if require('App').current:drops() then
+        require('App').current:setDrop(0)
+        -- rea.log('drops')
+        table.insert(files, State.global.get('dragging'))
+    end
+
     return files
 end
 
@@ -307,6 +311,11 @@ function Window:evalMouse(allComps)
                 if comp.onMouseLeave then
                     comp:onMouseLeave()
                 end
+
+                if instanceOf(Component.dragging, Component) and Component.dragging.onDragOutside then
+                    Component.dragging.onDragOutside()
+                end
+
                 if comp:repaintOnMouse() then
                     comp:repaint()
                 end
@@ -317,7 +326,12 @@ function Window:evalMouse(allComps)
             end
 
             local mouseEnter = not comp.mouse.over and isOver
+
             if mouseEnter then
+
+                State.global.set('current_app', require('App').current.name)
+                -- rea.log(require('App').current.name)
+
                 if comp:repaintOnMouse() then
                     comp:repaint()
                 end
@@ -331,11 +345,20 @@ function Window:evalMouse(allComps)
 
             local insideOnlyAction = (mouseMoved and not mouseDragged) or wheelMove
             if comp == self.component and not isOver and insideOnlyAction then
-                if self.mouseIgnore then return false end
+                if self.mouseIgnore then
+                    return false
+                end
                 self.mouseIgnore = true
             else
                 self.mouseIgnore = false
             end
+
+            -- if State.global.get('dragging', ''):len() > 0 then
+            --     rea.log(require('App').current.name .. ':drop:' .. State.global.get('dragging', ''))
+            --     isFileDrop = true
+            --     table.insert(files, State.global.get('dragging', ''))
+            --     State.global.set('dragging', '')
+            -- end
 
             local useComp = comp:wantsMouse() and (isOver or (mouseDragged and comp.mouse.down))
             if not consumed and useComp then
@@ -398,8 +421,17 @@ function Window:evalMouse(allComps)
             child.mouse.down = false
         end)
         if Component.dragging then
-            self:repaint()
+            local type = type (Component.draggingOutside)
+            if type == 'string' then
+                local app = State.global.get('current_app')
+                if app then
+                    State.global.set('dragging', Component.draggingOutside)
+                    require('WindowApp'):create(app):setDrop()
+                end
+            end
+
             Component.dragging = nil
+            self:repaint()
         end
     end
 

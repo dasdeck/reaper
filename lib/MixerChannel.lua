@@ -35,16 +35,37 @@ function MixerChannel:update()
     self.pan = self:addChildComponent(PanSlider:create(self.track))
 
     self.name = self:addChildComponent(Label:create(self.track:getName()))
-    self.name:setVisible(false)
+    self.name.canClickThrough = function()
+        return false
+    end
+    self.name.onDblClick = function()
+        if self.track:getManager() and self.track:getManager():getInstrument() then
+            local slaves = self.track:getManager():getInstrument().track:getMidiSlaves()
+            local mt = _.indexOf(slaves, function(mt) return mt:isArmed() end)
+
+            local next = _.first(slaves)
+            if mt then
+                rea.log('next:' .. tostring(mt))
+                next = slaves[(mt) % _.size(slaves) + 1]
+            end
+
+            if next then
+                rea.transaction('select from mixer', function()
+                    next:setArmed(1)
+                    next:setSelected(1)
+                end)
+            end
+        end
+    end
 
     self.aux = self:addChildComponent(AuxSends:create(self.track))
 
     local image = self.track:getImage() and Image:create(self.track:getImage(), 'fit') or ''
+
     self.image = self:addChildComponent(Label:create(image))
     self.image.canClickThrough = function()
         return false
     end
-    self.image.inline = true
     self.image.onDblClick = function()
         if self.track:getManager() and self.track:getManager():getInstrument() then
             self.track:getManager():getInstrument():toggleOpen()
@@ -80,9 +101,8 @@ end
 
 function MixerChannel:paint(g)
     Label.drawBackground(self, g, colors.default)
-    self.name:paint(g)
-    g.y = self.image.y
-    self.image:paint(g)
+    self.name:paintInline(g)
+    self.image:paintInline(g)
 end
 
 function MixerChannel:paintOverChildren(g)
@@ -92,7 +112,6 @@ function MixerChannel:paintOverChildren(g)
         g:setColor(0,0,0,0.5)
         g:roundrect(0,0, self.w, self.h, nil, true)
     end
-
 end
 
 function MixerChannel:onMouseMove()
@@ -141,7 +160,6 @@ function MixerChannel:resized()
     self.meter:setBounds(0, self.h - h2, h2, h2)
 
     local y = self.image.y
-
 
     self.pan:setBounds(0,self.h - h*3, h*2, h)
     y = self.pan.y

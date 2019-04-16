@@ -8,6 +8,11 @@ local _ = require '_'
 
 local WindowApp = class(App)
 
+local flags = {}
+flags.SHOWHIDE = 0
+flags.CHANGE = 1
+flags.DROP = 2
+
 function WindowApp:create(name, options)
 
     local self = App:create(name)
@@ -25,7 +30,7 @@ function WindowApp:create(name, options)
     self.options = options or {}
 
     self.watchers:watch(function()
-        return self.mem:get(0)
+        return self.mem:get(flags.SHOWHIDE)
     end, function(value)
         if value > 0 then
             if self:getWindow() then
@@ -49,7 +54,7 @@ function WindowApp:create(name, options)
     end, false)
 
     self.watchers:watch(function()
-        return self.mem:get(1)
+        return self.mem:get(flags.CHANGE)
     end, function(value)
         if value > 0 then
             if self.onClick then
@@ -81,6 +86,15 @@ function WindowApp.pick(cat, callback)
         shown = true
     end
 
+end
+
+function WindowApp:setDrop(args)
+    args = args == nil and 1 or 0
+    self.mem:set(flags.DROP, args)
+end
+
+function WindowApp:drops()
+    return self.mem:get(flags.DROP, 0) == 1
 end
 
 function WindowApp:onStart()
@@ -144,12 +158,12 @@ function WindowApp:getWindow()
 end
 
 function WindowApp:show()
-    self.mem:set(0, math.max(0, self.mem:get(0)) + 1)
+    self.mem:set(flags.SHOWHIDE, math.max(0, self.mem:get(flags.SHOWHIDE)) + 1)
     return self
 end
 
 function WindowApp:close()
-    self.mem:set(0, math.min(0, self.mem:get(0)) - 1)
+    self.mem:set(flags.SHOWHIDE, math.min(0, self.mem:get(flags.SHOWHIDE)) - 1)
     return self
 end
 

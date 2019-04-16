@@ -63,6 +63,7 @@ end
 
 function Image:paint(g)
 
+    -- rea.log(self.y)
     if self.scale == 'fit' then
         local w, h = gfx.getimgdim(self.imgSlot)
         local scale = math.min((self.w - self.padding) / w, (self.h - self.padding) / h)
