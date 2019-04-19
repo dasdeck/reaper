@@ -27,8 +27,6 @@ function TrackToolSwitcher:create(...)
                 self.history.next = {prev = self.history, track = track}
                 self.history = self.history.next
             end
-            -- track:focus()
-            -- track:touch()
         end
 
     end)

@@ -9,18 +9,16 @@ function TransposeControll:create(track)
     local self = Component:create()
     setmetatable(self, TransposeControll)
 
+    self.track = track
+
     self.value = self:addChildComponent(Slider:create())
 
-    function getPlugin()
-        return track:getTrackTool(true)
+    self.value.getValue = function()
+        return self:getValue()
     end
 
-    function self.value.getValue()
-         return math.floor(getPlugin():getParam(2))
-    end
-
-    function self.value:setValue(val)
-        getPlugin():setParam(2, val)
+    self.value.setValue = function(s, val)
+        self:setValue(val)
     end
 
     self.semDown = self:addChildComponent(TextButton:create('<'))
@@ -37,6 +35,14 @@ function TransposeControll:create(track)
     end
 
     return self
+end
+
+function TransposeControll:getValue()
+    return math.floor(self.track:getTrackTool(true):getParam(2))
+end
+
+function TransposeControll:setValue(val)
+    self.track:getTrackTool(true):setParam(2, val)
 end
 
 function TransposeControll:resized()

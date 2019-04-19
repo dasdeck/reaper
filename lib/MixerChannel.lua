@@ -60,7 +60,7 @@ function MixerChannel:update()
 
     self.aux = self:addChildComponent(AuxSends:create(self.track))
 
-    local image = self.track:getImage() and Image:create(self.track:getImage(), 'fit') or ''
+    local image = self.track:getImage() and Image:create(self.track:getImage(), 'cover') or ''
 
     self.image = self:addChildComponent(Label:create(image))
     self.image.canClickThrough = function()
@@ -84,15 +84,18 @@ function MixerChannel:update()
         self.fxlist = self:addChildComponent(FXList:create(fx))
     end
 
-    local tracks = Track.getAllTracks()
-    _.forEach(tracks, function(track)
-        if track:getOutput() == self.track then
-            local track = self:addChildComponent(MixerChannel:create(track))
-            if track then
-                table.insert(self.tracks, track)
+    local showChildren = false
+    if showChildren then
+        local tracks = Track.getAllTracks()
+        _.forEach(tracks, function(track)
+            if track:getOutput() == self.track then
+                local track = self:addChildComponent(MixerChannel:create(track))
+                if track then
+                    table.insert(self.tracks, track)
+                end
             end
-        end
-    end)
+        end)
+    end
 end
 
 function MixerChannel:onDblClick(m)
@@ -100,9 +103,9 @@ function MixerChannel:onDblClick(m)
 end
 
 function MixerChannel:paint(g)
-    Label.drawBackground(self, g, colors.default)
-    self.name:paintInline(g)
-    self.image:paintInline(g)
+    Label.drawBackground(self, g, colors.default:with_alpha(0.5))
+    -- self.name:paintInline(g)
+    -- self.image:paintInline(g)
 end
 
 function MixerChannel:paintOverChildren(g)

@@ -23,7 +23,6 @@ function InstrumentUI:create(track)
     local self = Component:create()
     setmetatable(self, InstrumentUI)
 
-
     self.instrument = track:getInstrument()
     self.track = self.instrument.track
 

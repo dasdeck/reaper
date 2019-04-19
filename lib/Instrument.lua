@@ -9,16 +9,25 @@ local _ = require '_'
 
 function Instrument.createInstrument(instrName)
 
-    local track = Track.insert()
-    track:setName(instrName)
-    Instrument.init(track)
-    if instrName then
-        local instrument = track:addFx(instrName)
-        if not instrument then
-            track:remove()
-            return nil
-        end
+    local track
 
+    if instrName then
+        local instrument
+        local template = paths.imageDir:findFile(instrName .. '.RTrackTemplate')
+        if template then
+            local state = require 'TrackState'
+            track = _.first(state.fromTemplate(readFile(template)))
+            instrument = track:getInstrument()
+        else
+            track = Track.insert()
+            instrument = track:addFx(instrName)
+            if not instrument then
+                track:remove()
+                return nil
+            end
+        end
+        track:setName(instrName)
+        Instrument.init(track)
         track:iconize()
 
         local res = instrument:getOutputs()

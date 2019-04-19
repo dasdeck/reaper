@@ -22,13 +22,18 @@ function TrackToolControlls:create(track)
     -- rea.log('create')
     self.track = track
 
+    -- self.watchers:watch(function()
+    -- end, function()
+    --     return
+    -- end, false)
+
     self.transpose = self:addChildComponent(TransposeControll:create(track))
 
     self.delay = self:addChildComponent(DelaySlider:create(track))
 
     self.globalTranspose = self:addChildComponent(TextButton:create(''))
     self.globalTranspose.getText = function()
-        return tostring(math.floor(Mem.read('tracktool', 0)))
+        return tostring(math.floor(Mem.read('tracktooljsfx', 10)))
     end
     self.globalTranspose.onClick = function()
         rea.transaction('toggle global transpose', function()

@@ -17,8 +17,6 @@ DrumRack.padPresetDir = Directory:create(reaper.GetResourcePath() .. '/TrackTemp
 DrumRack.fxName = 'DrumRack'
 DrumRack.maxNumPads = 16
 
-
-
 function DrumRack.launch()
 
     local id = reaper.NamedCommandLookup('drumRack.lua')
@@ -70,7 +68,6 @@ function DrumRack.init(track)
     track:addFx(DrumRack.fxName)
     track:setColor(colors.instrument)
     track:setArmed(1)
-
     local rack = DrumRack:create(track)
     rack:getFx(true)
     rack:setSelectedPad(1)

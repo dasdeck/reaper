@@ -74,6 +74,7 @@ function Window:render(allComps)
             comp:evaluate(self.g, -1, comp:getAbsoluteX(), comp:getAbsoluteY(), true)
             rendered = true
         end
+        comp.drawn = false
     end)
 
     if Component.dragging then
@@ -313,7 +314,10 @@ function Window:evalMouse(allComps)
                 end
 
                 if instanceOf(Component.dragging, Component) and Component.dragging.onDragOutside then
-                    Component.dragging.onDragOutside()
+                    if Component.dragging.onDragOutside() then
+                        -- rea.log('set cursor')
+                        -- gfx.setcursor(32649)
+                    end
                 end
 
                 if comp:repaintOnMouse() then

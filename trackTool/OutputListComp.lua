@@ -9,8 +9,6 @@ function OutputListComp:create(output)
     local self = Component:create()
     setmetatable(self, OutputListComp)
 
-
-
     self.output = output
     self.name = self:addChildComponent(TextButton:create(output.name))
 
@@ -36,11 +34,14 @@ function OutputListComp:create(output)
     end
 
     self.name.onDblClick = function(s, mouse)
-        local con = self.name.onButtonClick(s, mouse)
+        local con = self.output.getConnection()
         if con then
-            rea.transaction('toggle output', function()
-                con:getTargetTrack():setMeta('expanded',not self.expanded.getToggleState())
-                self.parent:updateList()
+            rea.transaction('remove output', function()
+                con:getTargetTrack():remove()
+            end)
+        else
+            rea.transaction('create output', function()
+                con = self.output.createConnection()
             end)
         end
     end
@@ -54,12 +55,15 @@ function OutputListComp:create(output)
                 end)
             end
         else
-            if not con then
-                rea.transaction('create output', function()
-                    con = self.output.createConnection()
+            local con = self.output.getConnection()
+            if con then
+                rea.transaction('toggle output', function()
+                    con:getTargetTrack():setMeta('expanded',not self.expanded.getToggleState())
+                    self.parent:updateList()
+                    local win = self:getWindow()
+                    win.component:resized()
                 end)
             end
-
         end
         return con
 
@@ -89,9 +93,7 @@ function OutputListComp:resized()
     end
 
     self.h = y
-    -- self.link:setBounds(self.name:getRight(), 0, h, h)
 
 end
-
 
 return OutputListComp

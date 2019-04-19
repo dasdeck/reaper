@@ -28,13 +28,10 @@ function AuxSends:getData()
             return send:getTargetTrack() == aux
         end)
 
-        if not send and self.track:canSendTo(aux) then
-            send = self.track:createSend(aux):setMuted(true)
-        end
-
-        return send and {
-            proto = AuxUI,
-            args = send,
+        return {
+            proto = function()
+                return AuxUI:create(send, track, aux)
+            end,
             size = 20
         }
     end)

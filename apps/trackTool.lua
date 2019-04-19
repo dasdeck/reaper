@@ -14,10 +14,11 @@ local paths = require 'paths'
 
 local TrackToolJSFX = paths.effectsDir:childFile('TrackTool')
 if not TrackToolJSFX:exists() then
-  TrackToolJSFX:setContent(paths.scriptDir:childFile('jsfx/TrackTool'):getContent())
   reaper.MB('plugin installed, restart script', 'restart', 0)
-else
+end
+TrackToolJSFX:setContent(paths.scriptDir:childFile('jsfx/TrackTool'):getContent())
+
   WindowApp:create('tracktool', TrackToolSwitcher:create(0,0,200, 600)):start({
   profile = false
   })
-end
+-- end

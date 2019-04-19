@@ -285,7 +285,11 @@ end
 function Component:getWindow()
     if self.window then return self.window
     elseif self.parent then
-        return self.parent:getWindow()
+        local window = self.parent:getWindow()
+        assert(window, 'has no window?')
+        return window
+    else
+        assert(false, 'no parent no window?')
     end
 end
 
@@ -322,11 +326,13 @@ function Component:paintInline(g)
     g.y = y
     g.x = x
 
-
+    self.drawn = true
 
 end
 
 function Component:evaluate(g, dest, x, y, overlay)
+
+    if self.drawn then return end
 
     x = x or 0
     y = y or 0
@@ -351,6 +357,7 @@ function Component:evaluate(g, dest, x, y, overlay)
             g:startBuffering(self, pslot)
             self:paint(g)
         end
+
         g:applyBuffer(pslot, x, y, alpha, dest)
 
     end
@@ -386,15 +393,17 @@ function Component:setWindow(window)
 end
 
 function Component:addChildComponent(comp, key)
+
+    assert(key == nil, 'key usage is deprecated')
+
     if comp then
         comp.parent = self
-        comp.window = self.window -- optimize window access
-        if key then
-           assert(false, 'key usage is deprecated')
-        else
-            table.insert(self.children, comp)
+        if self.window then
+            comp:setWindow(self:getWindow())
         end
+        table.insert(self.children, comp)
     end
+
     return comp
 end
 

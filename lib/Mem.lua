@@ -1,12 +1,16 @@
 
 local rea = require 'rea'
+local _ = require '_'
 local Mem = class()
 local Watcher = require 'Watcher'
 Mem.current = nil
+Mem.tasks = {}
+Mem.pos = 1
 
 function Mem.refreshConnection(name)
-    assert(name)
+    assert(name and name:len() > 0)
     if Mem.current ~= name then
+        reaper.gmem_attach('')
         reaper.gmem_attach(name)
         Mem.current = name
     end
@@ -14,6 +18,7 @@ end
 
 function Mem.write(name, index, value)
     Mem.refreshConnection(name)
+    -- rea.log('\n\nwriting:' .. name .. ':' .. tostring(index) .. ':' .. tostring(value) .. '\n\n' .. debug.traceback())
     reaper.gmem_write(index, value)
 end
 

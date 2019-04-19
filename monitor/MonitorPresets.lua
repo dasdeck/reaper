@@ -133,7 +133,7 @@ function MonitorPresets:resized()
   local y = self.outputs:getBottom()
 
   if self.spkers then
-  self.spkers:setBounds(0, self.models:getBottom(),self.w, h)
+  self.spkers:setBounds(0, self.outputs:getBottom(),self.w, h)
   self.distances:setBounds(0, self.spkers:getBottom(), self.w, h)
   self.rooms:setBounds(0, self.distances:getBottom(), self.w, h)
   y = self.rooms:getBottom()

@@ -636,7 +636,7 @@ function Track:getManagedTracks()
 end
 
 function Track:canSendTo(otherTrack)
-    return not otherTrack:receivesFrom(self)
+    return not self:receivesFrom(otherTrack) --:receivesFrom()
 end
 
 function Track:canDoSideChain()

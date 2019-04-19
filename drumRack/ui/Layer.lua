@@ -74,7 +74,7 @@ function Layer:create(track, pad)
             end)
         else
             rea.transaction('focus layer', function()
-                self.track:focus()
+                -- self.track:focus()
                 self:setSelected(not self:isSelected())
             end)
         end
@@ -107,18 +107,18 @@ function Layer:setSelected(selected)
 end
 
 function Layer:update()
-    -- if self:isSelected() then
-    --     local InstrumentUI = require 'InstrumentUI'
-    --     if self.instrument then self.instrument:delete() end
-    --     self.instrument = self:addChildComponent(InstrumentUI:create(self.track))
+    if self:isSelected() then
+        local InstrumentUI = require 'InstrumentUI'
+        if self.instrument then self.instrument:delete() end
+        self.instrument = self:addChildComponent(InstrumentUI:create(self.track))
 
-    --     if self.pad:getOutput() and self.track:getOutput() == self.pad:getOutput() then
-    --         self.instrument.audioTrack.next:delete()
-    --         self.instrument.audioTrack.next = nil
-    --     end
+        if self.pad:getOutput() and self.track:getOutput() == self.pad:getOutput() then
+            -- self.instrument.audioTrack.next:delete()
+            -- self.instrument.audioTrack.next = nil
+        end
 
-    --     self:resized()
-    -- end
+        self:resized()
+    end
     if self.parent then self.parent:resized() end
 end
 

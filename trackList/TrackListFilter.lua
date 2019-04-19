@@ -37,6 +37,8 @@ local options = {
                         track:focus()
                         if track:getInstrument() and not track:getInstrument().track:getFx('DrumRack') then
                             track:getInstrument():open(true)
+                        else
+                            track:getTrackTool(true):setParam(3, 0)
                         end
                     else
                         -- rea.log('notrack')

@@ -25,6 +25,8 @@ end
 function Graphics:clear()
     gfx.dest = 1
 
+    self.x = 0
+    self.y = 0
     self:resetSlot(1, gfx.w, gfx.h)
 
     self:setColor(32/255,32/255,32/255,1)

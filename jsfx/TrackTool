@@ -3,13 +3,13 @@ desc:Time Adjustment Delay or Negative Delay
 //tags: delay time PDC
 //author: D3CK
 
-options:gmem=tracktool
+options:gmem=tracktooljsfx
 
 
 slider1:0<-1000,1000,1>Delay Amount (ms)
 slider2:0<0,2,{midi,audio,both}>mode
-slider3:transpose = 0<-128,128,1>transpose
-slider4:globalTranspose = 1<0,1,1>global transpose
+slider3:0<-128,128,1>transpose
+slider4:1<0,1,1>global transpose
 
 
 @init
@@ -44,9 +44,9 @@ slider4:globalTranspose = 1<0,1,1>global transpose
       isNoteOff = status == statNoteOff;
       isNote = isNoteOn || isNoteOff;
 
-      isNote ? pos[1] += transpose;
       note = msg2;
       velo = msg3;
+      isNote ? pos[1] = note + transpose;
     );
 
 
@@ -131,7 +131,7 @@ slider4:globalTranspose = 1<0,1,1>global transpose
 
 @block
 
-  nextTranspose = transpose + globalTranspose ? gmem[0] : 0;
+  nextTranspose = slider3 + (slider4 ? gmem[10] : 0);
 
   transpose != nextTranspose ? (
     allNotesOff();

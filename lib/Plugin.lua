@@ -162,7 +162,7 @@ function Plugin:getOutputs()
         local current = {}
         for i=0, o-1 do
             local succ, name = reaper.TrackFX_GetNamedConfigParm(self.track.track, self.index, 'out_pin_' .. tostring(i))
-            if name ~= current.name then
+            if not (current and current.name and (name == current.name or name:escaped():match(current.name:escaped()))) then -- hack for kontakt
 
                 current = {
                     fx = self,

@@ -12,25 +12,37 @@ local colors = require 'colors'
 
 local AuxUI = class(Component)
 
-function AuxUI:create(send)
-    assert(send)
+function AuxUI:create(send, source, target)
+    -- assert(send)
     local self = Component:create()
     setmetatable(self, AuxUI)
 
-    local track = send:getTargetTrack()
+    self.track = track
+    self.target = target
+    self.send = send
+
+
+    track = target or send:getTargetTrack()
     local icon = track:getImage()
     self.name = self:addChildComponent(TextButton:create(icon and Image:create(icon, 'fit', 1) or track:getName()))
     self.name.color = colors.aux
+
     self.name.onButtonClick = function(s, mouse)
 
-        if mouse:isAltKeyDown() then
-            rea.transaction('remove send', function()
-                send:remove()
-            end)
-        else
-            rea.transaction('toggle send', function()
-                send:setMuted(not send:isMuted())
-            end)
+        if not send and source:canSendTo(target) then
+            source:createSend(target)
+        end
+
+        if send then
+            if mouse:isAltKeyDown() then
+                rea.transaction('remove send', function()
+                    send:remove()
+                end)
+            else
+                rea.transaction('toggle send', function()
+                    send:setMuted(not send:isMuted())
+                end)
+            end
         end
     end
 
@@ -39,10 +51,10 @@ function AuxUI:create(send)
     self.gain.pixelsPerValue = 10
 
     self.gain.getValue = function()
-        return linToDB(send:getVolume())
+        return linToDB(send and send:getVolume() or 1)
     end
     self.gain.setValue = function(s, val)
-        return send:setVolume(dbToLin(val))
+        if send then send:setVolume(dbToLin(val)) end
     end
 
     self.gain.getText = function()
@@ -60,7 +72,7 @@ function AuxUI:create(send)
     -- self.mute = self:addChildComponent(TextButton:create('M'))
     -- self.mute.color = colors.mute
     self.name.getToggleState = function()
-        return not send:isMuted()
+        return send and not send:isMuted()
     end
 
     return self

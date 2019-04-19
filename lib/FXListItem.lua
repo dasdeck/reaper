@@ -69,9 +69,11 @@ end
 function FXListItem:create(plugin, plain)
 
     local file = not plain and plugin:getImage()
-    local comp = file and Image:create(file, 'fit', 1) or Label:create(plugin:getCleanName(), 0,0,200,40)
+    local comp = file and Image:create(file, 'cover', 1) or Label:create(plugin:getCleanName(), 0,0,200,40)
 
-    local self = Component:create(0,0, comp.w, comp.h)
+    comp.padding = 0
+    -- local self = Component:create(0,0, comp.w, comp.h)
+    local self = Component:create(0,0, 1618, 1000)
     setmetatable(self, FXListItem)
 
     self.repaintOnMouseEnterOrLeave = true

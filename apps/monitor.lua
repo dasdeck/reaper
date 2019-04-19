@@ -4,8 +4,8 @@ require 'boot'
 addScope('monitor')
 addScope('trackTool')
 addScope('pluginList')
-
-local WindowApp = require 'WindowApp'
+ 
+local WindowApp = require  'WindowApp'
 local Master = require 'Master'
 
 WindowApp:create('monitor', Master:create()):start()
