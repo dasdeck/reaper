@@ -2,6 +2,7 @@ local Image = require 'Image'
 local Component = require 'Component'
 local TrackStateButton = require 'TrackStateButton'
 local TrackToolControlls = require 'TrackToolControlls'
+local Menu = require 'Menu'
 local InstrumentUI = require 'InstrumentUI'
 local TextButton = require 'TextButton'
 local _ = require '_'
@@ -20,7 +21,7 @@ function MidiTrackUI:create(track)
     self.image = self:addChildComponent(Image:create(img, 'fit'))
     self.image.onClick = function(s, mouse)
         if mouse:wasRightButtonDown() then
-
+            -- local menu = Menu:create()
         else
             rea.transaction('toggle track arm', function()
                 self.track:setArmed(not self.track:isArmed())

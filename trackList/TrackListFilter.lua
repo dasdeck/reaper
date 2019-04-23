@@ -66,27 +66,7 @@ local options = {
         args = 'b',
         key = 'bus',
         onRightClick = function()
-            local menu = Menu:create()
-
-            local allTracks = Track.getAllTracks()
-            if Bus.hasTopLevelTracks(allTracks) then
-                menu:addItem('create bus from all', function()
-                    local bus = Bus.fromTracks(allTracks, true)
-                    if bus then bus:focus() end
-                end, 'bus all')
-            end
-            local selectedTracks = Track.getSelectedTracks()
-            if Bus.hasTopLevelTracks(selectedTracks) then
-                menu:addItem('create bus from selection', function()
-                    local bus = Bus.fromTracks(selectedTracks, true)
-                    if bus then bus:focus() end
-                end, 'bus selection')
-            end
-            menu:addItem('create empty bus', function()
-                Bus.createBus():focus()
-            end, 'create empty bus')
-            menu:show()
-
+            Bus.getCreateMenu():show()
         end
     },
     {

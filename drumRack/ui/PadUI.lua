@@ -111,7 +111,11 @@ function PadUI.showMenu(pad)
     end
     addMenu:addItem('empty track', function() pad:addLayer() end, 'add empty track')
     addMenu:addItem('instrument', function()
+
         local name = rea.prompt("name")
+        -- local PluginListApp = require 'PluginListApp'
+        -- PluginListApp.pick(PluginListApp.)
+        -- Instrument
         if name then
             pad:addLayer(name)
         end

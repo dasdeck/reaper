@@ -105,7 +105,7 @@ function FXlistAddButton:paintOverChildren(g)
 end
 
 function FXlistAddButton:resized()
-    local h = 20
+    local h = self.h
     local w = self.w
 
     if self.enabled then

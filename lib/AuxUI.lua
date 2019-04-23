@@ -29,18 +29,18 @@ function AuxUI:create(send, source, target)
 
     self.name.onButtonClick = function(s, mouse)
 
-        if not send and source:canSendTo(target) then
-            source:createSend(target)
-        end
-
-        if send then
+        if not self.send and source and target and source:canSendTo(target) then
+            rea.transaction('toggle send', function()
+                self.send = source:createSend(target)
+            end)
+        elseif self.send then
             if mouse:isAltKeyDown() then
                 rea.transaction('remove send', function()
-                    send:remove()
+                    self.send:remove()
                 end)
             else
                 rea.transaction('toggle send', function()
-                    send:setMuted(not send:isMuted())
+                    self.send:setMuted(not send:isMuted())
                 end)
             end
         end
@@ -72,7 +72,7 @@ function AuxUI:create(send, source, target)
     -- self.mute = self:addChildComponent(TextButton:create('M'))
     -- self.mute.color = colors.mute
     self.name.getToggleState = function()
-        return send and not send:isMuted()
+        return self.send and not self.send:isMuted()
     end
 
     return self

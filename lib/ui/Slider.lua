@@ -142,9 +142,11 @@ function Slider:getDefaultValue()
 end
 
 function Slider:getMax()
+    return self.max
 end
 
 function Slider:getMin()
+    return self.min
 end
 
 return Slider

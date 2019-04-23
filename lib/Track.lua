@@ -112,6 +112,9 @@ function Track.get(index)
 end
 
 function Track.insert(index)
+
+    -- reaper.OnStopButton()
+
     index = index == nil and reaper.CountTracks(0) or index
     reaper.InsertTrackAtIndex(index, true)
     Track.deferAll()
@@ -308,8 +311,9 @@ function Track:focus()
         if instrument.track:getFx('DrumRack') then
             local DrumRack = require 'DrumRack'
             local fx = DrumRack:create(instrument.track):getFx()
-            if fx then fx:focus() end
-
+            if fx then
+                fx:focus()
+            end
         else
             Track.mem:set(0, instrument.track:getIndex())
         end
@@ -502,6 +506,7 @@ end
 
 function Track:setManaged(track)
     self:setMeta('managed', track and track.guid)
+    return self
 end
 
 function Track:isManagedBy(track)
@@ -567,8 +572,21 @@ function Track:removeReceives()
     return self
 end
 
-function Track:setNoteName(note, name)
+function Track:getNoteNames()
+    local all = {}
+    for i = 0 , 127 do
+        table.insert(all, self:getNoteName(i))
+    end
+    return all
+end
+
+function Track:getNoteName(note)
     local current = reaper.GetTrackMIDINoteNameEx(0,self.track, note, 0)
+    return current
+end
+
+function Track:setNoteName(note, name)
+    local current = self:getNoteName(note)
     if current ~= name then
         reaper.SetTrackMIDINoteNameEx(0,self.track, note, 0, name)
 
@@ -595,7 +613,7 @@ end
 function Track:updateFxRouting()
     local track = 0
     _.forEach(self:getFxList(), function(fx)
-        if fx:getCleanName() == 'LA' then
+        if fx:getCleanName() == 'Wrap' then
             if track == 0 then track  = track + 1
                 fx:setParam(3, 0)
                 self:setValue('chans', 4)
@@ -798,8 +816,8 @@ function Track:getIcon(name)
 end
 
 function Track:getPeakInfo()
-    return (reaper.Track_GetPeakInfo(self.track, 0) +
-    reaper.Track_GetPeakInfo(self.track, 1)) / 2
+    return reaper.Track_GetPeakInfo(self.track, 0),
+    reaper.Track_GetPeakInfo(self.track, 1)
 end
 
 function Track:getPeakHoldInfo(clear)
@@ -892,6 +910,7 @@ function Track:getFx(name, force, rec)
 end
 
 function Track:addFx(name, input, force)
+    force = force == nil and -1 or force
     if not name then return end
     local res = reaper.TrackFX_AddByName(self.track, name, input or false, force and -1 or 1)
     if res >= 0 then

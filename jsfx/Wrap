@@ -1,0 +1,95 @@
+desc:new effect
+
+slider1:<0,2,{process,mute,solo}>msp
+slider2:100<0,100,1>mix
+slider3:0<0,1,1>collapsed
+slider4:<0,1,{split,mix}>end
+slider5:<0,2,{copy,mid,side}>chan
+@init
+bpos=0;
+
+@slider
+gain = slider2/100
+
+@sample
+slider4 == 0 ? (
+
+  spl2 = spl0;
+  spl3 = spl1;
+
+  slider5 == 1 ? (
+    mid = (spl2 + spl3) * 0.5;
+    side = (spl2 - spl3) * 0.5;
+
+    spl0 = side;
+    spl1 = side;
+    spl2 = mid;
+    spl3 = mid;
+  );
+
+  slider5 == 2 ? (
+    mid = (spl2 + spl3) * 0.5;
+    side = (spl2 - spl3) * 0.5;
+
+    spl0 = mid;
+    spl1 = mid;
+    spl2 = side;
+    spl3 = side;
+  );
+
+) : (
+
+  //mid node
+  slider5 == 1 ? (
+    mid = spl2;
+    side = spl0;
+
+    slider1 == 2 ? (side = 0);
+    slider1 == 1 ? (mid = 0);
+
+    spl0 = mid + side;
+    spl1 = mid - side;
+
+    spl2 = 0;
+    spl3 = 0;
+  );
+
+  // side mode
+  slider5 == 2 ? (
+    mid = spl0;
+    side = spl2;
+
+    slider1 == 2 ? (mid = 0);
+    slider1 == 1 ? (side = 0);
+
+    spl0 = mid + side;
+    spl1 = mid - side;
+
+    spl2 = 0;
+    spl3 = 0;
+  );
+
+  slider5 == 0 ? (
+    slider1 == 0 ? (
+      spl0 = spl0 + spl2 * gain;
+      spl1 = spl1 + spl3 * gain;
+    ) : (
+
+      slider1 == 1 ? (
+        spl0 = spl0;
+        spl1 = spl1;
+      ) : (
+
+        slider1 == 2 ?
+        (
+          spl0 = spl2 * gain;
+          spl1 = spl3 * gain;
+        );
+      );
+
+    );
+  );
+
+  spl2 = 0;
+  spl3 = 0;
+)

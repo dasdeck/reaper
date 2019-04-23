@@ -317,6 +317,7 @@ function DrumRack:createFx()
     local fxTrack = Bus.createBus(self:getTrack():getIndex()-1)
     fxTrack:setIcon(fxTrack:getIcon() or 'beats.png')
     fxTrack:setName(self:getTrack():getName())
+    fxTrack:setManaged(self:getTrack())
     :setVisibility(false, true)
     if self:getLocked() == 1 then fxTrack:setLocked(true) end
     return fxTrack

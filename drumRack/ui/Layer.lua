@@ -14,8 +14,6 @@ local rea = require 'rea'
 
 local Layer = class(Component)
 
-
-
 function Layer:create(track, pad)
 
     local self = Component:create()
@@ -94,7 +92,7 @@ function Layer:create(track, pad)
 end
 
 function Layer:isSelected()
-    return self.track:getMeta('layer:selected', true)
+    return self.track:getMeta('layer:selected', false)
 end
 
 function Layer:setSelected(selected)

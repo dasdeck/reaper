@@ -1,13 +1,17 @@
 local Component = require 'Component'
 local TextButton = require 'TextButton'
 local Label = require 'Label'
+local Menu = require 'Menu'
 local rea = require 'rea'
+local _ = require '_'
 
 local OutputListComp = class(Component)
 
-function OutputListComp:create(output)
+function OutputListComp:create(output, fx)
     local self = Component:create()
     setmetatable(self, OutputListComp)
+
+    self.fx = fx
 
     self.output = output
     self.name = self:addChildComponent(TextButton:create(output.name))
@@ -36,19 +40,34 @@ function OutputListComp:create(output)
     self.name.onDblClick = function(s, mouse)
         local con = self.output.getConnection()
         if con then
-            rea.transaction('remove output', function()
-                con:getTargetTrack():remove()
-            end)
-        else
-            rea.transaction('create output', function()
-                con = self.output.createConnection()
+            rea.transaction('toggle output', function()
+                con:getTargetTrack():setMeta('expanded',not self.expanded.getToggleState())
+                self.parent:updateList()
+                local win = self:getWindow()
+                win.component:resized()
             end)
         end
+
     end
 
     self.name.onButtonClick = function(s, mouse)
         local con = self.output.getConnection()
-        if mouse:isAltKeyDown() then
+        if mouse:wasRightButtonDown() then
+            local menu = Menu:create()
+            menu:addItem('add all', function()
+                _.forEach(self.fx:getOutputs(), function(output)
+                    if not output:getConnection() then
+                        output:createConnection()
+                    end
+                end)
+            end, 'create all outputs')
+            if con then
+                menu:addItem('remove', function()
+                    con:getTargetTrack():remove()
+                end, 'remove output')
+            end
+            menu:show()
+        elseif mouse:isAltKeyDown() then
             if con then
                 rea.transaction('remove output', function()
                     con:getTargetTrack():remove()
@@ -56,12 +75,9 @@ function OutputListComp:create(output)
             end
         else
             local con = self.output.getConnection()
-            if con then
-                rea.transaction('toggle output', function()
-                    con:getTargetTrack():setMeta('expanded',not self.expanded.getToggleState())
-                    self.parent:updateList()
-                    local win = self:getWindow()
-                    win.component:resized()
+            if not con then
+                rea.transaction('create output', function()
+                    con = self.output.createConnection()
                 end)
             end
         end

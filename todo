@@ -1,7 +1,19 @@
 Ideas:
+    ☐ create all multi outs
+    ☐ add m/s/la mode to wrapper
+    ☐ test wrap oterh plugins?
+    ✔ fix kontakt multiout (again?) @done(19-04-21 08:22)
+    ☐ make managed bus fx for multiout instruments
+
+    ☐ make track menu
+    ☐ add tracks directly to bus
+        ☐ pin bus (virtual master)
+
     ☐ show mixer automatic
     ☐ show aux always
     ☐ show all aux sends (trad mixer)
+
+    ☐ pin topmost group ?
 
     ☐ detect feedbacks with aux
 

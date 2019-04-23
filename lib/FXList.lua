@@ -32,7 +32,7 @@ function FXList:getData()
     local group
 
     _.forEach(self.fx, function(fx)
-        if fx:getCleanName() == 'LA' then
+        if fx:getCleanName() == 'Wrap' then
             local LAItem = require 'LAItem'
             if group then
                 group.last = fx

@@ -1,15 +1,18 @@
-local Instrument = class()
 local Track = require 'Track'
 local DrumRack = require 'DrumRack'
+local Menu = require 'Menu'
 local paths = require 'paths'
 local rea = require 'rea'
 local colors = require 'colors'
 local _ = require '_'
 
 
+local Instrument = class()
 function Instrument.createInstrument(instrName)
 
     local track
+
+    reaper.OnStopButton()
 
     if instrName then
         local instrument
@@ -37,6 +40,53 @@ function Instrument.createInstrument(instrName)
     end
 
     return track
+end
+
+function Instrument.getAllInstruments()
+    return _.filter(Track.getAllTracks(), function(track)
+        return track:getType() == Track.typeMap.instrument
+    end)
+end
+
+function Instrument.getMenu(callback, menu, checked)
+
+    checked = checked or function() return false end
+
+    if type(checked) ~= 'function' then
+        local track = checked
+        checked = function(instrument)
+            return instrument == track or track:receivesFrom(instrument)
+        end
+    end
+
+    callback = callback or function()end
+    menu = menu or Menu:create()
+
+
+    _.forEach(Instrument.getAllInstruments(), function(instrument)
+        local outputs = _.filter(instrument:getInstrument():getOutputs(), function(out)
+            return out:getConnection()
+        end)
+
+        menu:addItem(instrument:getName(), {
+            checked = checked(instrument),
+            children = _.size(outputs) > 1 and _.map(outputs, function(output)
+                local track = output.getConnection():getTargetTrack()
+                return {
+                    name = output.name,
+                    checked = checked(track),
+                    callback = function()
+                        callback(track)
+                    end
+                }
+            end) or nil,
+            callback = function()
+                callback(_.first(outputs).getConnection():getTargetTrack())
+            end
+        })
+    end)
+
+    return menu
 end
 
 function Instrument.init(track)

@@ -162,7 +162,7 @@ function Plugin:getOutputs()
         local current = {}
         for i=0, o-1 do
             local succ, name = reaper.TrackFX_GetNamedConfigParm(self.track.track, self.index, 'out_pin_' .. tostring(i))
-            if not (current and current.name and (name == current.name or name:escaped():match(current.name:escaped()))) then -- hack for kontakt
+            if not (current and current.name and ((name == current.name) or name:match(current.name))) then -- hack for kontakt
 
                 current = {
                     fx = self,
@@ -170,8 +170,8 @@ function Plugin:getOutputs()
                     channels = {
                         i
                     }
-
                 }
+
                 table.insert(res, current)
             else
                 table.insert(current.channels, i)
@@ -259,13 +259,13 @@ function Plugin:createMultiOut()
     end)
 end
 
-function Plugin:setPreset(nameOrIndex)
-    reaper.TrackFX_SetPreset(self.track.track, self.index, nameOrIndex)
+function Plugin:setPreset(name)
+    reaper.TrackFX_SetPreset(self.track.track, self.index, name)
 end
 
 function Plugin:getPreset()
-    local s, name = reaper.TrackFX_GetPreset(self.track.track, self.index, 1)
-    return name
+    local s, name = reaper.TrackFX_GetPreset(self.track.track, self.index, '')
+    return name, s
 end
 
 function Plugin:remove()

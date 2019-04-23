@@ -53,6 +53,12 @@ function Mixer:onDrop()
     end
 end
 
+function Mixer:onClick()
+    rea.transaction('clear selection', function()
+        Track.setSelectedTracks({})
+    end)
+end
+
 function Mixer:resized()
     local x = 0
     _.forEach(self.tracks, function(child)

@@ -20,7 +20,6 @@ function Output:create(track)
     self.output.getText = function()
         local output = self.track:getOutput()
         local res
-            -- return output:getName()
 
         if not output then
             if self.track:getValue('toParent') > 0 then
@@ -43,8 +42,18 @@ function Output:create(track)
         return res
     end
 
+    self.output.onDblClick = function()
+        rea.transaction('create bus', function()
+            local bus = Bus.createBus()
+            bus:setManaged(self.track)
+            bus:setName(track:getName())
+            self.track:setOutput(bus, true)
+        end)
+    end
+
     self.output.onClick = function(s, mouse)
 
+        local currentOutput = self.track:getOutput()
         if mouse:wasRightButtonDown() then
             local menu = Menu:create()
 
@@ -56,7 +65,7 @@ function Output:create(track)
                         callback = function()
                             self.track:setOutput(otherTrack)
                         end,
-                        checked = self.currentOutput == otherTrack,
+                        checked = currentOutput == otherTrack,
                         transaction = 'change routing'
 
                     })
@@ -70,14 +79,22 @@ function Output:create(track)
             menu:addItem('bus', busMenu)
 
             menu:addItem('master', {
-                checked = not self.currentOutput and self.track:getValue('toParent') > 0,
+                checked = not currentOutput and self.track:getValue('toParent') > 0,
                 callback = function()
                     self.track:setOutput(nil)
                 end
             }, 'change routing')
             menu:show()
-        elseif self.currentOutput then
-            self.currentOutput:focus()
+        elseif mouse:isAltKeyDown() then
+            rea.transaction('remove output', function()
+                if currentOutput:getManager() == self.track then
+                    currentOutput:remove()
+                else
+                    self.track:setOutput(nil)
+                end
+            end)
+        elseif currentOutput then
+            currentOutput:focus()
         end
     end
 

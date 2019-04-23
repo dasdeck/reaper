@@ -5,6 +5,7 @@ local FXListAddButton = require 'FXListAddButton'
 local TextButton = require 'TextButton'
 local Slider = require 'Slider'
 local Label = require 'Label'
+local Menu = require 'Menu'
 local LAItem = class(Component)
 
 local rea = require 'rea'
@@ -18,12 +19,33 @@ function LAItem:create(group)
 
     self.repaintOnMouseEnterOrLeave = true
 
+    local names = {'C', 'M', 'S'}
+
     self.fxs = group.fx
     self.fx = group.first
-    self.name = self:addChildComponent(Label:create('LA'))
+    self.name = self:addChildComponent(Label:create(''))
+    self.name.getText = function()
+        local mode = self.fx:getParam(4)
+        return names[mode + 1]
+    end
+
     self.name.onClick = function(s,mouse)
         if mouse:wasRightButtonDown() then
-            local menu = FXListItem.getMoveMenu(self)
+            local menu = Menu:create()--FXListItem.getMoveMenu(self)
+            local mode = self.fx:getParam(4)
+
+            _.forEach(names, function(name, i)
+                menu:addItem({
+                    name = name,
+                    checked = mode == (i-1),
+                    callback = function()
+                        rea.transaction('set mode', function()
+                            self.fx:setParam(4, i-1)
+                            self.last:setParam(4, i-1)
+                        end)
+                    end
+                })
+            end)
             menu:show()
         elseif mouse:isShiftKeyDown() then
             self.mute:onButtonClick()
@@ -62,14 +84,21 @@ function LAItem:create(group)
 
     self.gain = self:addChildComponent(Slider:create())
     self.gain.pixelsPerValue = 10
+    self.gain.min = 0
+    self.gain.max = 100
     self.gain.wheelscale = 10
+    self.gain.isDisabled = function()
+        return self.fx:getParam(4) ~= 0
+    end
+
     self.gain.getValue = function()
         return group.last:getParam(1)
     end
     self.gain.setValue = function(s, value)
         group.last:setParam(1, value)
     end
-    self.last = group.last
+
+    self.last = group.last or group.fx
 
 
     self.items = self:addChildComponent(FXList:create(group.fx))

@@ -37,24 +37,21 @@ end
 
 function FXListItem.getMoveMenu(item)
 
-    local menu = Menu:create(
-        _.map(Track.getAllTracks(), function(track)
 
-            local use = track ~= item.fx.track and _.find({
-                Track.typeMap.aux,
-                Track.typeMap.bus,
-                Track.typeMap.output,
-                Track.typeMap.audio
-            }, track:getType())
+    local move = function(track)
+        rea.transaction('move fx', function()
+            item:setIndex(99999, track, false)
+        end)
+    end
 
-            return use and {
-                name = track:getName() or track:getDefaultName(),
-                callback = function()
-                    item:setIndex(99999, track)
-                end,
-                transaction = 'move fx'
-            } or nil
-        end))
+    local menu = Menu:create()
+
+    local Bus = require 'Bus'
+    local Aux = require 'Aux'
+    local Instrument = require 'Instrument'
+    menu:addItem('Bus', Bus.getMenu(move, nil, item.fx.track))
+    menu:addItem('Aux', Aux.getMenu(move, nil, item.fx.track))
+    menu:addItem('Instrument', Instrument.getMenu(move, nil, item.fx.track))
 
     if item.fx.track ~= Track.master then
         menu:addSeperator()
@@ -72,7 +69,6 @@ function FXListItem:create(plugin, plain)
     local comp = file and Image:create(file, 'cover', 1) or Label:create(plugin:getCleanName(), 0,0,200,40)
 
     comp.padding = 0
-    -- local self = Component:create(0,0, comp.w, comp.h)
     local self = Component:create(0,0, 1618, 1000)
     setmetatable(self, FXListItem)
 
@@ -91,28 +87,30 @@ function FXListItem:onClick(mouse)
     if mouse:wasRightButtonDown() then
         local menu = Menu:create()
 
-        menu:addItem('wrap in la', function()
-            local pre = self.fx.track:addFx('LA', false, true)
-            local post = self.fx.track:addFx('LA', false, true)
-
-            post:setIndex(self.fx.index+1)
-            pre:setIndex(self.fx.index)
-        end, 'wrap in la')
-
         menu:addItem('panic', function()
             self.fx:setOffline(true)
             self.fx:setOffline(false)
         end)
 
+        menu:addItem('wrap in la', function()
+            local pre = self.fx.track:addFx('Wrap', false, true)
+            local post = self.fx.track:addFx('Wrap', false, true)
+
+            post:setIndex(self.fx.index+1)
+            pre:setIndex(self.fx.index)
+        end, 'wrap in la')
 
         menu:addItem('move to track', FXListItem.getMoveMenu(self))
 
         menu:addItem('remove', function()
             self.fx:remove()
         end, 'remove')
+
         menu:addItem('replace', function()
             FXListItem.replace(self.fx)
         end)
+
+        menu:addSeperator()
         menu:addItem('add before', function()
             PluginListApp.pick(PluginListApp.cats.effects, function(name)
                 rea.transaction('add before', function()
@@ -173,17 +171,17 @@ function FXListItem:onMouseUp()
     self.parent:repaint(true)
 end
 
-function FXListItem:setIndex(index, track)
+function FXListItem:setIndex(index, track, copy)
     local e =  Mouse.capture()
-    local copy = false
+
     if self.mouse:wasRightButtonDown() then
         local menu = Menu:create()
         menu:addItem('copy', function()
             copy = true
         end)
         menu:show()
-    else
-        copy = e:isCommandKeyDown()
+    elseif copy == nil then
+        copy = not e:isAltKeyDown()
     end
 
     self.fx:setIndex(index, track, copy)

@@ -38,14 +38,14 @@ function MixerChannel:update()
     self.name.canClickThrough = function()
         return false
     end
-    self.name.onDblClick = function()
+    self.name.onClick = function()
         if self.track:getManager() and self.track:getManager():getInstrument() then
             local slaves = self.track:getManager():getInstrument().track:getMidiSlaves()
             local mt = _.indexOf(slaves, function(mt) return mt:isArmed() end)
 
             local next = _.first(slaves)
             if mt then
-                rea.log('next:' .. tostring(mt))
+                -- rea.log('next:' .. tostring(mt))
                 next = slaves[(mt) % _.size(slaves) + 1]
             end
 
@@ -84,7 +84,10 @@ function MixerChannel:update()
         self.fxlist = self:addChildComponent(FXList:create(fx))
     end
 
-    local showChildren = false
+    local showChildren = _.some(Track.getSelectedTracks(), function(track)
+        return self.track:receivesFrom(track)
+    end)
+
     if showChildren then
         local tracks = Track.getAllTracks()
         _.forEach(tracks, function(track)
@@ -154,7 +157,7 @@ function MixerChannel:onDrop()
 end
 
 function MixerChannel:resized()
-    local h = 20
+    local h = 30
     self.w = h * 2
 
     local h2 = h * 2
@@ -168,7 +171,7 @@ function MixerChannel:resized()
     y = self.pan.y
 
 
-    self.gain:setBounds(0,y - h*4,h,h*4)
+    self.gain:setBounds(0,y - h2,h,h2)
 
     self.mute:setBounds(h,y-h,h,h)
     y = self.mute.y
@@ -176,7 +179,6 @@ function MixerChannel:resized()
     y = self.solo.y
 
     y = self.gain.y
-
 
     self.aux:setBounds(0,y - self.aux.h, h2)
     y = self.aux.y
@@ -188,7 +190,6 @@ function MixerChannel:resized()
         self.fxlist:setSize(self.w)
         self.fxlist:setPosition(0, y - self.fxlist.h, h2)
     end
-
 
     local x = self.w
     _.forEach(self.tracks, function(child)

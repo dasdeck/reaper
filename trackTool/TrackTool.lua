@@ -30,8 +30,6 @@ function TrackTool:create(track)
     setmetatable(self, TrackTool)
 
     self.track = track
-
-
     self:update()
 
     return self

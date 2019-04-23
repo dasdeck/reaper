@@ -30,7 +30,7 @@ function AuxSends:getData()
 
         return {
             proto = function()
-                return AuxUI:create(send, track, aux)
+                return AuxUI:create(send, self.track, aux)
             end,
             size = 20
         }

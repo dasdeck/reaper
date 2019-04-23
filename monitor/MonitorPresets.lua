@@ -35,6 +35,17 @@ function MonitorPresets:create(...)
     self.spkers = self:addChildComponent(Speakers:create())
     self.distances = self:addChildComponent(Distances:create())
     self.rooms = self:addChildComponent(Rooms:create())
+  elseif Track.master:getFx('Sonarworks', false, true):getEnabled() then
+
+      self.mode = self:addChildComponent(TextButton:create('realtime'))
+      self.mode.getToggleState = function()
+        return Track.master:getFx('Sonarworks', false, true):getPreset() == 'precise_mp'
+      end
+      self.mode.onButtonClick = function()
+        rea.transaction('toggle mode', function()
+          Track.master:getFx('Sonarworks', false, true):setPreset(self.mode.getToggleState() and 'precise' or 'precise_mp')
+        end)
+      end
   end
 
   self.ms = self:addChildComponent(MS:create())
@@ -133,10 +144,13 @@ function MonitorPresets:resized()
   local y = self.outputs:getBottom()
 
   if self.spkers then
-  self.spkers:setBounds(0, self.outputs:getBottom(),self.w, h)
-  self.distances:setBounds(0, self.spkers:getBottom(), self.w, h)
-  self.rooms:setBounds(0, self.distances:getBottom(), self.w, h)
-  y = self.rooms:getBottom()
+    self.spkers:setBounds(0, self.outputs:getBottom(),self.w, h)
+    self.distances:setBounds(0, self.spkers:getBottom(), self.w, h)
+    self.rooms:setBounds(0, self.distances:getBottom(), self.w, h)
+    y = self.rooms:getBottom()
+  elseif self.mode then
+    self.mode:setBounds(0, self.outputs:getBottom(),self.w, h)
+    y = self.mode:getBottom()
   end
 
   self.h = y
