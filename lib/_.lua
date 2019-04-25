@@ -150,12 +150,6 @@ local function empty(table)
     return size(table) == 0
 end
 
--- local function concat(a, b)
---     local res = table.clone(a)
---     forEach(b, function(val) table.insert(res, val) end)
---     return res
--- end
-
 local function removeValue(table, needle)
     forEach(table, function(value, key)
         if value == needle then

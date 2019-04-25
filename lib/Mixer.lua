@@ -37,14 +37,11 @@ function Mixer:update()
         end
     end)
 
-    -- rea.log('mixer update')
-    -- rea.log(#self.children)
     self:resized()
     self:repaint(true)
 end
 
 function Mixer:onDrop()
-    -- rea.log('drop')
     local droppedTrack = instanceOf(Component.dragging, MixerChannel) and Component.dragging.track
     if droppedTrack then
         rea.transaction('change routing', function()
@@ -65,7 +62,6 @@ function Mixer:resized()
         child:setBounds(x, 0, nil, self.h)
         x = x + child.w
     end)
-    -- self.w = x
     x = self.w
     _.forEach(self.aux, function(child)
         child:setSize(nil, self.h)

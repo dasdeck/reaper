@@ -302,8 +302,6 @@ function Component:repaint(children)
         end)
     end
 
-    -- rea.log('repaint')
-    -- rea.log('repaint' .. tostring(debug.traceback()))
 end
 
 function Component:resized()

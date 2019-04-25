@@ -187,6 +187,7 @@ function Track:setArmed(arm)
     else
         self:setValue('arm', arm)
     end
+    return self
 end
 
 function Track:setAutoRecArm(enabled)
@@ -415,7 +416,6 @@ function Track:getInlineUI()
                 local DrumRackInlineUI = require 'DrumRackInlineUI'
                 return DrumRackInlineUI:create(DrumRack:create(self))
             else
-
                 local FXListItem = require 'FXListItem'
                 return FXListItem:create(self:getInstrument())
             end
@@ -1002,7 +1002,11 @@ function Track:addChild(options)
 end
 
 function Track:getTrackTool(force)
-    local plugin = self:getFx('TrackTool', force and true or false)
+    local plugin = self:getFx('TrackTool')
+    if not plugin and force then
+        plugin = self:addFx('TrackTool')
+        plugin:setIndex(0)
+    end
     -- if plugin then plugin:setIndex(0) end
     return plugin
 end

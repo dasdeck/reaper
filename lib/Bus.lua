@@ -20,6 +20,7 @@ function Bus.getCreateMenu(callback, menu)
             end
         end, 'bus all')
     end
+
     local selectedTracks = Track.getSelectedTracks()
     if Bus.hasTopLevelTracks(selectedTracks) then
         menu:addItem('create bus from selection', function()

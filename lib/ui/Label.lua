@@ -40,7 +40,8 @@ function Label:drawBackground(g, c)
     local padding = 1
 
     g:setColor(c);
-    g:roundrect(padding ,padding , self.w - 2 * padding, self.h - 2*padding, self.r or 5, true)
+    g:rect(padding ,padding , self.w - 2 * padding, self.h - 2*padding, true)
+    -- g:roundrect(padding ,padding , self.w - 2 * padding, self.h - 2*padding, self.r or 5, true)
 
 end
 

@@ -14,6 +14,10 @@ function File:__tostring()
     return self.path
 end
 
+function File.isAudioFile(file)
+    return file:endsWith('.wav')
+end
+
 function File:exists()
     return reaper.file_exists(self.path)
 end

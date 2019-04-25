@@ -1,14 +1,18 @@
 
 
 local Take = require 'Take'
+local _ = require '_'
+local rea = require 'rea'
+
 local MediaItem = class()
 
 function MediaItem.getSelectedItems()
     local res = {}
     for i=0, reaper.CountSelectedMediaItems(0)-1 do
-        local item = reaper.GetSelectedMediaItem(i)
+        local item = reaper.GetSelectedMediaItem(0,i)
+        table.insert(res, MediaItem:create(item))
     end
-    return {}
+    return res
 end
 
 function MediaItem.getAllItems()
@@ -27,10 +31,40 @@ function MediaItem:create(item)
     return self
 end
 
+function MediaItem:getTrack()
+    local Track = require 'Track'
+    return Track:create(reaper.GetMediaItem_Track(self.item))
+end
+
+function MediaItem:__eq(other)
+    return self.item == other.item
+end
+
+function MediaItem:getLength()
+    return reaper.GetMediaItemInfo_Value(self.item ,'D_LENGTH')
+end
+
+function MediaItem:getTakes()
+    local res = {}
+    for i = 0, self:getNumTakes() - 1 do
+        table.insert(res, self:getTake(i))
+    end
+    return res
+end
+
+function MediaItem:getNumTakes()
+    return reaper.GetMediaItemNumTakes(self.item)
+end
+
+function MediaItem:getActiveTake()
+    local items = _.filter(self:getTakes(), function(take) return take:isActive() end, true)
+    return _.first(items)
+end
+
 function MediaItem:getTake(index)
     index = index == nil and 0 or index
-    local t = reaper.GetTake(index)
-    return t and Take:create(reaper.GetTake(index))
+    local t = reaper.GetTake(self.item, index)
+    return t and Take:create(t, self)
 end
 
 return MediaItem

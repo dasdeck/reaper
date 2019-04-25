@@ -105,6 +105,8 @@ function WindowApp:onStart()
 end
 
 function WindowApp:getProfileData()
+    local Watcher = require 'Watcher'
+
     return {
         watchers = {
             num = #_.filter(Watcher.watchers, function(w)
@@ -112,7 +114,7 @@ function WindowApp:getProfileData()
             end)
         },
         window = {
-            numComps = #self.window.component:getAllChildren(),
+            numComps = self.window and #self.window.component:getAllChildren(),
             paints = self.window.paints
         },
         component = {

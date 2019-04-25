@@ -56,11 +56,11 @@ local options = {
             AuxUI.pickAndCreate()
         end
     },
-    {
-        color = colors.la,
-        args = 'l',
-        key = 'la'
-    },
+    -- {
+    --     color = colors.la,
+    --     args = 'l',
+    --     key = 'la'
+    -- },
     {
         color = colors.bus,
         args = 'b',

@@ -1,5 +1,9 @@
+Sequencer:
+    ☐ go to regular editor
+    ☐ volume
+    ☐ filter ununsed / unmapped
 Ideas:
-    ☐ create all multi outs
+☐ create all multi outs
     ☐ add m/s/la mode to wrapper
     ☐ test wrap oterh plugins?
     ✔ fix kontakt multiout (again?) @done(19-04-21 08:22)

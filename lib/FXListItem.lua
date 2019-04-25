@@ -92,47 +92,49 @@ function FXListItem:onClick(mouse)
             self.fx:setOffline(false)
         end)
 
-        menu:addItem('wrap in la', function()
-            local pre = self.fx.track:addFx('Wrap', false, true)
-            local post = self.fx.track:addFx('Wrap', false, true)
+        if self.fx.track:getInstrument() ~= self.fx then
+            menu:addItem('wrap in la', function()
+                local pre = self.fx.track:addFx('Wrap', false, true)
+                local post = self.fx.track:addFx('Wrap', false, true)
 
-            post:setIndex(self.fx.index+1)
-            pre:setIndex(self.fx.index)
-        end, 'wrap in la')
+                post:setIndex(self.fx.index+1)
+                pre:setIndex(self.fx.index)
+            end, 'wrap in la')
 
-        menu:addItem('move to track', FXListItem.getMoveMenu(self))
+            menu:addItem('move to track', FXListItem.getMoveMenu(self))
 
-        menu:addItem('remove', function()
-            self.fx:remove()
-        end, 'remove')
+            menu:addItem('remove', function()
+                self.fx:remove()
+            end, 'remove')
 
-        menu:addItem('replace', function()
-            FXListItem.replace(self.fx)
-        end)
+            menu:addItem('replace', function()
+                FXListItem.replace(self.fx)
+            end)
 
-        menu:addSeperator()
-        menu:addItem('add before', function()
-            PluginListApp.pick(PluginListApp.cats.effects, function(name)
-                rea.transaction('add before', function()
-                    local plugin = self.fx.track:addFx(name)
-                    if plugin then
-                        plugin:setIndex(self.fx.index)
-                        plugin:open()
-                    end
+            menu:addSeperator()
+            menu:addItem('add before', function()
+                PluginListApp.pick(PluginListApp.cats.effects, function(name)
+                    rea.transaction('add before', function()
+                        local plugin = self.fx.track:addFx(name)
+                        if plugin then
+                            plugin:setIndex(self.fx.index)
+                            plugin:open()
+                        end
+                    end)
                 end)
             end)
-        end)
-        menu:addItem('add after', function()
-            PluginListApp.pick(PluginListApp.cats.effects, function(name)
-                rea.transaction('add after', function()
-                    local plugin = self.fx.track:addFx(name)
-                    if plugin then
-                        plugin:setIndex(self.fx.index+1)
-                        plugin:open()
-                    end
+            menu:addItem('add after', function()
+                PluginListApp.pick(PluginListApp.cats.effects, function(name)
+                    rea.transaction('add after', function()
+                        local plugin = self.fx.track:addFx(name)
+                        if plugin then
+                            plugin:setIndex(self.fx.index+1)
+                            plugin:open()
+                        end
+                    end)
                 end)
             end)
-        end)
+        end
         menu:show()
     elseif mouse:isShiftKeyDown() and mouse:isAltKeyDown() then
         FXListItem.replace(self.fx)
@@ -181,7 +183,7 @@ function FXListItem:setIndex(index, track, copy)
         end)
         menu:show()
     elseif copy == nil then
-        copy = not e:isAltKeyDown()
+        copy = not e:isAltKeyDown() and self.fx.track ~= track
     end
 
     self.fx:setIndex(index, track, copy)

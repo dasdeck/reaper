@@ -11,5 +11,5 @@ local WindowApp = require 'WindowApp'
 
 WindowApp:create('tools', ButtonList:create(Tools, nil, nil, 0,0, 200, 600)):start(
 {
-  profile = false
+  profile = falses
 })

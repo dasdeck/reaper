@@ -13,7 +13,9 @@ function PCMSource:getFile()
     return reaper.GetMediaSourceFileName(self.pcm, '')
 end
 
-function PCMSource:getLen()
+function PCMSource:getLength()
+    return reaper.GetMediaSourceLength(self.pcm)
 end
+
 
 return PCMSource

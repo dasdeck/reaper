@@ -7,21 +7,14 @@ local Sequencer = require 'Sequencer'
 local MediaItem = require 'MediaItem'
 
 local rea = require 'rea'
+local _ = require '_'
 
+local seq = Sequencer:create()
+local app = WindowApp:create('sequencer', seq)
 
-local app = WindowApp:create('sequencer', Sequencer:create())
-app.onAfterDefer = function()
-
-    local all = MediaItem.getAllItems()
-
-    rea.logPin('seq', {
-        selected = reaper.GetSelectedMediaItem(0,0),
-        all = all
-    })
-end
 
 app:start(
 {
-profile = false
+profile = true
 })
 

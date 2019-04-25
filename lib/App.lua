@@ -92,9 +92,12 @@ function App:start(options)
             local log = profiler:run(function() def(self) end, 1, options.profile == 'defer')
 
 
-            local rank = _.map(log.calls.methods, function(meth) return meth end)
+            local rank = _.map(log.calls.methods, function(meth)
+                meth.avg = meth.time / meth.calls
+                return meth
+            end)
             table.sort(rank, function (a,b)
-                return a.time > b.time
+                return a.avg > b.avg
                 -- return a.calls > b.calls
             end)
 
@@ -102,7 +105,7 @@ function App:start(options)
             for i=1, math.min(100,#rank) do
                 local sub = _.map(rank[i].children, function(meth) return meth end)
                 table.sort(sub, function (a,b)
-                    return a.time > b.time
+                    -- return a.avg > b.avg
                 end)
                 rank[i].children = sub
                 table.insert(limitedRank, rank[i])

@@ -6,20 +6,19 @@ local rea = require 'rea'
 local colors = require 'colors'
 local _ = require '_'
 
-
 local Instrument = class()
 function Instrument.createInstrument(instrName)
 
     local track
-
-    reaper.OnStopButton()
 
     if instrName then
         local instrument
         local template = paths.imageDir:findFile(instrName .. '.RTrackTemplate')
         if template then
             local state = require 'TrackState'
+            reaper.OnPauseButton()
             track = _.first(state.fromTemplate(readFile(template)))
+            reaper.OnPlayButton()
             instrument = track:getInstrument()
         else
             track = Track.insert()
@@ -36,6 +35,9 @@ function Instrument.createInstrument(instrName)
         local res = instrument:getOutputs()
         if _.size(res) > 0 then
             res[1]:createConnection()
+            if _.size(res) == 1 then
+                res[1]:getConnection():getTargetTrack():setMeta('expanded', true)
+            end
         end
     end
 
@@ -64,9 +66,9 @@ function Instrument.getMenu(callback, menu, checked)
 
 
     _.forEach(Instrument.getAllInstruments(), function(instrument)
-        local outputs = _.filter(instrument:getInstrument():getOutputs(), function(out)
+        local outputs = instrument:getInstrument() and _.filter(instrument:getInstrument():getOutputs(), function(out)
             return out:getConnection()
-        end)
+        end) or {}
 
         menu:addItem(instrument:getName(), {
             checked = checked(instrument),
@@ -103,7 +105,6 @@ function Instrument.bang()
         local input = rea.prompt('instrument')
 
         if not input then return false end
-
 
         local zones = _.map(input:split('|'), function(zone)
             local layers = _.map(zone:split('&'), function(layer)

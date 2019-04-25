@@ -16,6 +16,7 @@ function TrackUI.click(track, mouse)
         end, 'clone')
         menu:addItem(TrackStateButton:create(track, 'tcp', 'T'):getMenuEntry())
         menu:addItem(TrackStateButton:create(track, 'mcp', 'M'):getMenuEntry())
+
         if track:getType() == Track.typeMap.instrument then
             menu:addItem('add midi track', function()
                 local slave = track:createMidiSlave()
@@ -25,6 +26,7 @@ function TrackUI.click(track, mouse)
 
             end,'add midi track')
         end
+
         menu:addItem('rename', function()
             local name = rea.prompt('name', track:getName())
             if name then

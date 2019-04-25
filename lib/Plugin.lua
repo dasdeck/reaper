@@ -84,6 +84,12 @@ function Plugin:getIndex()
     return self.index
 end
 
+function Plugin:__eq(other)
+    self:refresh()
+    other:refresh()
+
+    return other.index == self.index and self.track == other.track
+end
 
 function Plugin:getState()
     return self.track:getState():getPlugins()[self.index + 1]

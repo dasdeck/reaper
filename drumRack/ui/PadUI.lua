@@ -9,7 +9,8 @@ local Watcher = require 'Watcher'
 local Image = require 'Image'
 local DrumRack = require 'DrumRack'
 local Collection = require 'Collection'
-
+local PluginListApp = require 'PluginListApp'
+local Instrument = require 'Instrument'
 
 local _ = require '_'
 local rea = require 'rea'
@@ -112,13 +113,22 @@ function PadUI.showMenu(pad)
     addMenu:addItem('empty track', function() pad:addLayer() end, 'add empty track')
     addMenu:addItem('instrument', function()
 
-        local name = rea.prompt("name")
+        -- local name = rea.prompt("name")
+
+        PluginListApp.pick(PluginListApp.cats.instruments,function(res)
+            rea.transaction('add instrument', function()
+                local track = Instrument.createInstrument(res)
+                if track then
+                    pad:addTrack(track)
+                end
+            end)
+        end)
         -- local PluginListApp = require 'PluginListApp'
         -- PluginListApp.pick(PluginListApp.)
         -- Instrument
-        if name then
-            pad:addLayer(name)
-        end
+        -- if name then
+        --     pad:addLayer(name)
+        -- end
     end, 'add instrument pad')
 
     menu:addItem('add', addMenu)
@@ -172,6 +182,19 @@ function PadUI:create(pad)
 
     self.padButton.getToggleState = function (s, mouse)
         return self.pad:isSelected()
+    end
+
+    self.padButton.onDblClick = function()
+        if not self.pad:hasContent() then
+            PluginListApp.pick(PluginListApp.cats.instruments,function(res)
+                rea.transaction('add instrument', function()
+                    local track = Instrument.createInstrument(res)
+                    if track then
+                        self.pad:addTrack(track)
+                    end
+                end)
+            end)
+        end
     end
 
     self.padButton.onClick = function (s, mouse)
@@ -276,7 +299,7 @@ function PadUI:paintOverChildren(g)
     local padding = 5
 
     if self.pad:getVelocity() > 0 then
-        g:setColor(colors.bus:with_alpha(self.pad:getVelocity() / 127))
+        g:setColor(colors.bus:with_alpha((self.pad:getVelocity() / 127)^0.5))
         g:rect(padding, padding, self.w - padding * 2, self.h - padding * 2, true, true)
     end
 end

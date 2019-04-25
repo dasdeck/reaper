@@ -37,6 +37,13 @@ function DataBase.setDefaultDataBase(path)
 end
 
 function DataBase:create(path)
+
+    local rand = tostring(reaper.time_precise()):reverse():sub(1,6)
+
+    rea.log(rand)
+
+    math.randomseed(tonumber(rand))
+
     local self = {
         paths = {},
         path = path
@@ -58,7 +65,7 @@ function DataBase:getRandomEntry(filter)
     local numEntries = _.size(entries)
 
     if numEntries > 0 then
-        math.randomseed(reaper.time_precise()*1000)
+
         local index = math.random(1, _.size(entries))
         return entries[index]
     end

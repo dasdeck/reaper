@@ -45,6 +45,19 @@ function TrackToolSwitcher:getTrack()
     return self.history.track
 end
 
+function TrackToolSwitcher:onFilesDrop(files)
+
+    local File = require 'File'
+    if _.some(files, File.isAudioFile) then
+        local Instrument = require 'Instrument'
+        local DrumRack = require 'DrumRack'
+        local track = Instrument.createInstrument('DrumRack')
+        local rack = DrumRack:create(track)
+        rack.pads[1]:addLayer(_.first(files))
+        track:createMidiSlave():setArmed(1):setSelected(1)
+    end
+end
+
 function TrackToolSwitcher:update()
 
     self:deleteChildren()

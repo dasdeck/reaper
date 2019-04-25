@@ -23,7 +23,7 @@ function Aux.getMenu(callback, menu, checked)
 
     checked = checked or function() return false end
 
-    if instanceOf(Track, checked) then
+    if type(checked) ~= 'function' then
         checked = function(bus)
             return bus == checked
         end
