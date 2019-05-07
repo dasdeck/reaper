@@ -7,13 +7,17 @@ addScope('drumRack')
 local Track = require 'Track'
 local _ = require '_'
 
-local track = Track.getSelectedTrack(true)
-if track then
-  local wereArmed = _.filter(Track.getAllTracks(), function(track) return track:isArmed() end)
-  if track:isArmed() and _.size(wereArmed) == 1 then
-    Track.disarmAll()
-  else
-    track:setArmed(1)
+local tracks = Track.getSelectedTracks(true)
+local num = #tracks
+if num > 0 then
+
+  local someArmed = _.some(tracks, function(track) return track:isArmed() end)
+
+  Track.disarmAll()
+  if not someArmed then
+    _.forEach(tracks, function(track)
+      track:setArmed(true)
+    end)
   end
 
 end
