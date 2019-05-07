@@ -105,13 +105,13 @@ function AudioTrackUI:update()
 
     self.output = self:addChildComponent(Output:create(track))
 
-    local output = track:getOutput() or (self.track ~= Track.master and Track.master)
-    if output then
-        local ui = output:createUI()
-        if ui then
-            self.next = self:addChildComponent(ui)
-        end
-    end
+    -- local output = track:getOutput() or (self.track ~= Track.master and Track.master)
+    -- if output then
+    --     local ui = output:createUI()
+    --     if ui then
+    --         self.next = self:addChildComponent(ui)
+    --     end
+    -- end
 
     if self.track:getTrackTool() then
         self.controlls = self:addChildComponent(TrackToolControlls:create(self.track))

@@ -30,13 +30,13 @@ function Layer:create(track, pad)
     self.mute = self:addChildComponent(TrackStateButton:create(self.track, 'mute', 'M'))
     self.mute.color = colors.mute
 
-    self.lock = self:addChildComponent(IconButton:create(icons.lock))
-    self.lock.onButtonClick = function()
-        track:setLocked(not track:isLocked())
-    end
-    self.lock.getToggleState = function()
-        return track:isLocked()
-    end
+    -- self.lock = self:addChildComponent(IconButton:create(icons.lock))
+    -- self.lock.onButtonClick = function()
+    --     track:setLocked(not track:isLocked())
+    -- end
+    -- self.lock.getToggleState = function()
+    --     return track:isLocked()
+    -- end
 
     self.solo = self:addChildComponent(TrackStateButton:create(self.track, 'solo', 'S'))
     self.solo.color = colors.solo
@@ -132,10 +132,11 @@ end
 function Layer:resized()
 
     local h = 20
+    local y = 0
 
     self.icon:setSize(h,h)
 
-    self.name:setBounds(h, self.lock:getBottom(), self.w-h, h)
+    self.name:setBounds(h, y, self.w-h, h)
 
     local y = self.name:getBottom()
 
@@ -145,7 +146,7 @@ function Layer:resized()
 
     self.h = self.delay:getBottom()
     if self.instrument then
-        self.instrument:setBounds(0,self.name:getBottom(), self.w)
+        self.instrument:setBounds(0,self.mute:getBottom(), self.w)
         self.h = self.instrument:getBottom()
     end
 

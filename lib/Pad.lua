@@ -23,6 +23,9 @@ function Pad:setKeyRange(low, hi)
     self.rack:getMapper():setParamForPad(self, 2, hi)
     return self
 end
+function Pad:getKeyRange()
+    return self.rack:getMapper():getKeyRange(self, 1)
+end
 
 function Pad:getAllTracks(tracks)
     tracks = tracks or {}

@@ -12,13 +12,13 @@ local colors = require 'colors'
 
 local MidiTrackUI = class(Component)
 
+local icon = paths.iconsDir:findFile('midi.png')
 function MidiTrackUI:create(track)
 
     local self = Component:create()
     setmetatable(self, MidiTrackUI)
     self.track = track
-    local img = paths.iconsDir:findFile('midi.png')
-    self.image = self:addChildComponent(Image:create(img, 'fit'))
+    self.image = self:addChildComponent(Image:create(icon, 'fit'))
     self.image.onClick = function(s, mouse)
         if mouse:wasRightButtonDown() then
             local menu = Menu:create()

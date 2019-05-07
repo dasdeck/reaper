@@ -134,6 +134,11 @@ function FXListItem:onClick(mouse)
                     end)
                 end)
             end)
+
+        else
+            menu:addItem('show channel', function()
+                self.fx.track:setOpen()
+            end)
         end
         menu:show()
     elseif mouse:isShiftKeyDown() and mouse:isAltKeyDown() then

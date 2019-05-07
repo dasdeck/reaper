@@ -3,33 +3,34 @@ Sequencer:
     ☐ volume
     ☐ filter ununsed / unmapped
 Ideas:
-☐ create all multi outs
-    ☐ add m/s/la mode to wrapper
-    ☐ test wrap oterh plugins?
+    ☐ take selector
+    ✔ create all multi outs @done(19-04-26 07:55)
+    ✔ add m/s/la mode to wrapper @done(19-04-26 07:55)
+    ☐ test wrap other plugins?
     ✔ fix kontakt multiout (again?) @done(19-04-21 08:22)
-    ☐ make managed bus fx for multiout instruments
+    ✔ make managed bus fx for multiout instruments @done(19-04-26 07:56)
 
-    ☐ make track menu
+    ✔ make track menu @done(19-04-26 07:56)
     ☐ add tracks directly to bus
         ☐ pin bus (virtual master)
 
     ☐ show mixer automatic
-    ☐ show aux always
-    ☐ show all aux sends (trad mixer)
+    ✔ show aux always @done(19-04-26 07:56)
+    ✔ show all aux sends (trad mixer) @done(19-04-26 07:56)
 
     ☐ pin topmost group ?
 
-    ☐ detect feedbacks with aux
+    ✔ detect feedbacks with aux @done(19-04-26 07:56)
 
-    ☐ exlude invalid tracks from move menu
-    ☐ generelaize move menu
-        ☐ add create of busses and aux
+    ✔ exlude invalid tracks from move menu @done(19-04-26 07:56)
+    ✔ generelaize move menu @done(19-04-26 07:56)
+        ✔ add create of busses and aux @done(19-04-26 07:56)
     ☐ automation ?
     ✔ move la chain @done(19-04-11 20:45)
     ☐ indicate insert before and after
     ☐ overlay power button per fx
     ✔ refresh chain routing in all cases @done(19-04-14 16:12)
-    ☐ minimize sub/la chain
+    ✘ minimize sub/la chain @cancelled(19-04-26 07:57)
     ☐ error fail when only one la is present (use as last?)
     ✔ drop to chain (minimize if empty) @done(19-04-09 15:11)
     ☐ save chain

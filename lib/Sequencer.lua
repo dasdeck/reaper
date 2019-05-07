@@ -64,6 +64,7 @@ function Sequencer:create()
         local all = MediaItem.getSelectedItems()
         local item = _.first(all)
         self:setMediaItem(item)
+
     end)
 
     return self
@@ -74,6 +75,8 @@ function Sequencer:setMediaItem(item)
     self:setTake(item and item:getActiveTake())
     self.buttons:updateList()
     self:resized()
+    self:repaint(true)
+
 end
 
 function Sequencer:setTake(take)
@@ -86,6 +89,17 @@ function Sequencer:setTake(take)
 
     if take then
         self.sequence = self:addChildComponent(SequenceEditor:create(take))
+
+        local inst = take.item:getTrack():getInstrument()
+        if inst and inst.track:getFx('DrumRack') then
+            local DrumRack = require 'DrumRack'
+            self.drumRack = DrumRack:create(inst.track)
+            self.sequence.getLanes = function()
+                return _.map(self.drumRack.pads, function(pad)
+                    return pad:hasContent() and pad:getKeyRange() or nil
+                end)
+            end
+        end
     end
     self:resized()
     self:repaint(true)

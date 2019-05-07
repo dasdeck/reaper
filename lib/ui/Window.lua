@@ -60,6 +60,7 @@ function Window:render(allComps)
 
     local rendered = false
     local comp = _.some(allComps, function(comp)return not comp.overlayPaint and comp.needsPaint and comp.isCurrentlyVisible and comp end)
+
     if self.doPaint or comp then
         self.g:clear()
         self.component:evaluate(self.g)
@@ -296,6 +297,7 @@ function Window:evalMouse(allComps)
     local mouseDown = (not self.mouse:isButtonDown()) and mouse:isButtonDown()
     local mouseUp = self.mouse:isButtonDown() and (not mouse:isButtonDown())
 
+    self.component:updateMousePos(mouse)
 
     if mouseMoved or capChanged or isFileDrop or wheelMove then
 
@@ -303,7 +305,7 @@ function Window:evalMouse(allComps)
 
         _.forEach(allComps, function(comp)
 
-            comp:updateMousePos(mouse)
+            -- comp:updateMousePos(mouse)
 
             local isOver = comp:isMouseOver()
             local mouseLeave = comp.mouse.over and not isOver

@@ -97,7 +97,8 @@ function App:start(options)
                 return meth
             end)
             table.sort(rank, function (a,b)
-                return a.avg > b.avg
+                return a.time > b.time
+                -- return a.avg > b.avg
                 -- return a.calls > b.calls
             end)
 

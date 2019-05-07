@@ -11,10 +11,8 @@ local _ = require '_'
 
 local seq = Sequencer:create()
 local app = WindowApp:create('sequencer', seq)
-
-
 app:start(
 {
-profile = true
+  profile = false
 })
 

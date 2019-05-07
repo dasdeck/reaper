@@ -172,17 +172,37 @@ function Component:isMouseDown()
     return self:isMouseOver() and self.mouse:isButtonDown()
 end
 
+function Component:updateMousePos(mouse, x, y)
+    x = x or mouse.x
+    y = y or mouse.y
+    self.mouse.cap = mouse.cap
+    self.mouse.mouse_wheel = mouse.mouse_wheel
+    self.mouse.x = x
+    self.mouse.y = y
+    _.forEach(self.children, function(child)
+        child:updateMousePos(mouse, x - child.x, y - child.y)
+    end)
+end
+
+-- function Component:updateMousePos(mouse)
+--     self.mouse.cap = gfx.mouse_cap
+--     self.mouse.mouse_wheel = mouse.mouse_wheel
+--     self.mouse.x = mouse.x - self:getAbsoluteX()
+--     self.mouse.y = mouse.y - self:getAbsoluteY()
+-- end
+
 function Component:isMouseOver()
     local window
-    return
-        gfx.mouse_x <= self:getAbsoluteRight() and
-        gfx.mouse_x >= self:getAbsoluteX() and
-        gfx.mouse_y >= self:getAbsoluteY() and
-        gfx.mouse_y <= self:getAbsoluteBottom()
+    return self.mouse.x >= 0 and self.mouse.y >= 0 and self.mouse.x <= self.w and self.mouse.y <= self.h
+    -- return
+    --     gfx.mouse_x <= self:getAbsoluteRight() and
+    --     gfx.mouse_x >= self:getAbsoluteX() and
+    --     gfx.mouse_y >= self:getAbsoluteY() and
+    --     gfx.mouse_y <= self:getAbsoluteBottom()
 end
 
 function Component:wantsMouse()
-    return self.isCurrentlyVisible and (not self.parent or self.parent:wantsMouse())
+    return self.isCurrentlyVisible-- and (not self.parent or self.parent:wantsMouse())
 end
 
 function Component:getAbsoluteX()
@@ -238,15 +258,9 @@ function Component:setVisible(vis)
 end
 
 function Component:isVisible()
-    return self.visible and (self.w > 0 or self.h > 0) and (not self.parent or self.parent:isVisible()) and self:getAlpha() > 0
+    return self.visible --and (self.w > 0 or self.h > 0) and (not self.parent or self.parent:isVisible()) and self:getAlpha() > 0
 end
 
-function Component:updateMousePos(mouse)
-    self.mouse.cap = gfx.mouse_cap
-    self.mouse.mouse_wheel = mouse.mouse_wheel
-    self.mouse.x = mouse.x - self:getAbsoluteX()
-    self.mouse.y = mouse.y - self:getAbsoluteY()
-end
 
 function Component:setSize(w,h)
 
