@@ -39,7 +39,8 @@ function Window:create(name, component, options)
         state = {},
         g = Graphics:create(),
         options = options or {},
-        paints = 0
+        paints = 0,
+        frame = 1
     }
 
     self.options.debug = true
@@ -48,7 +49,6 @@ function Window:create(name, component, options)
     self.component = component
 
     self:repaint(true)
-    self.time = reaper.time_precise()
     return self
 end
 
@@ -286,7 +286,7 @@ function Window:evalMouse(allComps)
     local files = getDroppedFiles()
     local isFileDrop = _.size(files) > 0
 
-    local mouse = Mouse.capture(reaper.time_precise(), self.mouse)
+    local mouse = Mouse.capture({time = reaper.time_precise(), frame = self.frame}, self.mouse)
 
     local mouseMoved = self.mouse.x ~= mouse.x or self.mouse.y ~= mouse.y
     local capChanged = self.mouse.cap ~= mouse.cap
@@ -373,7 +373,7 @@ function Window:evalMouse(allComps)
 
                 if mouseDown then
                     comp.mouse.down = mouse.time
-                    if comp.onDblClick and self.lastDownTime and (mouse.time - self.lastDownTime < 0.35) then
+                    if comp.onDblClick and self.lastDownTime and (mouse.time - self.lastDownTime.time < 0.35 or self.frame == self.lastDownTime.frame + 1) then
                         comp:onDblClick(mouse)
                     end
                     if comp.onMouseDown then comp:onMouseDown(mouse) end
@@ -442,7 +442,10 @@ function Window:evalMouse(allComps)
     end
 
     self.lastUpTime = mouseUp and mouse.time or self.lastUpTime
-    self.lastDownTime = mouseDown and mouse.time or self.lastDownTime
+    self.lastDownTime = mouseDown and {
+        time = mouse.time,
+        frame = self.frame
+     } or self.lastDownTime
 
 end
 
@@ -470,6 +473,7 @@ function Window:defer()
     end
 
     if wasPainted then gfx.update() end
+    self.frame = self.frame + 1
 
 end
 

@@ -35,7 +35,7 @@ function Aux.getMenu(callback, menu, checked)
     _.forEach(Aux.getAuxTracks(), function(aux)
         menu:addItem(aux:getName(), {
             checked = checked(aux),
-            function()
+            callback = function()
                 callback(aux)
             end
         })

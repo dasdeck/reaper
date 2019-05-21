@@ -35,32 +35,16 @@ function FXListItem.replace(fx)
     end)
 end
 
+
 function FXListItem.getMoveMenu(item)
 
 
-    local move = function(track)
+    return Track.getMenu(function(track)
         rea.transaction('move fx', function()
-            item:setIndex(99999, track, false)
+            item:setIndex(99999, track)
         end)
-    end
+    end)
 
-    local menu = Menu:create()
-
-    local Bus = require 'Bus'
-    local Aux = require 'Aux'
-    local Instrument = require 'Instrument'
-    menu:addItem('Bus', Bus.getMenu(move, nil, item.fx.track))
-    menu:addItem('Aux', Aux.getMenu(move, nil, item.fx.track))
-    menu:addItem('Instrument', Instrument.getMenu(move, nil, item.fx.track))
-
-    if item.fx.track ~= Track.master then
-        menu:addSeperator()
-        menu:addItem('master', function()
-            item:setIndex(99999, Track.master)
-        end)
-    end
-
-    return menu
 end
 
 function FXListItem:create(plugin, plain)

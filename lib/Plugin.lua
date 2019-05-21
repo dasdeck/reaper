@@ -133,7 +133,7 @@ function Plugin:refresh()
     return self:isValid()
 end
 
-function Plugin:setIndex(index, targetTrack, copy)
+function Plugin:setIndex(index, targetTrack, copy, noUpdate)
 
     self:refresh()
     targetTrack = targetTrack or self.track
@@ -141,6 +141,7 @@ function Plugin:setIndex(index, targetTrack, copy)
         reaper.TrackFX_CopyToTrack(self.track.track, self.index, targetTrack.track, index, not copy and true or false)
         self.index = index
         self.track = targetTrack
+        if noUpdate then return end
         self.track:updateFxRouting()
     end
     return self

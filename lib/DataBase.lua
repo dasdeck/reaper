@@ -59,14 +59,16 @@ function DataBase:getRandomEntry(filter)
     local entries = self.entries
     if filter and filter:len() > 0 then
         entries = _.filter(entries, function(entry)
-            return entry.path:includes(filter)
+            return entry.path:lower():includes(filter)
         end, true)
     end
     local numEntries = _.size(entries)
 
     if numEntries > 0 then
 
-        local index = math.random(1, _.size(entries))
+        local size = _.size(entries)
+        local index = math.random(1, size)
+        -- rea.log({index, size})
         return entries[index]
     end
 end

@@ -1,13 +1,14 @@
 
 local Mouse = class()
 
-function Mouse.capture(time, prev)
+function Mouse.capture(opts, prev)
     local self = {
+        frame = opts and opts.frame,
+        time = opts and opts.time,
         prev = prev,
         cap = gfx.mouse_cap,
         x = gfx.mouse_x,
         y = gfx.mouse_y,
-        time = time,
         mouse_wheel = gfx.mouse_wheel
     }
 

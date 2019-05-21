@@ -1,5 +1,5 @@
 local rea = require 'rea'
-
+local paths = require 'paths'
 return {
-    lock = rea.findIcon('lock.png')
+    lock = paths.iconsDir:findFile('lock.png')
 }

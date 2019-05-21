@@ -6,6 +6,8 @@ local PluginListApp = require 'PluginListApp'
 local Menu = require 'Menu'
 local Aux = require 'Aux'
 local Bus = require 'Bus'
+local Mouse = require 'Mouse'
+local Track = require 'Track'
 
 local paths = require 'paths'
 local colors = require 'colors'
@@ -42,6 +44,17 @@ function FXlistAddButton:create(track, name, index)
             menu:addItem('show channel', function()
                 self.track:setOpen()
             end)
+            menu:addItem('move all to track',
+
+                Track.getMenu(function(targetTrack)
+                    _.forEach(track:getFxList(), function(plugin)
+                        plugin:setIndex(99999, targetTrack, Mouse.capture():isAltKeyDown(), true)
+                    end)
+                    targetTrack:updateFxRouting()
+                    track:updateFxRouting()
+                end)
+
+            , 'move all fx')
             -- menu:addItem('')
             menu:show()
         elseif mouse:isShiftKeyDown() then

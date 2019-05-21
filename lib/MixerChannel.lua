@@ -7,6 +7,7 @@ local PanSlider = require 'PanSlider'
 local FXList = require 'FXList'
 local FXListAddButton = require 'FXListAddButton'
 local Image = require 'Image'
+local Menu = require 'Menu'
 local Meter = require 'Meter'
 local AuxSends = require 'AuxSends'
 
@@ -38,21 +39,42 @@ function MixerChannel:update()
     self.name.canClickThrough = function()
         return false
     end
-    self.name.onClick = function()
-        if self.track:getManager() and self.track:getManager():getInstrument() then
-            local slaves = self.track:getManager():getInstrument().track:getMidiSlaves()
-            local mt = _.indexOf(slaves, function(mt) return mt:isArmed() end)
+    self.name.onClick = function(s, mouse)
+        if mouse:wasRightButtonDown()then
 
-            local next = _.first(slaves)
-            if mt then
-                -- rea.log('next:' .. tostring(mt))
-                next = slaves[(mt) % _.size(slaves) + 1]
-            end
+            local menu = Menu:create()
+            menu:addItem('subproject', function()
 
-            if next then
+                local sources = self.track:getAllSourceTracks()
+                Track.setSelectedTracks(sources)
+                reaper.Main_OnCommand(41997, 0)
+
+
+
+            end, 'create sub project')
+
+            menu:show()
+
+        else
+
+            if self.track:getManager() and self.track:getManager():getInstrument() then
+                local slaves = self.track:getManager():getInstrument().track:getMidiSlaves()
+                local mt = _.indexOf(slaves, function(mt) return mt:isArmed() end)
+
+                local next = _.first(slaves)
+                if mt then
+                    next = slaves[(mt) % _.size(slaves) + 1]
+                end
+
+                if next then
+                    rea.transaction('select from mixer', function()
+                        next:setArmed(1)
+                        next:setSelected(1)
+                    end)
+                end
+            else
                 rea.transaction('select from mixer', function()
-                    next:setArmed(1)
-                    next:setSelected(1)
+                    self.track:setSelected(not self.track:isSelected())
                 end)
             end
         end
@@ -84,7 +106,7 @@ function MixerChannel:update()
         self.fxlist = self:addChildComponent(FXList:create(fx))
     end
 
-    local showChildren = _.some(Track.getSelectedTracks(), function(track)
+    local showChildren = _.size(Track.getSelectedTracks()) == 0 or _.some(Track.getSelectedTracks(), function(track)
         return self.track:receivesFrom(track)
     end)
 
@@ -117,6 +139,10 @@ function MixerChannel:paintOverChildren(g)
     if Track.getSelectedTrack() and not (self.track:isSelected() or self.track:receivesFrom(Track.getSelectedTrack())) then
         g:setColor(0,0,0,0.5)
         g:roundrect(0,0, self.w, self.h, nil, true)
+    end
+    if self.track:isSelected() then
+        g:setColor(1,0,0,0.5)
+        g:rect(0,0, self.w, self.h, true)
     end
 end
 

@@ -179,6 +179,16 @@ function Track:isArmed()
     return self:getValue('arm') ~= 0
 end
 
+function Track:getAllSourceTracks(res)
+    res = res or {}
+    table.insert(res, self)
+    _.forEach(self:getReceives(), function(rec)
+        rec:getSourceTrack():getAllSourceTracks(res)
+    end)
+
+    return res
+end
+
 function Track:setArmed(arm)
     if arm == 1 then
         _.forEach(Track.getAllTracks(), function(track)
@@ -699,6 +709,38 @@ function Track:getOutputConnection()
     return _.some(self:getSends(), function(send)
         return send:getType() == 'output' and send
     end)
+end
+
+function Track.getMenu(callback, menu, checked)
+
+    assert(type(callback) == 'function')
+
+    if checked and not type(checked) == 'function' then
+        checked = function(track)
+            return track == checked
+        end
+    end
+    menu = menu or (require 'Menu'):create()
+
+    local Bus = require 'Bus'
+    local Aux = require 'Aux'
+    local Instrument = require 'Instrument'
+    menu:addItem('Bus', Bus.getMenu(callback, nil, checked))
+    menu:addItem('Aux', Aux.getMenu(callback, nil, checked))
+    menu:addItem('Instrument', Instrument.getMenu(callback, nil, checked))
+
+    -- if checked ~= Track.master then
+        menu:addSeperator()
+        menu:addItem('master', {
+            checked = checked and checked(Track.master),
+            callback = function()
+                callback(Track.master)
+            end
+        })
+    -- end
+
+    return menu
+
 end
 
 function Track:setOpen(open)

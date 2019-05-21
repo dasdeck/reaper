@@ -11,6 +11,7 @@ function Bus.getCreateMenu(callback, menu)
     menu = menu or Menu:create()
 
     local allTracks = Track.getAllTracks()
+
     if Bus.hasTopLevelTracks(allTracks) then
         menu:addItem('create bus from all', function()
             local bus = Bus.fromTracks(allTracks, true)
@@ -54,7 +55,7 @@ function Bus.getMenu(callback, menu, checked)
     _.forEach(Bus.getAllBusses(), function(bus)
         menu:addItem(bus:getName(), {
             checked = checked(bus),
-            function()
+            callback = function()
                 callback(bus)
             end
         })
@@ -73,7 +74,11 @@ end
 
 function Bus.filterTopLevelTracks(tracks)
     return _.filter(tracks, function(track)
-        return not track:getOutput()
+        return not _.find({
+            Track.typeMap.aux,
+            Track.typeMap.midi,
+            Track.typeMap.instrument
+        }, track:getType()) and not track:getOutput()
     end)
 end
 

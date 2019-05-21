@@ -40,7 +40,8 @@ function string:forEach(callback)
 end
 
 function string:includes(needle)
-    return _.size(self:split(needle)) > 1
+    -- return _.size(self:split(needle)) > 1
+    return self:match(needle)
 end
 
 function string:equal(other)

@@ -31,39 +31,39 @@ function MonitorPresets:create(...)
     return Track.master:getFx('MAnalyzer',false, true):isOpen()
   end
 
-  if Track.master:getFx('Isone',false, true):getEnabled() then
-    self.spkers = self:addChildComponent(Speakers:create())
-    self.distances = self:addChildComponent(Distances:create())
-    self.rooms = self:addChildComponent(Rooms:create())
-  else--
-    if Track.master:getFx('Sonarworks', false, true):getEnabled() then
-      self.mode = self:addChildComponent(TextButton:create('realtime'))
-      self.mode.getToggleState = function()
-        return Track.master:getFx('Sonarworks', false, true):getPreset() == 'precise_mp'
-      end
-      self.mode.onButtonClick = function()
-        rea.transaction('toggle mode', function()
-          Track.master:getFx('Sonarworks', false, true):setPreset(self.mode.getToggleState() and 'precise' or 'precise_mp')
+  -- if Track.master:getFx('Isone',false, true):getEnabled() then
+  --   self.spkers = self:addChildComponent(Speakers:create())
+  --   self.distances = self:addChildComponent(Distances:create())
+  --   self.rooms = self:addChildComponent(Rooms:create())
+  -- else--
+  --   if Track.master:getFx('Sonarworks', false, true):getEnabled() then
+  self.mode = self:addChildComponent(TextButton:create('realtime'))
+  self.mode.getToggleState = function()
+    return Track.master:getFx('Sonarworks', false, true):getPreset() == 'precise_mp'
+  end
+  self.mode.onButtonClick = function()
+    rea.transaction('toggle mode', function()
+      Track.master:getFx('Sonarworks', false, true):setPreset(self.mode.getToggleState() and 'precise' or 'precise_mp')
+    end)
+  end
+-- end
+
+  self.response = self:addChildComponent(ButtonList:create(_.map({'bypass', 'NS10', 'Auratone'}, function(name)
+    local fir = Track.master:getFx('FIR',false, true)
+
+    return {
+      args = name,
+      getToggleState = function()
+        return fir:getPreset() == name
+      end,
+      onClick = function()
+        rea.transaction('toggle fir', function()
+          fir:setPreset(name)
         end)
       end
-    end
-
-      self.response = self:addChildComponent(ButtonList:create(_.map({'bypass', 'NS10', 'Auratone'}, function(name)
-        local fir = Track.master:getFx('FIR',false, true)
-
-        return {
-          args = name,
-          getToggleState = function()
-            return fir:getPreset() == name
-          end,
-          onClick = function()
-            rea.transaction('toggle fir', function()
-              fir:setPreset(name)
-            end)
-          end
-        }
-      end), true))
-  end
+    }
+  end), true))
+  -- end
 
   self.ms = self:addChildComponent(MS:create())
 
@@ -86,65 +86,65 @@ function MonitorPresets:create(...)
     }
   end), true))
 
-  self.models = self:addChildComponent(ButtonList:create({
-      {
-        args = 'NX',
-        getToggleState = function()
-          return Track.master:getFx('NX',false, true):getEnabled()
-        end,
-        onClick = function(s,mouse, chained)
-          rea.transaction('toggle monitor model', function()
+  -- self.models = self:addChildComponent(ButtonList:create({
+  --     {
+  --       args = 'NX',
+  --       getToggleState = function()
+  --         return Track.master:getFx('NX',false, true):getEnabled()
+  --       end,
+  --       onClick = function(s,mouse, chained)
+  --         rea.transaction('toggle monitor model', function()
 
-            Track.master:getFx('NX',false, true):setEnabled(true)
-            Track.master:getFx('Isone',false, true):setEnabled(false)
-            if mouse:isShiftKeyDown() then self.models:getData()[3]:onClick(s,mouse, true) end
+  --           Track.master:getFx('NX',false, true):setEnabled(true)
+  --           Track.master:getFx('Isone',false, true):setEnabled(false)
+  --           if mouse:isShiftKeyDown() then self.models:getData()[3]:onClick(s,mouse, true) end
 
-            return not chained
-          end)
-        end
-      },
-      {
-        args = 'IP',
-        getToggleState = function()
-          return Track.master:getFx('Isone',false, true):getEnabled()
-        end,
-        onClick = function(s,mouse, chained)
-          rea.transaction('toggle monitor model', function()
-            Track.master:getFx('Isone',false, true):setEnabled(true)
-            Track.master:getFx('NX',false, true):setEnabled(false)
-            if mouse:isShiftKeyDown() then self.models:getData()[4]:onClick(s,mouse, true) end
-            return not chained
-          end)
-        end
-      },
-      {
-        args = 'SW',
-        getToggleState = function()
-          return Track.master:getFx('Sonarworks',false, true):getEnabled()
-        end,
-        onClick = function(s,mouse, chained)
-          rea.transaction('toggle target curve', function()
-            Track.master:getFx('Sonarworks',false, true):setEnabled(true)
-            Track.master:getFx('Morphit',false, true):setEnabled(false)
-            return not chained
-          end)
-        end
-      },
-      {
-        args = 'TB',
-        getToggleState = function()
-          return Track.master:getFx('Morphit',false, true):getEnabled()
-        end,
-        onClick = function(s,mouse, chained)
-          rea.transaction('toggle target curve', function()
-            Track.master:getFx('Morphit',false, true):setEnabled(true)
-            Track.master:getFx('Sonarworks',false, true):setEnabled(false)
-            return not chained
-          end)
-        end
-      },
+  --           return not chained
+  --         end)
+  --       end
+  --     },
+  --     {
+  --       args = 'IP',
+  --       getToggleState = function()
+  --         return Track.master:getFx('Isone',false, true):getEnabled()
+  --       end,
+  --       onClick = function(s,mouse, chained)
+  --         rea.transaction('toggle monitor model', function()
+  --           Track.master:getFx('Isone',false, true):setEnabled(true)
+  --           Track.master:getFx('NX',false, true):setEnabled(false)
+  --           if mouse:isShiftKeyDown() then self.models:getData()[4]:onClick(s,mouse, true) end
+  --           return not chained
+  --         end)
+  --       end
+  --     },
+  --     {
+  --       args = 'SW',
+  --       getToggleState = function()
+  --         return Track.master:getFx('Sonarworks',false, true):getEnabled()
+  --       end,
+  --       onClick = function(s,mouse, chained)
+  --         rea.transaction('toggle target curve', function()
+  --           Track.master:getFx('Sonarworks',false, true):setEnabled(true)
+  --           Track.master:getFx('Morphit',false, true):setEnabled(false)
+  --           return not chained
+  --         end)
+  --       end
+  --     },
+  --     {
+  --       args = 'TB',
+  --       getToggleState = function()
+  --         return Track.master:getFx('Morphit',false, true):getEnabled()
+  --       end,
+  --       onClick = function(s,mouse, chained)
+  --         rea.transaction('toggle target curve', function()
+  --           Track.master:getFx('Morphit',false, true):setEnabled(true)
+  --           Track.master:getFx('Sonarworks',false, true):setEnabled(false)
+  --           return not chained
+  --         end)
+  --       end
+  --     },
 
-  }, true))
+  -- }, true))
 
   return self
 
@@ -155,17 +155,17 @@ function MonitorPresets:resized()
   local h = 20
   self.analyser:setBounds(0,0, self.w, h)
   self.ms:setBounds(0, self.analyser:getBottom(), self.w, h)
-  self.models:setBounds(0,self.ms:getBottom(),self.w,h)
-  self.outputs:setBounds(0,self.models:getBottom(),self.w,h)
+  -- self.models:setBounds(0,self.ms:getBottom(),self.w,h)
+  self.outputs:setBounds(0,self.ms:getBottom(),self.w,h)
 
   local y = self.outputs:getBottom()
 
-  if self.spkers then
-    self.spkers:setBounds(0, self.outputs:getBottom(),self.w, h)
-    self.distances:setBounds(0, self.spkers:getBottom(), self.w, h)
-    self.rooms:setBounds(0, self.distances:getBottom(), self.w, h)
-    y = self.rooms:getBottom()
-  else
+  -- if self.spkers then
+  --   self.spkers:setBounds(0, self.outputs:getBottom(),self.w, h)
+  --   self.distances:setBounds(0, self.spkers:getBottom(), self.w, h)
+  --   self.rooms:setBounds(0, self.distances:getBottom(), self.w, h)
+  --   y = self.rooms:getBottom()
+  -- else
     if self.mode then
       self.mode:setBounds(0, self.outputs:getBottom(),self.w, h)
       y = self.mode:getBottom()
@@ -174,7 +174,7 @@ function MonitorPresets:resized()
       self.response:setBounds(0, y,self.w, h)
       y = self.response:getBottom()
     end
-  end
+  -- end
 
   self.h = y
 
