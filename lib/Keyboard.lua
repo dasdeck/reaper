@@ -1,31 +1,51 @@
 local Component = require 'Component'
+local Key = require 'Key'
+local Project = require 'Project'
 local _ = require '_'
 
 local Keyboard = class(Component)
 
-function Keyboard.create(lo, hi)
+function Keyboard.create(lo, hi, vert)
 
     local self = Component:create()
     setmetatable(self, Keyboard)
+    self.vert = vert
     self.lo = lo or 0
     self.hi = hi or 127
+
+    self:update()
+
+    self.watchers:watch(Project.watch.project, function()
+        self:update()
+    end, false)
+
     return self
 end
 
-function Keyboard:paint(g)
+function Keyboard:update()
 
+    self:deleteChildren()
+    self.keys = {}
     local num = (self.hi - self.lo) + 1
-    local w  = math.floor(self.w / num)
-
-    local blackKeys = {
-       1, 3, 6, 8, 10
-    }
     for i = 0, num do
-
-        local c = _.find(blackKeys, (i + self.lo) % 12) and 0 or 1
-        g:setColor(c,c,c, 1)
-        g:rect(i * w , 0, w - 1 , self.h, true, true)
+        table.insert(self.keys, self:addChildComponent(Key.create(i + self.lo)))
     end
+
+    self:resized()
+end
+
+function Keyboard:resized()
+
+    local size = self[self.vert and 'h' or 'v'] / _.size(self.children)
+
+    _.forEach(self.keys, function(child, i)
+        if self.vert then
+            child:setBounds(0 , i * size, self.w , size - 1)
+        else
+            child:setBounds(i * size , 0, size - 1 , self.h)
+        end
+    end)
+
 end
 
 return Keyboard

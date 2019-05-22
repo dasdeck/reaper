@@ -956,8 +956,12 @@ function Track:addFx(name, input, force)
     if not name then return end
     local res = reaper.TrackFX_AddByName(self.track, name, input or false, force and -1 or 1)
     if res >= 0 then
+        if input then
+            res = res + 0x1000000
+        end
+        rea.log(res)
         self:updateFxRouting()
-        return Plugin:create(self, res)
+        return Plugin:create(self, res, input)
     end
 end
 

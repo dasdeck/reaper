@@ -268,17 +268,12 @@ function Pad:addLayer(path, name)
             newTrack = Track.getSelectedTrack()
         else
 
-            local Instrument = require 'Instrument'
 
             if reaper.file_exists(path) then
-                newTrack = Instrument.createInstrument('ReaSamplomatic5000')
-                if newTrack then
-                    local fx = newTrack:getInstrument()
-                    fx:setParam('FILE0', path)
-                    fx:setParam('DONE', '')
-                    newTrack:setIcon(rea.findIcon('wave decrease'))
-                end
+                local Sampler = requir 'Sampler'
+                newTrack = Sampler.create(path)
             else
+                local Instrument = require 'Instrument'
                 newTrack = Instrument.createInstrument(path)
             end
 

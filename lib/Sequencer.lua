@@ -3,6 +3,7 @@ local ButtonList = require 'ButtonList'
 local SequenceEditor = require 'SequenceEditor'
 local Project = require 'Project'
 local MediaItem = require 'MediaItem'
+local Track = require 'Track'
 
 local rea = require 'rea'
 local _ = require '_'
@@ -63,7 +64,12 @@ function Sequencer:create()
     self.watchers:watch(Project.watch.project, function()
         local all = MediaItem.getSelectedItems()
         local item = _.first(all)
-        self:setMediaItem(item)
+        if item then
+            self:setMediaItem(item)
+        else
+            local tracks = Track.getSelectedTrack()
+
+        end
 
     end)
 

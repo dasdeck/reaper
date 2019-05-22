@@ -43,7 +43,7 @@ function Plugin.getByGUID(track, guid)
 end
 --
 
-function Plugin:create(track, index)
+function Plugin:create(track, index, rec)
     local guid = reaper.TrackFX_GetFXGUID(track.track, index)
 
     assert(guid, 'index:' ..  tostring(index))
