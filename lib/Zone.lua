@@ -1,6 +1,6 @@
 local Component = require 'Component'
 local rea = require 'rea'
-
+local _ = require '_'
 
 local Zone = class(Component)
 
@@ -8,7 +8,9 @@ function Zone.create(track)
     local self = Component:create()
     setmetatable(self, Zone)
     self.track = track
-    return self
+    self.range = track:getFx('midi_note_filter', false, true)
+
+    return self.range and self or nil
 end
 
 function Zone:canClickThrough()
@@ -23,11 +25,21 @@ function Zone:onClick(mouse)
     end
 end
 
-function Zone:setKey(key)
-    local range = self.track:getFx('midi_note_filter', false, true)
+function Zone:getKey()
+    return self.range:getParam(0)
+end
 
-    range:setParam(0, key)
-    range:setParam(1, key)
+function Zone:setKey(key)
+    local from = self.range:getParam(0)
+    self.range:setParam(0, key)
+    self.range:setParam(1, key)
+
+    _.forEach(self.track:getContent(), function(item)
+        _.forEach(item:getTakes(), function(take)
+            take:flipNotes(from, key)
+        end)
+    end)
+
 end
 
 function Zone:paint(g)

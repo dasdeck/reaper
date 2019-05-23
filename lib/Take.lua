@@ -1,7 +1,7 @@
 local PCMSource = require 'PCMSource'
 local rea = require 'rea'
 local Take = class()
-
+local _ = require '_'
 
 function Take:create(take, item)
 
@@ -34,6 +34,28 @@ function Take:remove()
         -- rea.log(tmp)
         Take:create(tmp, self.item):setActive()
     end
+end
+
+function Take:flipNotes(from, to)
+    local a = _.filter(self:getNotes(), function(note)
+        return note.pitch == from
+    end)
+    local b = _.filter(self:getNotes(), function(note)
+        return note.pitch == to
+    end)
+
+    _.forEach(a, function(note)
+        note.pitch = to
+        self:writeNote(note)
+    end)
+    _.forEach(b, function(note)
+        note.pitch = from
+        self:writeNote(note)
+    end)
+end
+
+function Take:writeNote(note)
+    reaper.MIDI_SetNote(self.take, note.index, false, false, note.startppqpos, note.endppqpos, 1, note.pitch, note.vel, false)
 end
 
 function Take:getNotes()

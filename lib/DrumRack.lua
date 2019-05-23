@@ -103,15 +103,12 @@ function DrumRack:updateNoteNames()
 
         local pad = _.find(self.pads, function(pad)
             local low, hi = self:getMapper():getKeyRange(pad)
-            --rea.log('test:' .. tostring(low) .. ':' .. tostring(i) .. ':' .. tostring(hi))
             return low <= i and hi >= i
         end)
 
         if pad then
-            -- rea.log('setting midi notes' .. tostring(i))
             self:getTrack():setNoteName(i, 'pad-' .. pad:getName())
         else
-            -- rea.log('no name'.. tostring(i))
             self:getTrack():setNoteName(i, '')
         end
     end

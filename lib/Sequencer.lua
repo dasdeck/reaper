@@ -57,18 +57,28 @@ function Sequencer:create()
                 end
             }
         end))
-        -- rea.log(btn)
         return btn
     end
 
     self.watchers:watch(Project.watch.project, function()
         local all = MediaItem.getSelectedItems()
         local item = _.first(all)
-        if item then
-            self:setMediaItem(item)
-        else
-            local tracks = Track.getSelectedTrack()
+        self:setMediaItem(item)
+        if not item then
+            local lanes = {}
+            local Zone = require 'Zone'
+            local tracks = Track.getAllTracks()
+            _.forEach(tracks, function(track)
+                local zone = Zone.create(track)
+                if track:isArmed() and zone then
+                    table.insert(lanes, {
+                        key = zone:getKey(),
+                        track = track
+                    })
+                end
+            end)
 
+            self:setTake(nil, lanes)
         end
 
     end)
@@ -82,20 +92,21 @@ function Sequencer:setMediaItem(item)
     self.buttons:updateList()
     self:resized()
     self:repaint(true)
-
 end
 
-function Sequencer:setTake(take)
+function Sequencer:setTake(take, lanes)
 
-    if self.sequence and self.sequence.take == take then return end
+    if take and self.sequence and self.sequence.take == take then return end
 
     if self.sequence then
         self.sequence:delete()
     end
 
-    if take then
-        self.sequence = self:addChildComponent(SequenceEditor:create(take))
+    if take or lanes then
+        self.sequence = self:addChildComponent(SequenceEditor:create(take, lanes))
+    end
 
+    if take then
         local inst = take.item:getTrack():getInstrument()
         if inst and inst.track:getFx('DrumRack') then
             local DrumRack = require 'DrumRack'
@@ -107,6 +118,7 @@ function Sequencer:setTake(take)
             end
         end
     end
+
     self:resized()
     self:repaint(true)
 

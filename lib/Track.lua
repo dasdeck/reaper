@@ -797,7 +797,6 @@ function Track:removeSends(target)
     target = type(target) == 'function' and target or function(send) return send:getTargetTrack() == target end
 
     _.forEach(self:getSends(), function(send)
-
         if target(send) then
             send:remove()
             self:removeSends(target)
@@ -811,6 +810,29 @@ function Track:sendsTo(track)
     return _.some(self:getSends(), function(send)
         return send:getTargetTrack() == track
     end)
+end
+
+function Track:createContent(loopstart, loopend)
+    local MediaItem = require 'MediaItem'
+    -- rea.log({loopstart, loopend})
+    local item = reaper.CreateNewMIDIItemInProj(self.track, loopstart, loopend, false)
+    return MediaItem:create(item)
+end
+
+function Track:getContent()
+    local numItems = reaper.CountTrackMediaItems(self.track)
+    local MediaItem = require 'MediaItem'
+    local res = {}
+    for i = 0, numItems -1 do
+        table.insert(res, MediaItem:create(reaper.GetTrackMediaItem(self.track, i)))
+    end
+    return res
+end
+
+function Track:getItemsUnderPosition(pos)
+    return _.filter(self:getContent(), function(item)
+        return item:getPos() <= pos and item:getEnd() > pos
+    end, true)
 end
 
 function Track:getSends()

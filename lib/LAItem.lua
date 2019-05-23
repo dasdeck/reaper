@@ -112,13 +112,8 @@ function LAItem:setIndex(index, track)
 
     if track == self.fx.track and index <= self.fx.index then
         fxs = reversed(fxs)
-        -- rea.log('rev')
     end
-    -- rea.log(_.size(self.fxs))
-    -- rea.log(self.fxs)
-    -- rea.log(fxs)
     _.forEach(fxs, function(fx)
-        -- rea.log(index)
         fx:setIndex(index, track)
     end)
 end

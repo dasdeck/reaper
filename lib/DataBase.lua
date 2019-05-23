@@ -68,7 +68,6 @@ function DataBase:getRandomEntry(filter)
 
         local size = _.size(entries)
         local index = math.random(1, size)
-        -- rea.log({index, size})
         return entries[index]
     end
 end

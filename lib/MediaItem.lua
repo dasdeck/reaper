@@ -23,6 +23,14 @@ function MediaItem.getAllItems()
     return res
 end
 
+function MediaItem:getPos()
+    return reaper.GetMediaItemInfo_Value(self.item, 'D_POSITION')
+end
+
+function MediaItem:getEnd()
+    return self:getPos() + self:getLength()
+end
+
 function MediaItem:create(item)
     local self = {
         item = item
@@ -38,6 +46,10 @@ end
 
 function MediaItem:__eq(other)
     return self.item == other.item
+end
+
+function MediaItem:__tostring()
+    return tostring(self:getPos()) .. '-' .. tostring(self:getEnd())
 end
 
 function MediaItem:getLength()

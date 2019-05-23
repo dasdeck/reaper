@@ -43,7 +43,6 @@ end
 
 function Key:onDrop()
     local Zone = require 'Zone'
-
     if instanceOf(Component.dragging, Zone) then
         rea.transaction('change key', function()
             Component.dragging:setKey(self.key)
@@ -69,6 +68,7 @@ function Key:onFilesDrop(files)
         _.forEach(files, function(file)
 
             local track = Track.insert()
+            track:setName(_.last(file:split('/')))
             track:setArmed(true)
             local sampler = track:addFx('ReaSamplomatic5000')
             sampler:setParam('FILE0', file)
