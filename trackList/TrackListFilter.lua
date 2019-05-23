@@ -5,7 +5,6 @@ local Instrument = require 'Instrument'
 
 local Menu = require 'Menu'
 local Bus = require 'Bus'
-local Aux = require 'Aux'
 local AuxUI = require 'AuxUI'
 local _ = require '_'
 local colors = require 'colors'

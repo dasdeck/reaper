@@ -4,7 +4,7 @@ local Image = require 'Image'
 local Slider = require 'Slider'
 local PluginListApp = require 'PluginListApp'
 local Menu = require 'Menu'
-local Aux = require 'Aux'
+local Aux = require 'AuxTrack'
 
 local _ = require '_'
 local rea = require 'rea'

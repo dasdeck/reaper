@@ -5,7 +5,6 @@ local TextButton = require 'TextButton'
 local PluginListApp = require 'PluginListApp'
 local Menu = require 'Menu'
 local Mouse = require 'Mouse'
-local Aux = require 'Aux'
 local Bus = require 'Bus'
 local Track = require 'Track'
 

@@ -723,7 +723,7 @@ function Track.getMenu(callback, menu, checked)
     menu = menu or (require 'Menu'):create()
 
     local Bus = require 'Bus'
-    local Aux = require 'Aux'
+    local Aux = require 'AuxTrack'
     local Instrument = require 'Instrument'
     menu:addItem('Bus', Bus.getMenu(callback, nil, checked))
     menu:addItem('Aux', Aux.getMenu(callback, nil, checked))

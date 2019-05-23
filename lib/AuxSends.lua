@@ -1,6 +1,5 @@
 
 local ButtonList = require 'ButtonList'
-local Aux = require 'Aux'
 local AuxUI = require 'AuxUI'
 
 local _ = require '_'
@@ -19,7 +18,7 @@ end
 
 function AuxSends:getData()
     local sends = self.track:getSends()
-
+    local Aux = require 'AuxTrack'
     return _.map(Aux.getAuxTracks(), function(aux)
 
         if aux == self.track then return nil end
