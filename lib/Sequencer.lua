@@ -63,8 +63,11 @@ function Sequencer:create()
     self.watchers:watch(Project.watch.project, function()
         local all = MediaItem.getSelectedItems()
         local item = _.first(all)
-        self:setMediaItem(item)
-        if not item then
+        if item then
+            self:setMediaItem(item)
+        else
+            self.item = nil
+            self.buttons:updateList()
             local lanes = {}
             local Zone = require 'Zone'
             local tracks = Track.getAllTracks()
@@ -97,6 +100,9 @@ end
 function Sequencer:setTake(take, lanes)
 
     if take and self.sequence and self.sequence.take == take then return end
+    if lanes and self.sequence and _.equal(self.sequence.lanes, lanes) then
+        return
+    end
 
     if self.sequence then
         self.sequence:delete()

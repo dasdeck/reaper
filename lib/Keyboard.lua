@@ -36,13 +36,13 @@ end
 
 function Keyboard:resized()
 
-    local size = self[self.vert and 'h' or 'v'] / _.size(self.children)
+    local size = self[self.vert and 'h' or 'w'] / _.size(self.children)
 
     _.forEach(self.keys, function(child, i)
         if self.vert then
-            child:setBounds(0 , i * size, self.w , size - 1)
+            child:setBounds(0 , (i-1) * size, self.w , size - 1)
         else
-            child:setBounds(i * size , 0, size - 1 , self.h)
+            child:setBounds((i-1) * size , 0, size - 1 , self.h)
         end
     end)
 

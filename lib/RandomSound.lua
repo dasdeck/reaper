@@ -69,7 +69,7 @@ function RandomSound:create(text)
         return _.map(entries, function(entry)
             return {
                 proto = function()
-                    local b = TextButton:create(_.last(entry.path:split('/')))
+                    local b = TextButton:create(_.last(entry.path:split(rea.seperator)))
                     b.getToggleState = function()
                         return entry == self.current
                     end

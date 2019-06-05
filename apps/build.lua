@@ -8,6 +8,6 @@ local _ = require '_'
 _.forEach(paths.scriptDir:childDir('apps'):getFiles(), function(file)
     if not file:endsWith('build.lua') then
         local res = Builder.build(file)
-        paths.distDir:childFile(_.last(file:split('/'))):setContent(res)
+        paths.distDir:childFile(_.last(file:split(package.config:sub(1,1)))):setContent(res)
     end
 end)

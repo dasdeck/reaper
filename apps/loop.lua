@@ -1,3 +1,9 @@
+package.path = debug.getinfo(1,"S").source:match[[^@?(.*[\/])[^\/]-$]] .. "../?.lua;".. package.path
+
+require 'boot'
+local _ = require '_'
+local MediaItem = require 'MediaItem'
+
 
 function findTempo(measures, oneMeasure, length, originalTempo)
     local measuresNow = length / oneMeasure
@@ -16,21 +22,15 @@ function looper()
     return
   end
 
-  if reaper.CountSelectedTracks(0) ~= 1 or reaper.CountSelectedMediaItems(0) ~= 1 then
-    reaper.ShowConsoleMsg("please select one media item and one track")
-    return
-  end
-  
 
-  local clip = reaper.GetSelectedMediaItem(0,0)
-  local track = reaper.GetSelectedTrack(0,0)
-  local trash = clip
+
   local originalTempo = reaper.Master_GetTempo()
   local oneMeasure = 60 / originalTempo * 4
 
   local suggestions = ""
   local suggestedTempo = 0
   local measures = 1
+
   while suggestedTempo < 200 do
     suggestedTempo = findTempo(measures, oneMeasure, length, originalTempo)
     if suggestedTempo > 40 then
@@ -53,34 +53,33 @@ function looper()
 
       local targetLength = oneMeasure * measures
 
-      clip = reaper.SplitMediaItem(trash,loopstart)
-      if clip and clip ~= trash then
-        reaper.DeleteTrackMediaItem(track,trash)
+      _.forEach(MediaItem.getAllItems(), function(item)
+        item:setSelected()
+      end)
+
+      reaper.Main_OnCommand(40061, 0)
+
+    _.forEach(MediaItem.getAllItems(), function(item)
+      if not item:isSelected() then
+        item:remove()
       end
+    end)
 
-      trash = reaper.SplitMediaItem(clip,loopend)
-      reaper.DeleteTrackMediaItem(track,trash)
+    local clipLength = _.first(MediaItem.getSelectedItems()):getLength()
+    strech = clipLength / targetLength
 
-      isFirstLoop = reaper.CountTempoTimeSigMarkers(0) == 0
+      _.forEach(MediaItem.getSelectedItems(), function(item)
 
-      if isFirstLoop then
-          reaper.SetMediaItemInfo_Value(clip,"D_POSITION",0)
-      end
+          item:setPos(0)
+          item:setLength(targetLength)
+          item:getActiveTake():setPlayRate(strech)
 
-      clipLength = reaper.GetMediaItemInfo_Value(clip,"D_LENGTH")
-      strech = clipLength / targetLength
-      reaper.SetMediaItemInfo_Value(clip,"D_LENGTH",targetLength)
-      take = reaper.GetActiveTake(clip)
-      reaper.SetMediaItemTakeInfo_Value(take,"D_PLAYRATE",strech)
+      end)
 
-      --reaper.SetCurrentBPM(0, tempo , True)
-      --set loop start to zero if this is the first loop
-      if isFirstLoop then
-          loopstart = 0
-      end
+      loopstart = 0
+
 
       reaper.AddTempoTimeSigMarker(0, loopstart, tempo, 4, 4, 1)
-
 
       reaper.ShowConsoleMsg( "\ntempo:\n")
       reaper.ShowConsoleMsg( tempo)
@@ -88,7 +87,6 @@ function looper()
 
       reaper.ShowConsoleMsg( "\nmeasures\n")
       reaper.ShowConsoleMsg( measures)
-
 
       local oneMeasure = 60 / tempo * 4
       local newLength = oneMeasure * measures

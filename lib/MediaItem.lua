@@ -23,8 +23,24 @@ function MediaItem.getAllItems()
     return res
 end
 
+function MediaItem:setSelected(sel)
+    reaper.SetMediaItemSelected(self.item, true)
+end
+
+function MediaItem:isSelected()
+    return reaper.IsMediaItemSelected(self.item)
+end
+
+function MediaItem:setPos(pos)
+    return reaper.SetMediaItemInfo_Value(self.item, 'D_POSITION', pos)
+end
+
 function MediaItem:getPos()
-    return reaper.GetMediaItemInfo_Value(self.item, 'D_POSITION')
+    return reaper.GetMediaItemInfo_Value(self.item,"D_POSITION")
+end
+
+function MediaItem:remove()
+    reaper.DeleteTrackMediaItem(self:getTrack().track, self.item)
 end
 
 function MediaItem:getEnd()
@@ -55,6 +71,11 @@ end
 function MediaItem:getLength()
     return reaper.GetMediaItemInfo_Value(self.item ,'D_LENGTH')
 end
+
+function MediaItem:setLength(len)
+    return reaper.SetMediaItemInfo_Value(self.item ,'D_LENGTH', len)
+end
+
 
 function MediaItem:getTakes()
     local res = {}

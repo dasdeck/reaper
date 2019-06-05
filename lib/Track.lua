@@ -566,7 +566,7 @@ function Track:getState(live)
 end
 
 function Track:__tostring()
-    return self:getName() .. ' :: ' .. tostring(self.track) .. '::' .. self:getType()
+    return self:getSafeName() .. ' :: ' .. tostring(self.track) .. '::' .. (self:getType() or '')
 end
 
 function Track:setState(state)
@@ -981,7 +981,7 @@ function Track:addFx(name, input, force)
         if input then
             res = res + 0x1000000
         end
-        rea.log(res)
+        -- rea.log(res)
         self:updateFxRouting()
         return Plugin:create(self, res, input)
     end

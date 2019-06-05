@@ -3,7 +3,7 @@ local _ = require '_'
 local rea = require 'rea'
 local File = require 'File'
 local Directory = class()
-
+local seperator = rea.seperator
 function Directory:create(dir, filter)
 
     if instanceOf(dir, Directory)then
@@ -29,11 +29,11 @@ function Directory:mkdir()
 end
 
 function Directory:childDir(path, filter)
-    return Directory:create(self.dir .. '/' .. path, filter)
+    return Directory:create(self.dir .. seperator .. path, filter)
 end
 
 function Directory:childFile(path)
-    return File:create(self.dir .. '/' .. path)
+    return File:create(self.dir .. seperator .. path)
 end
 
 function Directory:findFile(pattern)
@@ -95,7 +95,7 @@ function Directory:listAsMenu(selected)
 end
 
 function Directory:browseForFile(ext, text)
-    local suc, file = reaper.GetUserFileNameForRead(self.dir .. '/', text or 'load file', ext or '')
+    local suc, file = reaper.GetUserFileNameForRead(self.dir .. seperator, text or 'load file', ext or '')
     return suc and file or nil
 end
 
@@ -105,7 +105,7 @@ function Directory:saveDialog(suffix, initial, override)
     local val = rea.prompt('save', initial)
 
     if val then
-        local file = self.dir .. '/' .. val .. suffix
+        local file = self.dir .. seperator .. val .. suffix
         if not reaper.file_exists(file) or override then
             return file
         else

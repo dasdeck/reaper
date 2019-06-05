@@ -26,6 +26,10 @@ function Take:setActive()
     rea.refreshUI()
 end
 
+function Take:setPlayRate(strech)
+    reaper.SetMediaItemTakeInfo_Value(self.take,"D_PLAYRATE",strech)
+end
+
 function Take:remove()
     local tmp = not self:isActive() and reaper.GetActiveTake(self.item.item)
     self:setActive()

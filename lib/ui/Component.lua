@@ -269,8 +269,8 @@ function Component:setSize(w,h)
 
     if self.w ~= w or self.h ~= h then
 
-        self.w = w
-        self.h = h
+        self.w = math.min(w, 2048)
+        self.h = math.min(h, 2048)
 
         self:resized()
         self:repaint(true)

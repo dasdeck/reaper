@@ -1,4 +1,4 @@
-local Component = require 'Component'
+ local Component = require 'Component'
 
 local rea = require 'rea'
 local colors = require 'colors'
@@ -17,7 +17,6 @@ function SequencerLane:create(data)
     self.note = data.key
     self.track = data.track
 
-    self.numSteps = 4
     self.ppq = 960
 
     return self
@@ -32,12 +31,12 @@ function SequencerLane:getRange(time)
 end
 
 
-function SequencerLane:getNumSteps()
-    return self:getNumBars() * self.numSteps
+function SequencerLane:getNumTotalSteps()
+    return self.parent:getNumTotalSteps()
 end
 
 function SequencerLane:getPPS()
-    return self.ppq / self.numSteps
+    return self.ppq / self.parent:getNumSteps()
 end
 
 function SequencerLane:getNote(pos)
@@ -52,7 +51,7 @@ end
 function SequencerLane:getNotes()
     local notesCache = {}
 
-    for step = 1, self:getNumSteps() do
+    for step = 1, self:getNumTotalSteps() do
         local ppqpos = (step-1) * self:getPPS()
         local take = self:getTake(ppqpos)
         if take then
@@ -72,7 +71,7 @@ end
 
 function SequencerLane:getPos(x)
     local relx = x / self.w
-    local step = math.floor(self:getNumSteps() * relx)
+    local step = math.floor(self:getNumTotalSteps() * relx)
     local ppqpos = step * self:getPPS()
     return ppqpos
 end
@@ -193,7 +192,7 @@ function SequencerLane:paint(g)
         end
 
         g:setColor(colors.default:with_alpha(0.1))
-        num = self:getNumSteps()
+        num = self:getNumTotalSteps()
         w = self.w / num
         for i = 0, num -1 do
             if i % 2 == 0 then

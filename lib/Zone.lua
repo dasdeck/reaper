@@ -22,6 +22,10 @@ function Zone:onClick(mouse)
         rea.transaction('remove zone',function()
             self.track:remove()
         end)
+    else
+        rea.transaction('select zone', function()
+            self.track:setSelected(1)
+        end)
     end
 end
 
@@ -44,7 +48,7 @@ end
 
 function Zone:paint(g)
     g:setColor(1,0,0,1)
-    g:rect(0,0,self.w,self.h)
+    g:rect(0,0,self.w,self.h, self.track:isSelected())
 end
 
 function Zone:onDrag()

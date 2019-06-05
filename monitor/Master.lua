@@ -46,8 +46,6 @@ function Master:update()
         reaper.SetProjExtState(0, 'D3CK', 'transpose', tostring(value))
     end
 
-    -- local suc, val = reaper.GetProjExtState(0, 'D3CK', 'transpose')
-
     self.monitor = self:addChildComponent(MonitorPresets:create())
 
     self.fx = self:addChildComponent(MasterUI:create(Track.master))
@@ -58,8 +56,6 @@ function Master:resized()
     local h = 20
 
     self.transpose:setBounds(0,0,self.w, h)
-
-    -- self.test:setBounds(0,self.transpose:getBottom(),self.w, h)
 
     self.monitor:setBounds(0,self.transpose:getBottom(),self.w)
 

@@ -14,6 +14,8 @@ function SequenceEditor:create(take, lanes)
     self.numSteps = 4
     self.root = 36
     self.ppq = 960
+    self.lanes = lanes
+
 
     lanes = lanes or _.map({
         36,37,38,39
@@ -54,11 +56,11 @@ function SequenceEditor:getPlayPos()
 end
 
 function SequenceEditor:getNumSteps()
-    return self:getNumBars() * self.numSteps
+    return self.numSteps
 end
 
-function SequenceEditor:getPPS()
-    return self.ppq / self.numSteps
+function SequenceEditor:getNumTotalSteps()
+    return self:getNumBars() * self.numSteps
 end
 
 function SequenceEditor:resized()
@@ -75,7 +77,7 @@ function SequenceEditor:paintOverChildren(g)
     local len = loopend - loopstart
     local pos = (self:getPlayPos() - loopstart) / len * self.w
 
-    local stepSize = self.w / self:getNumSteps()
+    local stepSize = self.w / self:getNumTotalSteps()
     g:setColor(1,0,0,1)
     g:rect(pos, 0, stepSize, self.h)
 

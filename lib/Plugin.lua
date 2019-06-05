@@ -48,14 +48,14 @@ function Plugin:create(track, index, rec)
 
     assert(guid, 'index:' ..  tostring(index))
 
-    if not Plugin.plugins[guid] then
+    -- if not Plugin.plugins[guid] then
         local p = {}
         setmetatable(p, Plugin)
         p.track = track
         p.rec = rec
         p.guid = guid
         Plugin.plugins[guid] = p
-    end
+    -- end
 
     Plugin.plugins[guid].index = index
 

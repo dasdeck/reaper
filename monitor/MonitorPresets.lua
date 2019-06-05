@@ -31,6 +31,17 @@ function MonitorPresets:create(...)
     return Track.master:getFx('MAnalyzer',false, true):isOpen()
   end
 
+  self.watchers:watch(function()
+    return reaper.GetOutputChannelName(0)
+  end, function(name)
+    -- local enabled = _.some({'Groove', 'Left', 'Audio Output 1'}, function(on) return name == on end) and true or false
+    -- Track.master:getFx('Sonarworks', false, true):setEnabled(enabled)
+    -- Track.master:getFx('stereo', false, true):setEnabled(enabled)
+    -- Track.master:getFx('FIR', false, true):setEnabled(enabled)
+    -- Track.master:getFx('isone', false, true):setEnabled(enabled)
+
+  end)
+
   -- if Track.master:getFx('Isone',false, true):getEnabled() then
   --   self.spkers = self:addChildComponent(Speakers:create())
   --   self.distances = self:addChildComponent(Distances:create())

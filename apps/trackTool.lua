@@ -1,15 +1,16 @@
 package.path = debug.getinfo(1,"S").source:match[[^@?(.*[\/])[^\/]-$]] .. "../?.lua;".. package.path
 
 require 'boot'
+local rea = require 'rea'
 addScope('trackTool')
 addScope('drumRack')
-addScope('drumRack/ui')
+addScope('drumRack' .. rea.seperator ..  'ui')
 addScope('pluginList')
 
 local TrackToolSwitcher = require 'TrackToolSwitcher'
 local WindowApp = require 'WindowApp'
 local Builder = require 'Builder'
-local rea = require 'rea'
+
 local paths = require 'paths'
 
 local TrackToolJSFX = paths.effectsDir:childFile('TrackTool')

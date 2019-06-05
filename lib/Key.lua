@@ -1,6 +1,7 @@
 local Component = require 'Component'
 local _ = require '_'
 local rea = require 'rea'
+local paths = require 'paths'
 
 local Key = class(Component)
 
@@ -27,6 +28,7 @@ function Key:createZones()
     local Zone = require 'Zone'
     self.zones = {}
     _.forEach(self:getZones(), function(track)
+        -- rea.log(self.key)
         table.insert(self.zones, self:addChildComponent(Zone.create(track)))
     end)
 end
@@ -36,6 +38,7 @@ function Key:getZones()
     return _.filter(Track.getAllTracks(), function(track)
         if track:isArmed() then
             local keyRange = track:getFx('midi_note_filter', false, true)
+
             return keyRange and keyRange:getParam(0) <= self.key and keyRange:getParam(1) >= self.key
         end
     end)
@@ -62,20 +65,25 @@ function Key:onDrop()
 end
 
 function Key:onFilesDrop(files)
-    rea.log('drop')
+
     local Track = require 'Track'
+    local TrackState = require 'TrackState'
+
     rea.transaction('add sampler', function()
         _.forEach(files, function(file)
 
-            local track = Track.insert()
-            track:setName(_.last(file:split('/')))
+            local template = paths.reaDir:childDir('TrackTemplates'):childFile('sampler.RTrackTemplate')
+            local track = _.first(TrackState.fromTemplate(template:getContent())) --Track.insert()
+            track = track or Track.insert()
+
+            track:setName(_.last(file:split(package.config:sub(1,1))))
             track:setArmed(true)
-            local sampler = track:addFx('ReaSamplomatic5000')
+            local sampler = track:getFx('ReaSamplomatic5000')
             sampler:setParam('FILE0', file)
             sampler:setParam('DONE', '')
             track:setIcon(rea.findIcon('wave decrease'))
-
-            local range = track:addFx('midi_note_filter', true)
+            track:setSelected(1)
+            local range = track:getFx('midi_note_filter', false, true)
 
             range:setParam(0, self.key)
             range:setParam(1, self.key)
@@ -96,6 +104,8 @@ function Key:resized()
     _.forEach(self.zones, function(zone, i)
         if horz then
             zone:setBounds(s * (i-1), 0, s, self.h)
+        else
+            zone:setBounds(0, s * (i-1), self.w, s)
         end
     end)
 end

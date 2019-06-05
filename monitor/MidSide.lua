@@ -4,7 +4,7 @@ local ButtonList = require 'ButtonList'
 local Track = require 'Track'
 local rea = require 'rea'
 
-local ms = Track.master:getFx('MSSolo', false, true)
+local ms = Track.master:getFx('ms', false, true)
 
 local param = 0
 local labels = {

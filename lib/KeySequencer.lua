@@ -9,7 +9,7 @@ function KeySequencer:create()
     local self = Component:create()
     setmetatable(self, KeySequencer)
 
-    self.keyboard = self:addChildComponent(Keyboard.create(36, 48, true))
+    --self.keyboard = self:addChildComponent(Keyboard.create(36, 48, true))
     self.sequencer = self:addChildComponent(Sequencer:create())
 
     return self
@@ -17,8 +17,8 @@ function KeySequencer:create()
 end
 
 function KeySequencer:resized()
-    self.keyboard:setBounds(0, 0, 300, self.h)
-    self.sequencer:setBounds(300, 0, self.w - 300, self.h)
+    --self.keyboard:setBounds(0, 0, 300, self.h)
+    self.sequencer:setBounds(0, 0, self.w, self.h)
 end
 
 return KeySequencer

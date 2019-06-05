@@ -18,10 +18,6 @@ function PadGrid:create(rack, ...)
     self.rack = rack
     _.assign(self, defaults)
 
-    -- self.watchers:watch(function () return self.rack:getSelectedPad()end,
-
-    -- function() self:repaint(true) end)
-
     setmetatable(self, PadGrid)
     self:createPads()
     return self

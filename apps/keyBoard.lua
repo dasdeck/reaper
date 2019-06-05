@@ -5,7 +5,7 @@ require 'boot'
 local WindowApp = require 'WindowApp'
 local Keyboard = require 'Keyboard'
 
-WindowApp:create('keyboard', Keyboard.create(36,48)):start(
+WindowApp:create('keyboard', Keyboard.create(36,47)):start(
 {
 profile = false
 })

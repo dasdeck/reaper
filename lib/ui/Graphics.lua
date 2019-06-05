@@ -43,16 +43,18 @@ end
 
 function Graphics:startBuffering(comp, slot, paint)
 
-    assert(comp.w > 0)
-    assert(comp.h > 0)
-    assert(slot >= 0)
+    if comp.w > 0 and comp.h > 0 then
+        assert(comp.w > 0)
+        assert(comp.h > 0)
+        assert(slot >= 0)
 
-    self.a = 1
-    self:resetSlot(slot, comp.w, comp.h)
-    self.x = 0
-    self.y = 0
-    gfx.y = 0
-    gfx.x = 0
+        self.a = 1
+        self:resetSlot(slot, comp.w, comp.h)
+        self.x = 0
+        self.y = 0
+        gfx.y = 0
+        gfx.x = 0
+    end
 
 end
 

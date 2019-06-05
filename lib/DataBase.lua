@@ -3,22 +3,24 @@ local File = require 'File'
 local _ = require '_'
 local ini = require 'ini'
 local rea = require 'rea'
-
 local DataBase = class()
+
 
 function DataBase.getDataBases()
     local reaperIni = ini.load(reaper.get_ini_file())
 
-    local basepath = reaper.GetResourcePath() .. '/MediaDB/'
+    local basepath = reaper.GetResourcePath() .. rea.seperator .. 'MediaDB' .. rea.seperator
     local favorite = 'ShortcutT'
     local res = {}
 
-    _.forEach(reaperIni.reaper_sexplorer, function(value, key)
+    local obj = rea.osx and reaperIni.reaper_sexplorer or reaperIni.reaper_explorer
+
+    _.forEach(obj, function(value, key)
         if key:startsWith(favorite) then
 
             local index = key:sub(1 + favorite:len())
             filenameKey = 'Shortcut' .. index
-            local filename = reaperIni.reaper_sexplorer[filenameKey]
+            local filename = obj[filenameKey]
 
             table.insert(res, {name = value, filename = basepath .. filename})
         end
@@ -40,7 +42,7 @@ function DataBase:create(path)
 
     local rand = tostring(reaper.time_precise()):reverse():sub(1,6)
 
-    rea.log(rand)
+    -- rea.log(rand)
 
     math.randomseed(tonumber(rand))
 

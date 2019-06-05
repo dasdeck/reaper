@@ -1,6 +1,9 @@
 require 'Util'
 local _ = require '_'
 
+local seperator = package.config:sub(1,1)
+local osx = seperator == '/'
+
 local ENSURE_MIDI_ITEMS,IMPORT_LYRICS,EXPORT_LYRICS=42069,42070,42071
 
 local function getFxByName(track, name, recFX)
@@ -174,7 +177,7 @@ local function findFiles(dir, files, filter)
 
         if file then
             if not filter or filter(file) then
-                table.insert(files, dir .. '/' .. file)
+                table.insert(files, dir .. seperator .. file)
             end
         end
     end
@@ -184,7 +187,7 @@ local function findFiles(dir, files, filter)
     while folder do
         folder = reaper.EnumerateSubdirectories(dir, i)
         i = i + 1
-        if folder then findFiles(dir .. '/' .. folder, files, filter) end
+        if folder then findFiles(dir .. seperator .. folder, files, filter) end
     end
 
     return files
@@ -192,7 +195,7 @@ end
 
 local function findIcon(name)
     local name = name:lower()
-    local path = reaper.GetResourcePath() .. '/Data/track_icons'
+    local path = reaper.GetResourcePath() .. seperator ..'Data' .. seperator .. 'track_icons'
     local files = findFiles(path, {}, function(path)
         return path:lower():includes(name)
     end)
@@ -330,6 +333,7 @@ end
 
 
 local rea = {
+    osx = osx,
     logPin = logPin,
     logError = logError,
     logCount = logCount,
@@ -341,6 +345,7 @@ local rea = {
     setTrackVisible = setTrackVisible,
     prompt = prompt,
     findIcon = findIcon,
+    seperator = seperator,
     transaction = transaction,
     findFiles = findFiles,
     getAllTracks = getAllTracks,
