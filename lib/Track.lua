@@ -601,7 +601,6 @@ function Track:setNoteName(note, name)
         reaper.SetTrackMIDINoteNameEx(0,self.track, note, 0, name)
 
         _.forEach(self:getMidiSlaves(), function(midi)
-            rea.logCount('slave')
             midi:setNoteName(note, name)
         end)
     end

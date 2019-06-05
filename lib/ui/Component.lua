@@ -264,14 +264,18 @@ end
 
 function Component:setSize(w,h)
 
+
+
     w = w == nil and self.w or w
     h = h == nil and self.h or h
 
+    w = math.min(w, 2048)
+    hh = math.min(h, 2048)
+
     if self.w ~= w or self.h ~= h then
 
-        self.w = math.min(w, 2048)
-        self.h = math.min(h, 2048)
-
+        self.w = w
+        self.h = h
         self:resized()
         self:repaint(true)
     end

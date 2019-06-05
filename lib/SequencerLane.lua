@@ -48,14 +48,15 @@ function SequencerLane:getNote(pos)
     end
 end
 
-function SequencerLane:getNotes()
+function SequencerLane:getNotes(offsetIn)
     local notesCache = {}
+    offsetIn = offsetIn or 0
 
     for step = 1, self:getNumTotalSteps() do
         local ppqpos = (step-1) * self:getPPS()
         local take = self:getTake(ppqpos)
         if take then
-            local offset = reaper.TimeMap2_timeToQN(0, take.item:getPos() ) * self.ppq
+            local offset = offsetIn + reaper.TimeMap2_timeToQN(0, take.item:getPos() ) * self.ppq
             ppqpos = ppqpos - offset
             local note = _.find(take:getNotes(), function(note)
                 return note.startppqpos == ppqpos and note.pitch == self.note
@@ -73,7 +74,8 @@ function SequencerLane:getPos(x)
     local relx = x / self.w
     local step = math.floor(self:getNumTotalSteps() * relx)
     local ppqpos = step * self:getPPS()
-    return ppqpos
+    local off = self.parent:getRange() * self.ppq
+    return ppqpos + off
 end
 
 function SequencerLane:getTake(pos, create)
@@ -108,27 +110,27 @@ function SequencerLane:getTake(pos, create)
 
 end
 
-function SequencerLane:changeStep(pos, velo, note, take)
-    note = note or self:getNote(pos, self.note)
-    velo = velo or self:getVelo()
-    take = take or self:getTake(pos)
+function SequencerLane:changeStep(pos)
+    local note = self:getNote(pos)
 
-    local pitch = self.note
-    local offset = reaper.TimeMap2_timeToQN(0, take.item:getPos() ) * self.ppq
-    pos = pos - offset
     if self.add then
+        local velo = self:getVelo()
         if not note then
+            local take = self:getTake(pos, true)
+            local offset = reaper.TimeMap2_timeToQN(0, take.item:getPos() ) * self.ppq
+            pos = pos - offset
+            reaper.MIDI_InsertNote(take.take, false,false, pos, pos + 1, 1, self.note, velo, false)
             self.changed = true
-            reaper.MIDI_InsertNote(take.take, false,false, pos, pos + 1, 1, pitch, velo, false)
         elseif note.vel ~= velo then
+            reaper.MIDI_SetNote(note.take.take, note.index, false, false, note.startppqpos, note.endppqpos, 1, note.pitch, velo, false)
             self.changed = true
-            reaper.MIDI_SetNote(take.take, note.index, false, false, pos, pos+1, 1, pitch, velo, false)
         end
         self:repaint()
     elseif note then
-        self.changed = true
-        reaper.MIDI_DeleteNote(take.take, note.index)
+        -- rea.log('remove')
+        reaper.MIDI_DeleteNote(note.take.take, note.index)
         self:repaint()
+        self.changed = true
     end
 end
 
@@ -159,9 +161,7 @@ function SequencerLane:onMouseDown(mouse)
     self.changed = false
 
     self.add = mouse:isLeftButtonDown() and not mouse:isAltKeyDown()
-    local take = self:getTake(pos, true)
-    local note = self:getNote(pos, self.note)
-    self:changeStep(pos, nil, note, take)
+    self:changeStep(pos)
 
 end
 
@@ -204,12 +204,12 @@ function SequencerLane:paint(g)
 
         g:rect(0,0, self.w, self.h)
 
-        local notes = self:getNotes()
+        local notes = self:getNotes(- self.parent:getRange() * self.ppq)
+        -- rea.log(notes)
         g:setColor(colors.mute:with_alpha(0.5))
         for i = 0, num -1 do
-            local pos = i * self:getPPS()
-            -- local note = self:getNote(pos, l)
-            local note = notes[i+1] --{vel = math.random(127)}
+
+            local note = notes[i+1]
             if note then
                 local h2 = math.floor(note.vel / 127 * h)
                 g:rect(w*i, self.h - h + (h-h2) , w,h2, true)

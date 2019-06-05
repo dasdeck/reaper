@@ -126,6 +126,7 @@ function Sequencer:setTake(take, lanes)
     end
 
     self:resized()
+
     self:repaint(true)
 
 end

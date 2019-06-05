@@ -105,6 +105,10 @@ function class(...)
         end)
     end
 
+    function class:__getName()
+        return _.last(debug.getinfo(self.create).source:split('/')):sub(1,-4)
+    end
+
     return class
 end
 

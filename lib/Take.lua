@@ -73,6 +73,7 @@ function Take:getNotes()
             index = i,
             pitch = pitch,
             vel = vel,
+            take = self,
             startppqpos = startppqpos,
             endppqpos = endppqpos
         })

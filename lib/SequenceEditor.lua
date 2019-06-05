@@ -16,7 +16,6 @@ function SequenceEditor:create(take, lanes)
     self.ppq = 960
     self.lanes = lanes
 
-
     lanes = lanes or _.map({
         36,37,38,39
     }, function(key) return {key = key, take = take} end)
@@ -25,7 +24,9 @@ function SequenceEditor:create(take, lanes)
         self:addChildComponent(SequencerLane:create(data))
     end)
 
-    self.watchers:watch(function() return self:getPlayPos() end, function() self:repaint() end)
+    self.watchers:watch(function() return self:getPlayPos() end, function(value)
+        self:repaint()
+    end)
 
     return self
 end
