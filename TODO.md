@@ -1,5 +1,7 @@
 ## tools
 
+disable keys in transpose
+load/save plugin presets
 make LA action
 add midi slave
 

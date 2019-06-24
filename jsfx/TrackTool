@@ -1,5 +1,4 @@
-desc:Time Adjustment Delay
-desc:Time Adjustment Delay or Negative Delay
+desc:TrackTool
 //tags: delay time PDC
 //author: D3CK
 
@@ -11,13 +10,18 @@ slider2:0<0,2,{midi,audio,both}>mode
 slider3:0<-128,128,1>transpose
 slider4:1<0,1,1>global transpose
 slider5:1<0,16,1>channel
-
+slider6:0<0,127>note
+slider7:0<0,1,{transpose, pass}>thru
+slider8:0<0,1,{off, on}>no transpose
 
 @init
 
   pdc_midi = 1.0;
 
-  max_ram = __memtop();
+  max_ram = __memtop() - 129;
+  thrus = max_ram + 1;
+
+
   headerLength = 3; // position, length (incl header), bus
 
   bpos = 0;
@@ -27,6 +31,17 @@ slider5:1<0,16,1>channel
 
   statNoteOn = $x90;
   statNoteOff = $x80;
+
+  function setKey(key, value)
+  (
+    this.currentKey != key ? (
+      slider6 = key;
+      slider7 = thrus[key];
+      this.currentKey = key;
+    ) : (
+      thrus[key] = value;
+    );
+  );
 
   function midisendBuf(off, pos, len)
   (
@@ -47,9 +62,12 @@ slider5:1<0,16,1>channel
 
       note = msg2;
       velo = msg3;
-      isNote ? pos[1] = note + transpose;
+      (isNote && slider8 == 0) ? (
+        thru = thrus[note];
+        pos[1] = note + (thru ? 0 : transpose);
+        setKey(note, thru);
+      );
     );
-
 
     midisend_buf(off, pos, len);
   );
@@ -130,6 +148,14 @@ slider5:1<0,16,1>channel
     delaylen += pdc_delay;
   );
 
+  setKey(slider6, slider7)
+
+@serialize
+
+  file_mem(thrus, 0, usedMemeory)
+
+
+
 @block
 
   nextTranspose = slider3 + (slider4 ? gmem[10] : 0);
@@ -146,7 +172,7 @@ slider5:1<0,16,1>channel
   buf_r == 0 ? buf_r = bufsize;
 
 
-  (slider2 == 0 || slider2 == 2) ? delayMidi(delaylen);
+  (slider2 == 0 || slider2 == 2 || nextTranspose) ? delayMidi(delaylen);
 
 @sample
 

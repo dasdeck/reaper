@@ -1,0 +1,31 @@
+{
+context: {
+1: {
+    1: true,
+    2: /Users/jms/Library/Application Support/REAPER/Scripts/D3CK/apps/trackTool.lua,
+    3: 0,
+    4: 55809,
+    5: 0,
+    6: 127,
+    7: 63
+  }
+} ,
+error: {
+1: ...lication Support/REAPER/Scripts/D3CK/apps/../lib/Mem.lua:22: bad argument #2 to 'gmem_write' (number expected, got nil)
+stack traceback:
+	[C]: in field 'gmem_write'
+	...lication Support/REAPER/Scripts/D3CK/apps/../lib/Mem.lua:22: in function 'Mem.write'
+	(...tail calls...)
+	...cation Support/REAPER/Scripts/D3CK/apps/../lib/Track.lua:332: in function 'Track.focus'
+	...t/REAPER/Scripts/D3CK/apps/../trackTool/AudioTrackUI.lua:129: in function 'AudioTrackUI.onMouseEnter'
+	...on Support/REAPER/Scripts/D3CK/apps/../lib/ui/Window.lua:348: in local 'callback'
+	...pplication Support/REAPER/Scripts/D3CK/apps/../lib/_.lua:4: in function '_.forEach'
+	...on Support/REAPER/Scripts/D3CK/apps/../lib/ui/Window.lua:308: in function 'Window.evalMouse'
+	...on Support/REAPER/Scripts/D3CK/apps/../lib/ui/Window.lua:466: in function 'Window.defer'
+	...lication Support/REAPER/Scripts/D3CK/apps/../lib/App.lua:44: in function <...lication Support/REAPER/Scripts/D3CK/apps/../lib/App.lua:37>
+	[C]: in function 'xpcall'
+	...lication Support/REAPER/Scripts/D3CK/apps/../lib/App.lua:37: in function 'App.defer'
+	...lication Support/REAPER/Scripts/D3CK/apps/../lib/App.lua:58: in function <...lication Support/REAPER/Scripts/D3CK/apps/../lib/App.lua:57>
+}
+}
+exited

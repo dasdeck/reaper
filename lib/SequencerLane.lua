@@ -17,8 +17,6 @@ function SequencerLane:create(data)
     self.note = data.key
     self.track = data.track
 
-    self.ppq = 960
-
     return self
 end
 
@@ -35,37 +33,62 @@ function SequencerLane:getNumTotalSteps()
     return self.parent:getNumTotalSteps()
 end
 
+function SequencerLane:getPPQ()
+    return self.parent.ppq
+end
+
 function SequencerLane:getPPS()
-    return self.ppq / self.parent:getNumSteps()
+    return self.parent:getPPS()
+end
+
+
+function SequencerLane:getTakes()
+    local items = {}
+    _.forEach(self.parent:getAbsoluteSteps(), function (step)
+        local item = self:getTake(step)
+        if not _.find(items, item) then
+            table.insert(items, item)
+        end
+    end)
+    return items
+end
+
+function SequencerLane:getAllNotes()
+    local positions = {}
+    _.forEach(self:getTakes(), function (take)
+        local offset = reaper.TimeMap2_timeToQN(0, take.item:getPos() ) * self:getPPQ()
+        _.forEach(take:getNotes(), function(note)
+
+            note.absPos = note.startppqpos + offset
+            table.insert(positions, note)
+        end)
+    end)
+    return positions
 end
 
 function SequencerLane:getNote(pos)
-    local take = self:getTake(pos)
-    if take then
-        return _.find(take:getNotes(), function(note)
-            return note.startppqpos == pos and note.pitch == self.note
-        end)
-    end
+    return _.find(self:getAllNotes(), function(note)
+        return note.absPos == pos
+    end)
 end
 
-function SequencerLane:getNotes(offsetIn)
-    local notesCache = {}
-    offsetIn = offsetIn or 0
+function SequencerLane:getOffset()
+    return self.parent:getRange() * self:getPPQ()
+end
 
+function SequencerLane:getNotes()
+    local notesCache = {}
+
+    local notes = self:getAllNotes()
     for step = 1, self:getNumTotalSteps() do
-        local ppqpos = (step-1) * self:getPPS()
-        local take = self:getTake(ppqpos)
-        if take then
-            local offset = offsetIn + reaper.TimeMap2_timeToQN(0, take.item:getPos() ) * self.ppq
-            ppqpos = ppqpos - offset
-            local note = _.find(take:getNotes(), function(note)
-                return note.startppqpos == ppqpos and note.pitch == self.note
-            end)
-            if note then
-                note.startppqpos = note.startppqpos + offset
+
+        local pos = (step-1) * self:getPPS() + self:getOffset()
+        local note = _.find(notes, function(note)
+            if note.absPos == pos then
                 notesCache[step] = note
             end
-        end
+        end)
+
     end
     return notesCache
 end
@@ -74,20 +97,21 @@ function SequencerLane:getPos(x)
     local relx = x / self.w
     local step = math.floor(self:getNumTotalSteps() * relx)
     local ppqpos = step * self:getPPS()
-    local off = self.parent:getRange() * self.ppq
-    return ppqpos + off
+    return ppqpos + self:getOffset()
 end
 
 function SequencerLane:getTake(pos, create)
 
-    local loopstart, loopend = self:getRange(true)
-    local time = reaper.TimeMap2_beatsToTime(0, pos / self.ppq) + loopstart
+    local bpos = pos / self:getPPQ()
+    local time = reaper.TimeMap2_beatsToTime(0, bpos)-- + loopstart
     if not self.take then
         local items = self.track:getItemsUnderPosition(time)
-        local item = _.first(self.track:getItemsUnderPosition(time))
+
+        local item = _.last(items)
         if item then
             return item:getActiveTake()
         elseif create then
+            local loopstart, loopend = self:getRange(true)
 
             _.forEach(self.track:getContent(), function(item)
                 local e = item:getEnd()
@@ -117,7 +141,7 @@ function SequencerLane:changeStep(pos)
         local velo = self:getVelo()
         if not note then
             local take = self:getTake(pos, true)
-            local offset = reaper.TimeMap2_timeToQN(0, take.item:getPos() ) * self.ppq
+            local offset = reaper.TimeMap2_timeToQN(0, take.item:getPos() ) * self:getPPQ()
             pos = pos - offset
             reaper.MIDI_InsertNote(take.take, false,false, pos, pos + 1, 1, self.note, velo, false)
             self.changed = true
@@ -127,7 +151,7 @@ function SequencerLane:changeStep(pos)
         end
         self:repaint()
     elseif note then
-        -- rea.log('remove')
+
         reaper.MIDI_DeleteNote(note.take.take, note.index)
         self:repaint()
         self.changed = true
@@ -204,8 +228,7 @@ function SequencerLane:paint(g)
 
         g:rect(0,0, self.w, self.h)
 
-        local notes = self:getNotes(- self.parent:getRange() * self.ppq)
-        -- rea.log(notes)
+        local notes = self:getNotes()
         g:setColor(colors.mute:with_alpha(0.5))
         for i = 0, num -1 do
 

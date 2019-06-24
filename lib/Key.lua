@@ -67,6 +67,7 @@ end
 function Key:onFilesDrop(files)
 
     local Track = require 'Track'
+    local Instrument = require 'Instrument'
     local TrackState = require 'TrackState'
 
     rea.transaction('add sampler', function()
@@ -75,6 +76,10 @@ function Key:onFilesDrop(files)
             local template = paths.reaDir:childDir('TrackTemplates'):childFile('sampler.RTrackTemplate')
             local track = _.first(TrackState.fromTemplate(template:getContent())) --Track.insert()
             track = track or Track.insert()
+
+            track:getTrackTool(true)
+
+            Instrument.init(track)
 
             track:setName(_.last(file:split(package.config:sub(1,1))))
             track:setArmed(true)

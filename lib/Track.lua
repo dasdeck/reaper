@@ -374,10 +374,13 @@ end
 Track.stringMap = {
     name = 'P_NAME',
     icon = 'P_ICON',
-    d3ck = 'P_EXT:D3CK'
+    d3ck = 'P_EXT:D3CK',
+    guid = 'GUID'
 }
 
 Track.valMap = {
+    input = 'I_RECINPUT',
+    monitor = 'I_RECMON',
     fx = 'I_FXEN',
     chans = 'I_NCHAN',
     height = 'I_HEIGHTOVERRIDE',
@@ -402,7 +405,7 @@ function Track:createUI()
     if type == Track.typeMap.midi then
         local MidiTrackUI = require 'MidiTrackUI'
         return MidiTrackUI:create(self)
-    elseif type == Track.typeMap.instrument then
+    elseif type == Track.typeMap.instrument or self:getInstrument() then
         if self:getFx((require 'DrumRack').fxName) then
             local DrumRackTrackUI = require 'DrumRackTrackUI'
             return DrumRackTrackUI:create(self)

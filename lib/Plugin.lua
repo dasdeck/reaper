@@ -161,6 +161,11 @@ function Plugin:getImage()
     return paths.imageDir:findFile(function(file) return file:lower() == pattern:lower() .. '.png' end) or paths.imageDir:findFile(pattern)
 end
 
+local function isStereoPair(a, b)
+
+    return a and ((b == a) or b:match(a))
+end
+
 function Plugin:getOutputs()
     local succ, i, o = reaper.TrackFX_GetIOSize(self.track.track, self.index)
     local res = {}
@@ -169,25 +174,26 @@ function Plugin:getOutputs()
         local current = {}
         for i=0, o-1 do
             local succ, name = reaper.TrackFX_GetNamedConfigParm(self.track.track, self.index, 'out_pin_' .. tostring(i))
-            if not (current and current.name and ((name == current.name) or name:match(current.name))) then -- hack for kontakt
+            if  current and isStereoPair(current.name, name) then -- hack for kontakt
+                table.insert(current.channels, i)
+            else
 
                 current = {
                     fx = self,
                     name = name,
+                    index = i,
                     channels = {
                         i
                     }
                 }
 
                 table.insert(res, current)
-            else
-                table.insert(current.channels, i)
             end
         end
 
         local name = self.track:getName()
 
-        _.forEach(res, function(current)
+        _.forEach(res, function(current, i)
 
 
             current.sourceChan = function()
@@ -198,6 +204,12 @@ function Plugin:getOutputs()
                 return source
             end
             current.createConnection = function()
+
+
+                if i == 1 then
+                    return
+                end
+
                 local outputTrack = self.track.insert()
 
                 local numChansNeeded = current.channels[1] + _.size(current.channels)
@@ -219,6 +231,15 @@ function Plugin:getOutputs()
                 send:setMode(3)
                 return send
             end
+
+            current.getTrack = function()
+                 if i == 1 then
+                    return self.track
+                 elseif current.getConnection() then
+                    return current.getConnection():getTargetTrack()
+                end
+            end
+
             current.getConnection = function()
                 return _.some(self.track:getSends(), function(send)
                     local i = send:getAudioIO()

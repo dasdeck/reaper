@@ -36,6 +36,8 @@ function Master:update()
 
     self:deleteChildren()
 
+    if not Track.master:exists() then return end
+
     self.transpose = self:addChildComponent(TransposeControll:create())
     self.transpose.getValue = function()
         return Mem.read('tracktooljsfx', 10) or 0

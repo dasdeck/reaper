@@ -15,7 +15,10 @@ local paths = require 'paths'
 
 local TrackToolJSFX = paths.effectsDir:childFile('TrackTool')
 local Wrap = paths.effectsDir:childFile('Wrap')
+
 if not TrackToolJSFX:exists() or not Wrap:exists() then
+  TrackToolJSFX:setContent(paths.scriptDir:childFile('jsfx/TrackTool'):getContent())
+  Wrap:setContent(paths.scriptDir:childFile('jsfx/Wrap'):getContent())
   reaper.MB('plugin installed, restart script', 'restart', 0)
 end
 

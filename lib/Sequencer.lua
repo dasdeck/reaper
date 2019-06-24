@@ -45,7 +45,7 @@ function Sequencer:create()
                     end)
                 end
             }
-        },_.map({3,6,4,8,16,32}, function(num)
+        },_.map({3,6,2,4,8,16,32}, function(num)
             return {
                 onClick = function()
                     self.sequence.numSteps = num
@@ -95,6 +95,7 @@ function Sequencer:setMediaItem(item)
     self.buttons:updateList()
     self:resized()
     self:repaint(true)
+
 end
 
 function Sequencer:setTake(take, lanes)

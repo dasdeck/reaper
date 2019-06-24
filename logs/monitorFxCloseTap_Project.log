@@ -1,0 +1,37 @@
+{
+context: {
+1: {
+    1: true,
+    2: /Users/jms/Library/Application Support/REAPER/Scripts/D3CK/apps/monitor.lua,
+    3: 0,
+    4: 55800,
+    5: 0,
+    6: 127,
+    7: 63
+  }
+} ,
+error: {
+1: ...cation Support/REAPER/Scripts/D3CK/apps/../lib/Track.lua:970: bad argument #1 to 'TrackFX_AddByName' (MediaTrack expected)
+stack traceback:
+	[C]: in field 'TrackFX_AddByName'
+	...cation Support/REAPER/Scripts/D3CK/apps/../lib/Track.lua:970: in function 'Track.getFx'
+	...t/REAPER/Scripts/D3CK/apps/../monitor/MonitorPresets.lua:63: in upvalue 'callback'
+	...pplication Support/REAPER/Scripts/D3CK/apps/../lib/_.lua:11: in local 'callback'
+	...pplication Support/REAPER/Scripts/D3CK/apps/../lib/_.lua:4: in function '_.forEach'
+	...pplication Support/REAPER/Scripts/D3CK/apps/../lib/_.lua:10: in function '_.map'
+	...t/REAPER/Scripts/D3CK/apps/../monitor/MonitorPresets.lua:62: in function 'MonitorPresets.create'
+	...n Support/REAPER/Scripts/D3CK/apps/../monitor/Master.lua:49: in function 'Master.update'
+	...n Support/REAPER/Scripts/D3CK/apps/../monitor/Master.lua:19: in local 'listener'
+	...n Support/REAPER/Scripts/D3CK/apps/../lib/ui/Watcher.lua:54: in local 'callback'
+	...pplication Support/REAPER/Scripts/D3CK/apps/../lib/_.lua:4: in function '_.forEach'
+	...n Support/REAPER/Scripts/D3CK/apps/../lib/ui/Watcher.lua:53: in function 'Watcher.defer'
+	...n Support/REAPER/Scripts/D3CK/apps/../lib/ui/Watcher.lua:10: in local 'callback'
+	...pplication Support/REAPER/Scripts/D3CK/apps/../lib/_.lua:4: in function '_.forEach'
+	...n Support/REAPER/Scripts/D3CK/apps/../lib/ui/Watcher.lua:9: in function 'Watcher.deferAll'
+	...lication Support/REAPER/Scripts/D3CK/apps/../lib/App.lua:41: in function <...lication Support/REAPER/Scripts/D3CK/apps/../lib/App.lua:37>
+	[C]: in function 'xpcall'
+	...lication Support/REAPER/Scripts/D3CK/apps/../lib/App.lua:37: in function 'App.defer'
+	...lication Support/REAPER/Scripts/D3CK/apps/../lib/App.lua:58: in function <...lication Support/REAPER/Scripts/D3CK/apps/../lib/App.lua:57>
+}
+}
+exited

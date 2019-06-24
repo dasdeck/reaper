@@ -113,15 +113,17 @@ function AudioTrackUI:update()
     --     end
     -- end
 
+
+
     if self.track:getTrackTool() then
         self.controlls = self:addChildComponent(TrackToolControlls:create(self.track))
     else
-        self.controlls = self:addChildComponent(TextButton:create('+tracktools'))
-        self.controlls.onButtonClick = function()
-            rea.transaction('init tracktool', function()
-                self.track:getTrackTool(true)
-            end)
-        end
+        -- self.controlls = self:addChildComponent(TextButton:create('+tracktools'))
+        -- self.controlls.onButtonClick = function()
+        --     rea.transaction('init tracktool', function()
+        --         self.track:getTrackTool(true)
+        --     end)
+        -- end
     end
 end
 
@@ -133,6 +135,11 @@ function AudioTrackUI:resized()
 
     local h = 20
     local y = 0
+
+    -- if self.controlls then
+    --     self.controlls:setBounds(0,0,self.w)
+    --     y = self.controlls:getBottom() + h*5
+    -- end
 
     self.fx:setBounds(0,y,self.w)
     y = self.fx:getBottom()

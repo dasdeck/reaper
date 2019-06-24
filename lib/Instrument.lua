@@ -32,13 +32,12 @@ function Instrument.createInstrument(instrName)
         end
         track:setName(instrName)
         Instrument.init(track)
-        track:iconize()
 
         local res = instrument:getOutputs()
         if _.size(res) > 0 then
             res[1]:createConnection()
             if _.size(res) == 1 then
-                res[1]:getConnection():getTargetTrack():setMeta('expanded', true)
+                res[1]:getTrack():setMeta('expanded', true)
             end
         end
     end
@@ -95,9 +94,10 @@ end
 
 function Instrument.init(track)
     track:setType(Track.typeMap.instrument)
-    track:setVisibility(false,false)
+    track:setVisibility(true,true)
     track:setColor(colors.instrument)
-    track:setValue('toParent', 0)
+    track:setValue('input', 6112)
+    track:iconize()
 end
 
 function Instrument.bang()

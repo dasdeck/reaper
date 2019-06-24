@@ -7,8 +7,9 @@ addScope('drumRack')
 local Track = require 'Track'
 local rea = require 'rea'
 
-local track = Track.getFocusedTrack()
+local track = Track.getSelectedTrack()
 if track then 
-  rea.logPin(track.guid, track:getState()) 
-  rea.logPin('type', track:getType())
+  --rea.logPin(track.guid, track:getState()) 
+  --rea.logPin('type', track:getType())
+  rea.logPin('num', track:getValue('input'))
 end

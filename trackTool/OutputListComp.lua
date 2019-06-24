@@ -22,26 +22,26 @@ function OutputListComp:create(output, fx)
 
     self.expanded = self:addChildComponent(TextButton:create('+'))
     self.expanded.getToggleState = function()
-        return output.getConnection() and output.getConnection():getTargetTrack():getMeta().expanded
+        return output.getTrack() and output.getTrack():getMeta().expanded
     end
 
     if self.expanded.getToggleState() then
-        local con = output.getConnection()
-        local comp = con and con:getTargetTrack():createUI()
+        local track = output.getTrack()
+        local comp = track and (require 'AudioTrackUI'):create(track)
         if comp then
             self.outputTrack = self:addChildComponent(comp)
         end
     end
 
     self.name.getToggleState = function()
-        return self.output.getConnection() ~= nil
+        return self.output.getTrack() ~= nil
     end
 
     self.name.onDblClick = function(s, mouse)
-        local con = self.output.getConnection()
-        if con then
+        local track = self.output.getTrack()
+        if track then
             rea.transaction('toggle output', function()
-                con:getTargetTrack():setMeta('expanded',not self.expanded.getToggleState())
+                track:setMeta('expanded',not self.expanded.getToggleState())
                 self.parent:updateList()
                 local win = self:getWindow()
                 win.component:resized()

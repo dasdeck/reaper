@@ -31,6 +31,10 @@ function SequenceEditor:create(take, lanes)
     return self
 end
 
+function SequenceEditor:getPPS()
+    return self.ppq / self:getNumSteps()
+end
+
 function SequenceEditor:getNumBars()
     if self.take then
         return self.take:getSource():getLength()
@@ -60,8 +64,48 @@ function SequenceEditor:getNumSteps()
     return self.numSteps
 end
 
+function SequenceEditor:getOffset()
+    return self:getRange() * self.ppq
+end
+
+
 function SequenceEditor:getNumTotalSteps()
     return self:getNumBars() * self.numSteps
+end
+
+function SequenceEditor:getTakes()
+    local Track = require 'Track'
+    local items = {}
+    _.forEach(self:getAbsoluteSteps(), function (step)
+        local bpos = step / self.ppq
+        local time = reaper.TimeMap2_beatsToTime(0, bpos)-- + loopstart
+        local item = _.first(_.first(Track.getAllTracks()):getItemsUnderPosition(time))
+        if not _.find(items, item) then
+            table.insert(items, item)
+        end
+    end)
+    return items
+end
+
+function SequenceEditor:getNotes()
+    local positions = {}
+    _.forEach(self:getTakes(), function (item)
+        local offset = reaper.TimeMap2_timeToQN(0, item:getPos() ) * self.ppq
+        local take = item:getActiveTake()
+        _.forEach(take:getNotes(), function( note )
+            table.insert(positions, note.startppqpos + offset)
+        end)
+    end)
+    return positions
+end
+        -- body
+function SequenceEditor:getAbsoluteSteps()
+    local positions = {}
+    local total = self:getNumTotalSteps()
+    for step = 1, total do
+        positions[step] = (step-1) * self:getPPS() + self:getOffset()
+    end
+    return positions
 end
 
 function SequenceEditor:resized()

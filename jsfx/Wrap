@@ -1,4 +1,4 @@
-desc:new effect
+desc:Wrap
 
 slider1:<0,2,{process,mute,solo}>msp
 slider2:100<0,100,1>mix

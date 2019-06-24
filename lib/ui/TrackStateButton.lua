@@ -26,7 +26,7 @@ function TrackStateButton:create(track, key, content, values)
 end
 
 function TrackStateButton:getToggleState()
-    return self.track and self.track:getValue(self.key) > 0
+    return self.track and self.track:exists() and self.track:getValue(self.key) > 0
 end
 
 function TrackStateButton:onClick()

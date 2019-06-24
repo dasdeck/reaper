@@ -1,0 +1,43 @@
+{
+note: 36
+}
+{
+context: {
+1: {
+    1: true,
+    2: /Users/jms/Library/Application Support/REAPER/Scripts/D3CK/apps/sequencer.lua,
+    3: 0,
+    4: 55802,
+    5: 0,
+    6: 127,
+    7: 63
+  }
+} ,
+error: {
+1: ...on Support/REAPER/Scripts/D3CK/apps/../lib/MediaItem.lua:39: bad argument #1 to 'GetMediaItemInfo_Value' (MediaItem expected)
+stack traceback:
+	[C]: in field 'GetMediaItemInfo_Value'
+	...on Support/REAPER/Scripts/D3CK/apps/../lib/MediaItem.lua:39: in function 'MediaItem.getPos'
+	...upport/REAPER/Scripts/D3CK/apps/../lib/SequencerLane.lua:45: in function 'SequencerLane.getNote'
+	...upport/REAPER/Scripts/D3CK/apps/../lib/SequencerLane.lua:77: in function 'SequencerLane.getNotes'
+	...upport/REAPER/Scripts/D3CK/apps/../lib/SequencerLane.lua:221: in function 'SequencerLane.paint'
+	...Support/REAPER/Scripts/D3CK/apps/../lib/ui/Component.lua:374: in function 'Component.evaluate'
+	...Support/REAPER/Scripts/D3CK/apps/../lib/ui/Component.lua:400: in local 'callback'
+	...pplication Support/REAPER/Scripts/D3CK/apps/../lib/_.lua:4: in function '_.forEach'
+	...Support/REAPER/Scripts/D3CK/apps/../lib/ui/Component.lua:398: in function 'Component.evaluateChildren'
+	...Support/REAPER/Scripts/D3CK/apps/../lib/ui/Component.lua:381: in function 'Component.evaluate'
+	...
+	...Support/REAPER/Scripts/D3CK/apps/../lib/ui/Component.lua:381: in function 'Component.evaluate'
+	...Support/REAPER/Scripts/D3CK/apps/../lib/ui/Component.lua:400: in local 'callback'
+	...pplication Support/REAPER/Scripts/D3CK/apps/../lib/_.lua:4: in function '_.forEach'
+	...Support/REAPER/Scripts/D3CK/apps/../lib/ui/Component.lua:398: in function 'Component.evaluateChildren'
+	...Support/REAPER/Scripts/D3CK/apps/../lib/ui/Component.lua:381: in function 'Component.evaluate'
+	...on Support/REAPER/Scripts/D3CK/apps/../lib/ui/Window.lua:68: in function 'Window.render'
+	...on Support/REAPER/Scripts/D3CK/apps/../lib/ui/Window.lua:465: in function 'Window.defer'
+	...lication Support/REAPER/Scripts/D3CK/apps/../lib/App.lua:44: in function <...lication Support/REAPER/Scripts/D3CK/apps/../lib/App.lua:37>
+	[C]: in function 'xpcall'
+	...lication Support/REAPER/Scripts/D3CK/apps/../lib/App.lua:37: in function 'App.defer'
+	...lication Support/REAPER/Scripts/D3CK/apps/../lib/App.lua:58: in function <...lication Support/REAPER/Scripts/D3CK/apps/../lib/App.lua:57>
+}
+}
+exited

@@ -27,6 +27,20 @@ function TrackState.fromTemplate(templateData)
         track.guid = reaper.GetTrackGUID(track.track)
     end)
 
+    _.forEach(tracks, function(track)
+
+        local newId = reaper.genGuid('')
+        local oldId = track.guid
+
+        _.forEach(tracks, function(otherTrack)
+            if track ~= otherTrack then
+                local stateText = otherTrack:getState(true)
+                local newState = TrackState.create(stateText.text:gsub(oldId:escaped(), newId))
+                otherTrack:setState(newState)
+            end
+        end)
+
+    end)
 
     return tracks
 end

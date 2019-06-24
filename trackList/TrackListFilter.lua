@@ -30,7 +30,8 @@ local options = {
                 rea.transaction('add instrument', function()
                     local track = Instrument.createInstrument(res)
                     if track then
-                        track = track:createMidiSlave()
+                        -- track = track:createMidiSlave()
+                        track:getTrackTool(true)
                         track:setSelected(1)
                         track:setArmed(1)
                         track:focus()
