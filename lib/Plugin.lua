@@ -162,8 +162,15 @@ function Plugin:getImage()
 end
 
 local function isStereoPair(a, b)
+    if b == a then return a end
 
-    return a and ((b == a) or b:match(a))
+    if a and b then
+        local partsA = a:split(' ')
+        local partsB = b:split(' ')
+        if _.last(partsB):lower() == 'r' and (#partsB == #partsA + 1 or _.last(partsA):lower() == 'l') then
+            return b:sub(1,-3)
+        end
+    end
 end
 
 function Plugin:getOutputs()
@@ -174,7 +181,9 @@ function Plugin:getOutputs()
         local current = {}
         for i=0, o-1 do
             local succ, name = reaper.TrackFX_GetNamedConfigParm(self.track.track, self.index, 'out_pin_' .. tostring(i))
-            if  current and isStereoPair(current.name, name) then -- hack for kontakt
+            local stereoName = isStereoPair(current.name, name)
+            if  current and stereoName then -- hack for kontakt
+                current.name = stereoName
                 table.insert(current.channels, i)
             else
 

@@ -29,6 +29,13 @@ function Zone:onClick(mouse)
     end
 end
 
+function Zone:onDblClick(mouse)
+
+    rea.transaction('show track', function()
+        self.track:setOpen()
+    end)
+end
+
 function Zone:getKey()
     return self.range:getParam(0)
 end

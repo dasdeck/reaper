@@ -66,6 +66,7 @@ function TrackToolControlls:resized()
     self.globalTranspose:setBounds(self.w - h, y, h, h)
 
 
+    self.h = self.globalTranspose:getBottom()
     -- self.fx:setBounds(0, self.globalTranspose:getBottom(), self.w, 200)
 
 end

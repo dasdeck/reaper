@@ -36,7 +36,8 @@ function Instrument.createInstrument(instrName)
         local res = instrument:getOutputs()
         if _.size(res) > 0 then
             res[1]:createConnection()
-            if _.size(res) == 1 then
+            if res[1]:getTrack() then
+                -- rea.log('open first')
                 res[1]:getTrack():setMeta('expanded', true)
             end
         end

@@ -1,4 +1,17 @@
+
+    ☐ show transpose options above instrument
+    ☐ midi track
+        ☐ templates
+            ☐ mic
+            ☐ midi
+        ☐ right click on instruments icon create slave
+    ☐ group selected tracks
+    ☐ always put aux on top level
+    ☐ choose fx on aux/la create
+    ☐ sequencer for single instruements
+        ☐ choose notes to use
 Sequencer:
+
     ☐ go to regular editor
     ☐ volume
     ☐ filter ununsed / unmapped

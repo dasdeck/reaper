@@ -122,6 +122,13 @@ function FXListItem:onClick(mouse)
             menu:addItem('show channel', function()
                 self.fx.track:setOpen()
             end)
+            menu:addItem('add midi slave', function()
+
+                local track = self.fx.track:createMidiSlave()
+                track:setParent(self.fx.track)
+                track:setArmed(1)
+
+            end, 'add midi slave')
         end
         menu:show()
     elseif mouse:isShiftKeyDown() and mouse:isAltKeyDown() then

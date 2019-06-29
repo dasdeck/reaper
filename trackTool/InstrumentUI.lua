@@ -82,6 +82,12 @@ function InstrumentUI:resized()
         y = self.inline:getBottom()
     end
 
+    if self.controlls then
+        -- self.controlls.isVisible = function() return false end
+        self.controlls:setBounds(0,y,self.w,self.controlls.h)
+        y = self.controlls:getBottom()
+    end
+
     if self.audioTrack then
         self.audioTrack:setBounds(0, y, self.w)
         y = self.audioTrack:getBottom()
