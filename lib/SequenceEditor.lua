@@ -1,6 +1,6 @@
 local Component = require 'Component'
 local SequencerLane = require 'SequencerLane'
-
+local EmptyLane = require 'EmptyLane'
 local rea = require 'rea'
 local colors = require 'colors'
 local _ = require '_'
@@ -16,13 +16,18 @@ function SequenceEditor:create(take, lanes)
     self.ppq = 960
     self.lanes = lanes
 
-    lanes = lanes or _.map({
-        36,37,38,39
-    }, function(key) return {key = key, take = take} end)
 
-    _.forEach(lanes, function(data)
-        self:addChildComponent(SequencerLane:create(data))
-    end)
+    lanes = (_.size(lanes) > 0) and lanes  or _.map({
+        36,37,38,39
+    }, function(key) return {key = key, take = take, track = track} end)
+
+    if lanes then
+        _.forEach(lanes, function(data)
+            self:addChildComponent(SequencerLane:create(data))
+        end)
+    end
+
+    self:addChildComponent(EmptyLane:create(self))
 
     self.watchers:watch(function() return self:getPlayPos() end, function(value)
         self:repaint()

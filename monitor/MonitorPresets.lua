@@ -48,15 +48,33 @@ function MonitorPresets:create(...)
   --   self.rooms = self:addChildComponent(Rooms:create())
   -- else--
   --   if Track.master:getFx('Sonarworks', false, true):getEnabled() then
-  self.mode = self:addChildComponent(TextButton:create('realtime'))
-  self.mode.getToggleState = function()
-    return Track.master:getFx('Sonarworks', false, true):getPreset() == 'precise_mp'
-  end
-  self.mode.onButtonClick = function()
-    rea.transaction('toggle mode', function()
-      Track.master:getFx('Sonarworks', false, true):setPreset(self.mode.getToggleState() and 'precise' or 'precise_mp')
-    end)
-  end
+  self.mode = self:addChildComponent(ButtonList:create(_.map({
+    {key = 'bypass', name = 'Off'},
+    {key = 'precise_mp', name = 'Play'},
+    {key = 'precise', name = 'Mix'}
+  }, function(v) return {
+    args = v.name,
+    onClick = function()
+      rea.transaction('toggle SW', function()
+        Track.master:getFx('Sonarworks', false, true):setPreset(v.key)
+      end)
+    end,
+    getToggleState = function ()
+      return Track.master:getFx('Sonarworks', false, true):getPreset() == v.key
+    end
+  } end), true))
+
+  -- self.mode.getToggleState = function()
+  --   return Track.master:getFx('Sonarworks', false, true):getPreset() == 'precise_mp'
+  -- end
+
+
+
+  -- self.mode.onButtonClick = function()
+  --   rea.transaction('toggle mode', function()
+  --     Track.master:getFx('Sonarworks', false, true):setPreset(self.mode.getToggleState() and 'precise' or 'precise_mp')
+  --   end)
+  -- end
 -- end
 
   self.response = self:addChildComponent(ButtonList:create(_.map({'bypass', 'NS10', 'Auratone'}, function(name)

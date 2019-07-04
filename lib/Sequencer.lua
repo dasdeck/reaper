@@ -71,13 +71,32 @@ function Sequencer:create()
             local lanes = {}
             local Zone = require 'Zone'
             local tracks = Track.getAllTracks()
+
+
+
             _.forEach(tracks, function(track)
-                local zone = Zone.create(track)
-                if track:isArmed() and zone then
-                    table.insert(lanes, {
-                        key = zone:getKey(),
-                        track = track
-                    })
+                if track:isArmed() then
+                    local zone = Zone.create(track)
+                    if zone then
+                        table.insert(lanes, {
+                            key = zone:getKey(),
+                            track = track
+                        })
+                    else
+                        -- rea.log('key lanes')
+                        local keys = {
+                            36,38,40,41,
+                            43,45,47,48,
+                            50,52,53,55,
+                            57,59,61,62
+                        }
+                        _.forEach(keys, function(key)
+                            table.insert(lanes, {
+                                key = key,
+                                track = track
+                            })
+                        end)
+                    end
                 end
             end)
 

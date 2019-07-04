@@ -33,6 +33,8 @@ function Instrument.createInstrument(instrName)
         track:setName(instrName)
         Instrument.init(track)
 
+        track:getTrackTool(true):setPreset(instrName)
+
         local res = instrument:getOutputs()
         if _.size(res) > 0 then
             res[1]:createConnection()

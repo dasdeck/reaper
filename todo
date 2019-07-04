@@ -1,15 +1,21 @@
 
-    ☐ show transpose options above instrument
+    ✔ show transpose options above instrument @done(19-06-29 14:21)
+    ☐ remove take mode
+    ☐ trigger by header
+    ☐ dbl click adds instrument in empty lane
+    ☐ drop sample to instrument
+    ☐ add velo/pitch/etc lanes
     ☐ midi track
         ☐ templates
             ☐ mic
             ☐ midi
-        ☐ right click on instruments icon create slave
+        ✔ right click on instruments icon create slave @done(19-06-29 14:21)
     ☐ group selected tracks
     ☐ always put aux on top level
     ☐ choose fx on aux/la create
     ☐ sequencer for single instruements
         ☐ choose notes to use
+    ☐ add headphone mode to monitor plugin
 Sequencer:
 
     ☐ go to regular editor

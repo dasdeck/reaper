@@ -61,10 +61,14 @@ slider8:0<0,1,{off, on}>no transpose
       isNote = isNoteOn || isNoteOff;
 
       note = msg2;
+      noteInOctave = note % 12;
+      offset = gmem[12 + noteInOctave];
+
       velo = msg3;
+
       (isNote && slider8 == 0) ? (
         thru = thrus[note];
-        pos[1] = note + (thru ? 0 : transpose);
+        pos[1] = note + (thru ? 0 : (transpose + offset));
         setKey(note, thru);
       );
     );
@@ -172,7 +176,7 @@ slider8:0<0,1,{off, on}>no transpose
   buf_r == 0 ? buf_r = bufsize;
 
 
-  (slider2 == 0 || slider2 == 2 || nextTranspose) ? delayMidi(delaylen);
+  (slider2 == 0 || slider2 == 2 || slider4) ? delayMidi(delaylen);
 
 @sample
 

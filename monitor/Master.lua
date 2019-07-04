@@ -6,6 +6,9 @@ local MonitorPresets = require 'MonitorPresets'
 local Mouse = require 'Mouse'
 local TransposeControll = require 'TransposeControll'
 local TextButton = require 'TextButton'
+local ButtonList = require 'ButtonList'
+local Scales = require 'Scales'
+
 local Mem = require 'Mem'
 local rea = require 'rea'
 local _ = require '_'
@@ -48,6 +51,28 @@ function Master:update()
         reaper.SetProjExtState(0, 'D3CK', 'transpose', tostring(value))
     end
 
+    -- rea.log(Scales)
+
+    local buttons = _.map(Scales, function(data)
+        return {
+            args = data.name,
+            onClick = function()
+                rea.transaction('set scale', function()
+                    _.forEach(data.scale, function(offset, index)
+                        Mem.write('tracktooljsfx', 11 + index, offset)
+                    end)
+                end)
+            end,
+            getToggleState = function()
+                return not _.some(data.scale, function(offset, index)
+                    return Mem.read('tracktooljsfx', 11 + index) ~= offset
+                end)
+            end
+        }
+    end)
+
+    self.scale = self:addChildComponent(ButtonList:create(buttons, 1))
+
     self.monitor = self:addChildComponent(MonitorPresets:create())
 
     self.fx = self:addChildComponent(MasterUI:create(Track.master))
@@ -57,7 +82,8 @@ end
 function Master:resized()
     local h = 20
 
-    self.transpose:setBounds(0,0,self.w, h)
+    self.transpose:setBounds(0,0,self.w / 2, h)
+    self.scale:setBounds(self.transpose:getRight(),0,self.transpose.w, h)
 
     self.monitor:setBounds(0,self.transpose:getBottom(),self.w)
 
