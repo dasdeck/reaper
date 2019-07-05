@@ -1,18 +1,37 @@
 local _ = require '_'
 
-return _.map({
+local default = {1,3,5,6,8,10,12}
+
+
+local data = {
     {
-        name = 'major',
-        scale = {1,2,3,4,5,6,7,8,9,10,11,12}
+        name = 'major (default)',
+        scale = default,
+        default = default
+    },
+    {
+        name = 'melodic minor',
+        scale = {1,3,4,6,8,10,12}
     },
     {
         name = 'harmonic minor',
-        scale = {1,2,3,5,4,6,7,8,10,19,11,12}
+        scale = {1,3,4,6,8,9,12}
+    },
+    {
+        name = 'gipsy',
+        scale = {1,2,5,6,8,9,11}
+    },
+    {
+        name = 'blues',
+        scale = {1,4,6,7,8,11}
     }
-}, function(entry)
+}
+
+return _.map(data, function(entry)
 
     entry.scale = _.map(entry.scale, function(key, index)
-        return index - key, key
+        local offset = key - default[index]
+        return offset, index
     end)
 
     return entry

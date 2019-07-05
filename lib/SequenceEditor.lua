@@ -7,10 +7,10 @@ local _ = require '_'
 
 local SequenceEditor = class(Component)
 
-function SequenceEditor:create(take, lanes)
+function SequenceEditor:create(lanes)
     local self = Component:create()
     setmetatable(self, SequenceEditor)
-    self.take = take
+    -- self.take = take
     self.numSteps = 4
     self.root = 36
     self.ppq = 960
@@ -19,7 +19,7 @@ function SequenceEditor:create(take, lanes)
 
     lanes = (_.size(lanes) > 0) and lanes  or _.map({
         36,37,38,39
-    }, function(key) return {key = key, take = take, track = track} end)
+    }, function(key) return {key = key, track = track} end)
 
     if lanes then
         _.forEach(lanes, function(data)

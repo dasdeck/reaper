@@ -23,7 +23,9 @@ end
 function EmptyLane:paint(g)
     local s = 0.2
     g:setColor(s,s,s,1)
-    g:rect(0,0,self.w,self.h,true)
+    local padding = 5
+    g:rect(padding,padding,self.w - padding * 2,self.h - padding * 2)
+    -- g:rect()
 end
 
 return EmptyLane

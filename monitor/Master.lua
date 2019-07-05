@@ -13,6 +13,8 @@ local Mem = require 'Mem'
 local rea = require 'rea'
 local _ = require '_'
 
+rea.log(Scales)
+
 local Master = class(Component)
 function Master:create()
     local self = Component:create()
@@ -53,19 +55,20 @@ function Master:update()
 
     -- rea.log(Scales)
 
+    local default = Scales[1].default
     local buttons = _.map(Scales, function(data)
         return {
             args = data.name,
             onClick = function()
                 rea.transaction('set scale', function()
                     _.forEach(data.scale, function(offset, index)
-                        Mem.write('tracktooljsfx', 11 + index, offset)
+                        Mem.write('tracktooljsfx', 11 + default[index], offset)
                     end)
                 end)
             end,
             getToggleState = function()
                 return not _.some(data.scale, function(offset, index)
-                    return Mem.read('tracktooljsfx', 11 + index) ~= offset
+                    return Mem.read('tracktooljsfx', 11 + default[index]) ~= offset
                 end)
             end
         }

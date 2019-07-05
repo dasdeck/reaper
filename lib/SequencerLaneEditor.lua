@@ -7,13 +7,13 @@ local SequencerLaneEditor = class(Component)
 
 function SequencerLaneEditor:create(data)
 
-    assert(data.key and (data.take or data.track))
+    assert(data.key and data.track)
 
     local self = Component:create()
     setmetatable(self, SequencerLaneEditor)
 
     -- rea.log(data)
-    self.take = data.take
+    -- self.take = data.take
     self.note = data.key
     self.track = data.track
 
@@ -109,33 +109,33 @@ function SequencerLaneEditor:getTake(pos, create)
 
     local bpos = pos / self:getPPQ()
     local time = reaper.TimeMap2_beatsToTime(0, bpos)-- + loopstart
-    if not self.take then
-        local items = self.track:getItemsUnderPosition(time)
+    -- if not self.take then
+    local items = self.track:getItemsUnderPosition(time)
 
-        local item = _.last(items)
-        if item then
-            return item:getActiveTake()
-        elseif create then
-            local loopstart, loopend = self:getRange(true)
+    local item = _.last(items)
+    if item then
+        return item:getActiveTake()
+    elseif create then
+        local loopstart, loopend = self:getRange(true)
 
-            _.forEach(self.track:getContent(), function(item)
-                local e = item:getEnd()
-                local p = item:getPos()
+        _.forEach(self.track:getContent(), function(item)
+            local e = item:getEnd()
+            local p = item:getPos()
 
-                if e > loopstart and e <= time then
-                    loopstart = e
-                elseif p > time and p < loopend then
-                    loopend = p
-                end
+            if e > loopstart and e <= time then
+                loopstart = e
+            elseif p > time and p < loopend then
+                loopend = p
+            end
 
-            end)
-            local item = self.track:createContent(loopstart, loopend)
-            return item:getActiveTake()
-        end
-
-    else
-        return self.take
+        end)
+        local item = self.track:createContent(loopstart, loopend)
+        return item:getActiveTake()
     end
+
+    -- else
+        -- return self.take
+    -- end
 
 end
 

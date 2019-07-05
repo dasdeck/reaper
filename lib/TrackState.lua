@@ -1,6 +1,7 @@
 
 local rea = require 'rea'
 local _ = require '_'
+local ReaState = require 'ReaState'
 
 local TrackState = class()
 
@@ -135,6 +136,34 @@ end
 function TrackState:withoutAuxRec(index)
     local rec = index and tostring(index) or '%d'
     return TrackState.create(self.text:gsub('AUXRECV '..rec..' (.-)\n', ''))
+end
+
+function TrackState:getRows()
+    return self.text:split('\n')
+end
+
+function TrackState:withValue(name, values)
+   return TrackState.create(_.join(_.map(self:getRows(), function(row)
+        local vals = row:split(' ')
+        if _.first(vals) == name then
+            if type(values) == 'function' then
+                return _.join((values(vals) or vals),' ')
+            else
+                return _.join(values, ' ')
+            end
+        else
+            return row
+        end
+    end), '\n'))
+end
+
+function TrackState:getValue(name, default)
+    return _.find(self:getRows(), function(row)
+        local vals = row:split(' ')
+        if _.first(vals) == name then
+            return vals
+        end
+    end)
 end
 
 function TrackState:withAuxRec(from, to)

@@ -100,6 +100,9 @@ function Instrument.init(track)
     track:setVisibility(true,true)
     track:setColor(colors.instrument)
     track:setValue('input', 6112)
+    track:setState(track:getState():withValue('REC', function(values)
+        values[7] = 1
+    end))
     track:iconize()
 end
 

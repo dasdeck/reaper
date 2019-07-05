@@ -61,66 +61,67 @@ function Sequencer:create()
     end
 
     self.watchers:watch(Project.watch.project, function()
-        local all = MediaItem.getSelectedItems()
-        local item = _.first(all)
-        if item then
-            self:setMediaItem(item)
-        else
-            self.item = nil
-            self.buttons:updateList()
-            local lanes = {}
-            local Zone = require 'Zone'
-            local tracks = Track.getAllTracks()
+        -- local all = MediaItem.getSelectedItems()
+        -- local item = _.first(all)
+        -- if item then
+        --     self:setMediaItem(item)
+        -- else
+        self.item = nil
+        self.buttons:updateList()
+        local lanes = {}
+        local Zone = require 'Zone'
+        local tracks = Track.getAllTracks()
 
 
 
-            _.forEach(tracks, function(track)
-                if track:isArmed() then
-                    local zone = Zone.create(track)
-                    if zone then
+        _.forEach(tracks, function(track)
+            if track:isArmed() then
+                local zone = Zone.create(track)
+                if zone then
+                    table.insert(lanes, {
+                        key = zone:getKey(),
+                        track = track
+                    })
+                else
+                    -- rea.log('key lanes')
+                    local keys = {
+                        36,38,40,41,
+                        43,45,47,48,
+                        50,52,53,55,
+                        57,59,61,62
+                    }
+                    _.forEach(keys, function(key)
                         table.insert(lanes, {
-                            key = zone:getKey(),
+                            key = key,
                             track = track
                         })
-                    else
-                        -- rea.log('key lanes')
-                        local keys = {
-                            36,38,40,41,
-                            43,45,47,48,
-                            50,52,53,55,
-                            57,59,61,62
-                        }
-                        _.forEach(keys, function(key)
-                            table.insert(lanes, {
-                                key = key,
-                                track = track
-                            })
-                        end)
-                    end
+                    end)
                 end
-            end)
+            end
+        end)
 
-            self:setTake(nil, lanes)
-        end
-
+        self:setLanes(lanes)
     end)
+
+    -- end)
 
     return self
 end
 
-function Sequencer:setMediaItem(item)
-    self.item = item
-    self:setTake(item and item:getActiveTake())
-    self.buttons:updateList()
-    self:resized()
-    self:repaint(true)
+-- function Sequencer:setMediaItem(item)
+--     self.item = item
+--     self:setLanes(item and item:getActiveTake())
+--     self.buttons:updateList()
+--     self:resized()
+--     self:repaint(true)
 
-end
+-- end
 
-function Sequencer:setTake(take, lanes)
+function Sequencer:setLanes(lanes)
 
-    if take and self.sequence and self.sequence.take == take then return end
+    -- if take and self.sequence and self.sequence.take == take then return end
     if lanes and self.sequence and _.equal(self.sequence.lanes, lanes) then
+        self:repaint(true)
         return
     end
 
@@ -128,22 +129,22 @@ function Sequencer:setTake(take, lanes)
         self.sequence:delete()
     end
 
-    if take or lanes then
-        self.sequence = self:addChildComponent(SequenceEditor:create(take, lanes))
+    if lanes and _.size(lanes) > 0 then
+        self.sequence = self:addChildComponent(SequenceEditor:create(lanes))
     end
 
-    if take then
-        local inst = take.item:getTrack():getInstrument()
-        if inst and inst.track:getFx('DrumRack') then
-            local DrumRack = require 'DrumRack'
-            self.drumRack = DrumRack:create(inst.track)
-            self.sequence.getLanes = function()
-                return _.map(self.drumRack.pads, function(pad)
-                    return pad:hasContent() and pad:getKeyRange() or nil
-                end)
-            end
-        end
-    end
+    -- if take then
+    --     local inst = take.item:getTrack():getInstrument()
+    --     if inst and inst.track:getFx('DrumRack') then
+    --         local DrumRack = require 'DrumRack'
+    --         self.drumRack = DrumRack:create(inst.track)
+    --         self.sequence.getLanes = function()
+    --             return _.map(self.drumRack.pads, function(pad)
+    --                 return pad:hasContent() and pad:getKeyRange() or nil
+    --             end)
+    --         end
+    --     end
+    -- end
 
     self:resized()
 
