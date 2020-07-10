@@ -585,7 +585,7 @@ local function optionalmetatables(...)
   end
 end
 
-function json.decode (str, pos, nullval, ...)
+function json.parse (str, pos, nullval, ...)
   local objectmeta, arraymeta = optionalmetatables(...)
   return scanvalue (str, pos, nullval, objectmeta, arraymeta)
 end

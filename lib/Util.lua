@@ -21,7 +21,10 @@ function dump(o, deep, depth, references)
         local lines = {}
         for k,v in pairs(o) do
             -- if type(k) ~= 'number' then k = '"'..k..'"' end
-            table.insert(lines, indent .. indent ..k..': ' .. dump(v, deep, depth + 1, references))
+            local val = dump(v, deep, depth + 1, references)
+            -- table.insert(lines, indent .. indent ..'[\''..k..'\']'..': ' .. val)
+            table.insert(lines, indent .. indent ..'"'..k..'"'..': ' .. '"' .. val .. '"')
+            -- table.insert(lines, indent .. indent ..k..': ' .. dump(v, deep, depth + 1, references))
         end
         return '{ \n' .. _.join(lines, ',\n') .. '\n' .. indent ..  '} '
     else

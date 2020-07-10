@@ -5,6 +5,8 @@ local _ = require '_'
 local La = class(Track)
 
 function La.createLa(source)
+
+
     local track = Track.insert()
     track:setOutput(source:getOutput())
     track:setColor(colors.la)

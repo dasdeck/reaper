@@ -1,0 +1,30 @@
+desc:OneNote
+//tags: delay time PDC
+//author: D3CK
+
+slider1:0<0,127>note
+slider2:0<0,1>learn
+
+@init
+  statNoteOn = $x90;
+  statNoteOff = $x80;
+
+@block
+  while (midirecv(offset, msg1, msg2, msg3)) (
+
+    status = msg1 & $xF0;
+    isNoteOn = status == statNoteOn;
+    isNoteOff = status == statNoteOff;
+    isNote = isNoteOn || isNoteOff;
+
+    isNote ? (
+      slider2 ? (
+        slider1 = msg2;
+        slider2 = 0;
+      );
+      msg2 = slider1;
+    );
+
+    midisend(offset, msg1, msg2, msg3);
+  );
+

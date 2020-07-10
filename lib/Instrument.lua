@@ -5,6 +5,7 @@ local paths = require 'paths'
 local rea = require 'rea'
 local colors = require 'colors'
 local _ = require '_'
+local JSON = require 'JSON'
 
 local Instrument = class()
 function Instrument.createInstrument(instrName)
@@ -14,6 +15,7 @@ function Instrument.createInstrument(instrName)
     if instrName then
         local instrument
         local template = paths.imageDir:findFile(instrName .. '.RTrackTemplate')
+
         if template then
             local state = require 'TrackState'
             reaper.OnPauseButton()
@@ -30,11 +32,11 @@ function Instrument.createInstrument(instrName)
                 return nil
             end
         end
+
         track:setName(instrName)
         Instrument.init(track)
 
         track:getTrackTool(true):setPreset(instrName)
-
         local res = instrument:getOutputs()
         if _.size(res) > 0 then
             res[1]:createConnection()
@@ -42,6 +44,8 @@ function Instrument.createInstrument(instrName)
                 -- rea.log('open first')
                 res[1]:getTrack():setMeta('expanded', true)
             end
+            track:setVisibility(true, false)
+            track:setValue('toParent', false)
         end
     end
 

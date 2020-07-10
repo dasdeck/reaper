@@ -14,6 +14,7 @@ local Slider = require 'Slider'
 local Track = require 'Track'
 local GainSlider = require 'GainSlider'
 local PanSlider = require 'PanSlider'
+local PluginListApp = require 'PluginListApp'
 
 local colors = require 'colors'
 local rea = require 'rea'
@@ -41,7 +42,15 @@ function AudioTrackUI:update()
     self.laAdd.color = colors.la:fade(0.8)
     self.laAdd.onButtonClick = function(s, mouse)
         rea.transaction('create LA track', function()
-            La.createLa(self.track):focus()
+            PluginListApp.pick(PluginListApp.cats.effects, function(res)
+
+                local track = La.createLa(self.track):focus()
+
+                -- track:setParent(self.track:getParent())
+                track:setIndex(self.track:getIndex()-1)
+                track:addFx(res):open()
+
+            end)
         end)
     end
 

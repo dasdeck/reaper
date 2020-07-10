@@ -4,7 +4,6 @@ desc:TrackTool
 
 options:gmem=tracktooljsfx
 
-
 slider1:0<-1000,1000,1>Delay Amount (ms)
 slider2:0<0,2,{midi,audio,both}>mode
 slider3:0<-128,128,1>transpose
@@ -20,7 +19,7 @@ slider8:0<0,1,{off, on}>no transpose
 
   max_ram = __memtop() - 129;
   thrus = max_ram + 1;
-
+  numThrus = __memtop() - thrus;
 
   headerLength = 3; // position, length (incl header), bus
 
@@ -32,20 +31,20 @@ slider8:0<0,1,{off, on}>no transpose
   statNoteOn = $x90;
   statNoteOff = $x80;
 
-  function setKey(key, value)
+  function setKey(key, value, set)
   (
     this.currentKey != key ? (
       slider6 = key;
       slider7 = thrus[key];
       this.currentKey = key;
-    ) : (
+    );
+    set ? (
       thrus[key] = value;
     );
   );
 
   function midisendBuf(off, pos, len)
   (
-
     isShortEvent = len == 3;
 
     isShortEvent ? (
@@ -69,7 +68,7 @@ slider8:0<0,1,{off, on}>no transpose
       (isNote && slider8 == 0) ? (
         thru = thrus[note];
         pos[1] = note + (thru ? 0 : (transpose + offset));
-        setKey(note, thru);
+        setKey(note, thru, 0);
       );
     );
 
@@ -104,7 +103,6 @@ slider8:0<0,1,{off, on}>no transpose
 
   function delayMidi(len)
   (
-
     // process incoming events
     while((l = midirecv_buf(offs, buf_r + headerLength, max_ram - buf_r - headerLength)) > 0)
     (
@@ -118,7 +116,6 @@ slider8:0<0,1,{off, on}>no transpose
     );
 
     // process outgoing events
-    // rd = buf_l;
     offs = (buf_l[0] - samplepos);
     while ((buf_l < buf_r) && (offs = (buf_l[0] - samplepos)) < samplesblock)
     (
@@ -152,13 +149,11 @@ slider8:0<0,1,{off, on}>no transpose
     delaylen += pdc_delay;
   );
 
-  setKey(slider6, slider7)
+  setKey(slider6, slider7, 1);
 
 @serialize
 
-  file_mem(thrus, 0, usedMemeory)
-
-
+  file_mem(0, thrus, numThrus);
 
 @block
 
@@ -168,7 +163,6 @@ slider8:0<0,1,{off, on}>no transpose
     allNotesOff();
     transpose = nextTranspose;
   );
-
 
   bufsize = srate * num_ch;
 
@@ -181,4 +175,3 @@ slider8:0<0,1,{off, on}>no transpose
 @sample
 
   (slider2 == 1 || slider2 == 2) && delaylen > 0 ? delayAudio(delaylen);
-

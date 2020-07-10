@@ -1,0 +1,93 @@
+[
+    {
+        "name": "Flat",
+        "params": {
+            "Spk HP": 0,
+            "Spk Mid": 0,
+            "Spk LP": 0,
+            "Spk HPF": 0.00065386999631301,
+            "Spk HPG": 0.75,
+            "Spk MidF": 0.1811999976635,
+            "Spk MidG": 0.75,
+            "Spk LPF": 0.81809997558594,
+            "Spk LPG": 0.75,
+            "Spk size": 0.20000000298023
+        }
+    },
+    {
+        "disabled": true,
+        "name": "My Shrill",
+        "params": {
+            "Spk LPF": 0.702661216259,
+            "Spk HPF": 0.0040000001899898,
+            "Spk LP": 1.0,
+            "Spk LPG": 0.75,
+            "Spk HP": 1.0,
+            "Spk Mid": 1.0,
+            "Spk size": 0.0,
+            "Spk MidF": 0.076999999582767,
+            "Spk MidG": 1.0,
+            "Spk HPG": 0.80800002813339
+        }
+    },
+    {
+        "name": "Small monitor",
+        "params": {
+            "Spk MidF": 0.063000001013279,
+            "Spk MidG": 0.92500001192093,
+            "Spk Mid": 1.0,
+            "Spk size": 1.0,
+            "Spk HPF": 0.0078999996185303,
+            "Spk LPG": 0.82499998807907,
+            "Spk LPF": 0.45419999957085,
+            "Spk LP": 1.0,
+            "Spk HPG": 0.75,
+            "Spk HP": 1.0
+        }
+    },
+   {
+        "name": "Monitor A",
+        "params": {
+            "Spk HP": 1,
+            "Spk Mid": 1,
+            "Spk LP": 1,
+            "Spk HPG": 0.80000001192093,
+            "Spk size": 0.20000000298023,
+            "Spk LPG": 0.67500001192093,
+            "Spk HPF": 0.003800000064075,
+            "Spk MidF": 0.058400001376867,
+            "Spk LPF": 0.68159997463226,
+            "Spk MidG": 0.85000002384186
+        }
+    },
+   {
+        "name": "Monitor B",
+        "params": {
+            "Spk HP": 1,
+            "Spk Mid": 1,
+            "Spk LP": 1,
+            "Spk HPG": 0.82499998807907,
+            "Spk size": 0.16670000553131,
+            "Spk LPG": 0.875,
+            "Spk HPF": 0.0024999999441206,
+            "Spk MidF": 0.026599999517202,
+            "Spk LPF": 0.77259999513626,
+            "Spk MidG": 0.85500001907349
+        }
+    },
+    {
+        "name": "Monitor C",
+        "params": {
+            "Spk HP": 1,
+            "Spk Mid": 1,
+            "Spk LP": 1,
+            "Spk HPG": 0.80000001192093,
+            "Spk size": 0.27779999375343,
+            "Spk LPG": 0.89999997615814,
+            "Spk HPF": 0.0035999999381602,
+            "Spk MidF": 0.063000001013279,
+            "Spk LPF": 0.86349999904633,
+            "Spk MidG": 0.89999997615814
+        }
+    }
+]

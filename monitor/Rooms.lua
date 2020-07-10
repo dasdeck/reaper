@@ -18,7 +18,7 @@ local config = {
   }
 }
 
-local rooms = JSON.decode(readFile(__dirname(debug.getinfo(1,'S'))..'/'..'rooms.json'))
+local rooms = JSON.parse(readFile(__dirname(debug.getinfo(1,'S'))..'/'..'rooms.json'))
 
 local Rooms = class(ButtonList)
 

@@ -26,16 +26,23 @@ local options = {
         args = 'i',
         key = 'inst',
         onDblClick = function()
+            local parent = Track.getSelectedTrack()
+
             PluginListApp.pick(PluginListApp.cats.instruments,function(res)
                 rea.transaction('add instrument', function()
                     local track = Instrument.createInstrument(res)
                     if track then
+
+                        if parent and parent:isFolder() then
+                            track:setParent(parent)
+                        end
                         -- track = track:createMidiSlave()
                         track:getTrackTool(true)
                         track:setSelected(1)
                         track:setArmed(1)
                         track:focus()
                         if track:getInstrument() and not track:getInstrument().track:getFx('DrumRack') then
+                            track:getInstrument():initSettings()
                             track:getInstrument():open(true)
                         else
                             track:getTrackTool(true):setParam(3, 0)

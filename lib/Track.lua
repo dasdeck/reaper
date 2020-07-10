@@ -684,6 +684,9 @@ function Track:createMidiSlave()
     slave:addFx('TrackTool')
     slave:setManaged(self)
     slave:setValue('input', 6112)
+    slave:setState(slave:getState():withValue('REC', function(values)
+        values[7] = 1
+    end))
     slave:setType(Track.typeMap.midi)
     slave:setVisibility(true, false)
         :setIcon(self:getIcon() or 'midi.png')
@@ -1036,7 +1039,13 @@ end
 function Track:isFolder()
     return self:getFolderState() == 1
 end
+function Track:setIndex(index, mode)
 
+    local tracks = Track.getSelectedTracks()
+    Track.setSelectedTracks({self})
+    reaper.ReorderSelectedTracks(index, mode or 0)
+    Track.setSelectedTracks(tracks)
+end
 function Track:setParent(newParent)
 
     if not newParent then return end

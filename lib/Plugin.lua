@@ -3,6 +3,7 @@ local Slider = require 'Slider'
 local rea = require 'rea'
 local paths = require 'paths'
 local colors = require 'colors'
+local JSON = require 'json'
 
 local Plugin = class()
 local _ = require '_'
@@ -62,7 +63,32 @@ function Plugin:create(track, index, rec)
     return Plugin.plugins[guid]
 end
 
+function Plugin:initSettings()
 
+    local instrName = self.track:getName()
+    local settings = paths.imageDir:findFile(instrName .. '.json')
+    if settings then
+        settings = JSON.parse(readFile(settings))
+    end
+    -- rea.log(settings)
+
+    local res = self:getOutputs()
+    if settings then
+        if settings.outs then
+            if settings.outs == 'all' then
+                _.forEach(res, function(out)
+                    out:createConnection()
+                end)
+            elseif settings.outs > 0 then
+                for i=1,settings.outs do
+                    if res[i] ~= nil then
+                        res[i]:createConnection()
+                    end
+                end
+            end
+        end
+    end
+end
 
 function Plugin:resolveIndex(nameOrIndex)
     if type(nameOrIndex) == 'string' then
@@ -74,7 +100,7 @@ end
 
 function Plugin:resolveParamIndex(nameOrIndex)
     if type(nameOrIndex) == 'string' then
-        return rea.getParamByName(self.track.track, self.index, nameOrIndex)
+        return rea.getParamByName(self.track.track, self.index, nameOrIndex, true)
     else
         return nameOrIndex
     end
@@ -214,10 +240,9 @@ function Plugin:getOutputs()
             end
             current.createConnection = function()
 
-
-                if i == 1 then
-                    return
-                end
+                -- if i == 1 then
+                --     return
+                -- end
 
                 local outputTrack = self.track.insert()
 
@@ -232,6 +257,7 @@ function Plugin:getOutputs()
                 outputTrack:setVisibility(false, true)
                 outputTrack:setOutput(self.track:getOutput())
                 outputTrack:setManaged(self.track)
+                outputTrack:setParent(self.track:getParent()    )
 
                 local send = self.track:createSend(outputTrack)
 
@@ -242,9 +268,10 @@ function Plugin:getOutputs()
             end
 
             current.getTrack = function()
-                 if i == 1 then
-                    return self.track
-                 elseif current.getConnection() then
+                --  if i == 1 then
+                --     return self.track
+                --  else
+                if current.getConnection() then
                     return current.getConnection():getTargetTrack()
                 end
             end
@@ -252,7 +279,9 @@ function Plugin:getOutputs()
             current.getConnection = function()
                 return _.some(self.track:getSends(), function(send)
                     local i = send:getAudioIO()
-                    return send:getMode() == 3 and send:getTargetTrack():getName() == current.name and i == current.sourceChan() and send
+                    return send:getMode() == 3 and
+                    -- send:getTargetTrack():getName() == current.name and
+                    i == current.sourceChan() and send
                 end)
             end
         end)
@@ -284,17 +313,17 @@ function Plugin:isMultiOut()
 end
 
 
-function Plugin:createMultiOut()
+-- function Plugin:createMultiOut()
 
-    local outs = self:getOutputs()
-    local track = self.track
+--     local outs = self:getOutputs()
+--     local track = self.track
 
-    track:setValue('chans', _.reduce(outs, function(car, out) return _.size(out.channels) end, 0))
-    track:setValue('toParent', false)
-    _.forEach(outs, function(output)
-        output.createConnection()
-    end)
-end
+--     track:setValue('chans', _.reduce(outs, function(car, out) return _.size(out.channels) end, 0))
+--     track:setValue('toParent', false)
+--     _.forEach(outs, function(output)
+--         output.createConnection()
+--     end)
+-- end
 
 function Plugin:setPreset(name)
     reaper.TrackFX_SetPreset(self.track.track, self.index, name)
@@ -341,9 +370,12 @@ function Plugin:setParam(nameOrIndex, value)
     if not self:refresh() then return end
 
     if type(nameOrIndex) == 'string' then
-        local res = reaper.TrackFX_SetNamedConfigParm(self.track.track, self.index, nameOrIndex, value)
-        if not res then self:setParam(self:resolveParamIndex(nameOrIndex), value) end
+        -- local res = reaper.TrackFX_SetNamedConfigParm(self.track.track, self.index, nameOrIndex, value)
+        local index = self:resolveParamIndex(nameOrIndex)
+        -- if nameOrIndex == 'Spk MidG' then rea.log(index .. '=>' .. value) end
+        self:setParam(index, value)
     else
+        -- if nameOrIndex == 6 then rea.log(self.index .. ':' .. nameOrIndex .. '=>' .. value) end
         return reaper.TrackFX_SetParam(self.track.track, self.index, nameOrIndex, value)
     end
 
@@ -352,12 +384,12 @@ end
 function Plugin:getParam(nameOrIndex)
 
     if type(nameOrIndex) == 'string' then
-        local res, val = reaper.TrackFX_GetNamedConfigParm(self.track.track, self.index, nameOrIndex)
-        if res then
-            return val
-        else
+        -- local res, val = reaper.TrackFX_GetNamedConfigParm(self.track.track, self.index, nameOrIndex)
+        -- if res then
+        --     return val
+        -- else
             return self:getParam(self:resolveParamIndex(nameOrIndex))
-        end
+        -- end
     elseif type(nameOrIndex) == 'number' then
         return reaper.TrackFX_GetParam(self.track.track, self.index, nameOrIndex)
     end

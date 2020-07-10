@@ -12,8 +12,6 @@ function SequencerLaneEditor:create(data)
     local self = Component:create()
     setmetatable(self, SequencerLaneEditor)
 
-    -- rea.log(data)
-    -- self.take = data.take
     self.note = data.key
     self.track = data.track
 
@@ -28,8 +26,12 @@ function SequencerLaneEditor:getNumBars()
     return self:getSequencer():getNumBars()
 end
 
-function SequencerLaneEditor:getRange(time)
-    return self:getSequencer():getRange(time)
+function SequencerLaneEditor:getTimeRange()
+    return self:getSequencer():getTimeRange()
+end
+
+function SequencerLaneEditor:getRange()
+    return self:getSequencer():getRange()
 end
 
 
@@ -51,6 +53,7 @@ function SequencerLaneEditor:getTakes()
     _.forEach(self:getSequencer():getAbsoluteSteps(), function (step)
         local item = self:getTake(step)
         if not _.find(items, item) then
+            -- rea.log('take')
             table.insert(items, item)
         end
     end)
@@ -61,6 +64,7 @@ function SequencerLaneEditor:getAllNotes()
     local positions = {}
     _.forEach(self:getTakes(), function (take)
         local offset = reaper.TimeMap2_timeToQN(0, take.item:getPos() ) * self:getPPQ()
+        offset = round(offset, 12)
         _.forEach(take:getNotes(), function(note)
             if note.pitch == self.note then
                 note.absPos = note.startppqpos + offset
@@ -71,9 +75,14 @@ function SequencerLaneEditor:getAllNotes()
     return positions
 end
 
+function SequencerLaneEditor:samePos(a, b)
+    local prec = 1000000000
+    return math.floor(a * prec) == math.floor(b* prec)
+end
+
 function SequencerLaneEditor:getNote(pos)
     return _.find(self:getAllNotes(), function(note)
-        return note.absPos == pos
+        return self:samePos(note.absPos, pos)
     end)
 end
 
@@ -89,7 +98,7 @@ function SequencerLaneEditor:getNotes()
 
         local pos = (step-1) * self:getPPS() + self:getOffset()
         local note = _.find(notes, function(note)
-            if note.absPos == pos then
+            if self:samePos(note.absPos, pos) then
                 notesCache[step] = note
             end
         end)
@@ -108,15 +117,15 @@ end
 function SequencerLaneEditor:getTake(pos, create)
 
     local bpos = pos / self:getPPQ()
-    local time = reaper.TimeMap2_beatsToTime(0, bpos)-- + loopstart
-    -- if not self.take then
+    local time = reaper.TimeMap2_beatsToTime(0, bpos)
+
     local items = self.track:getItemsUnderPosition(time)
 
     local item = _.last(items)
     if item then
         return item:getActiveTake()
     elseif create then
-        local loopstart, loopend = self:getRange(true)
+        local loopstart, loopend = self:getTimeRange()
 
         _.forEach(self.track:getContent(), function(item)
             local e = item:getEnd()
@@ -133,27 +142,20 @@ function SequencerLaneEditor:getTake(pos, create)
         return item:getActiveTake()
     end
 
-    -- else
-        -- return self.take
-    -- end
-
 end
 
 function SequencerLaneEditor:changeStep(pos)
     local note = self:getNote(pos)
 
-
     if self.add then
         local velo = self:getVelo()
         if not note then
-            -- rea.lCog(self.note)
             local take = self:getTake(pos, true)
             local offset = reaper.TimeMap2_timeToQN(0, take.item:getPos() ) * self:getPPQ()
             pos = pos - offset
             reaper.MIDI_InsertNote(take.take, false,false, pos, pos + 1, 1, self.note, velo, false)
             self.changed = true
         elseif note.vel ~= velo then
-            -- rea.log(note.pitch)
             reaper.MIDI_SetNote(note.take.take, note.index, false, false, note.startppqpos, note.endppqpos, 1, note.pitch, velo, false)
             self.changed = true
         end
@@ -180,8 +182,10 @@ function SequencerLaneEditor:onDrag(mouse)
     self:changeStep(self:getPos(self.mouse.x))
 end
 
-function SequencerLaneEditor:mouseUp()
+function SequencerLaneEditor:onMouseUp()
+    -- rea.log('up')
     if self.changed then
+        -- rea.log('changed')
         reaper.Undo_EndBlock('change sequence', -1)
     end
 end

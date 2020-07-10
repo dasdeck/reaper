@@ -50,15 +50,18 @@ function SequenceEditor:getNumBars()
     end
 end
 
-function SequenceEditor:getRange(time)
-    local s, e = reaper.GetSet_LoopTimeRange(false, false, 0 , 0, false)
-    if not time then
-        local res, st = reaper.TimeMap2_timeToBeats(0, s)
-        local res, se = reaper.TimeMap2_timeToBeats(0, e)
-        return st * 4, se * 4
-    else
-        return s, e
-    end
+function SequenceEditor:getTimeRange()
+    return reaper.GetSet_LoopTimeRange(false, false, 0 , 0, false)
+
+end
+
+function SequenceEditor:getRange()
+    local s, e = self:getTimeRange()
+
+    local res, st = reaper.TimeMap2_timeToBeats(0, s)
+    local res, se = reaper.TimeMap2_timeToBeats(0, e)
+    return st * 4, se * 4
+
 end
 
 function SequenceEditor:getPlayPos()
@@ -92,18 +95,7 @@ function SequenceEditor:getTakes()
     return items
 end
 
-function SequenceEditor:getNotes()
-    local positions = {}
-    _.forEach(self:getTakes(), function (item)
-        local offset = reaper.TimeMap2_timeToQN(0, item:getPos() ) * self.ppq
-        local take = item:getActiveTake()
-        _.forEach(take:getNotes(), function( note )
-            table.insert(positions, note.startppqpos + offset)
-        end)
-    end)
-    return positions
-end
-        -- body
+
 function SequenceEditor:getAbsoluteSteps()
     local positions = {}
     local total = self:getNumTotalSteps()
@@ -123,13 +115,15 @@ end
 
 function SequenceEditor:paintOverChildren(g)
 
+    local x = self.h / #self.children
+    local w = self.w - x
     local loopstart, loopend = reaper.GetSet_LoopTimeRange(false, false, 0 , 0, false)
     local len = loopend - loopstart
-    local pos = (self:getPlayPos() - loopstart) / len * self.w
+    local pos = (self:getPlayPos() - loopstart) / len * w
 
-    local stepSize = self.w / self:getNumTotalSteps()
+    local stepSize = w / self:getNumTotalSteps()
     g:setColor(1,0,0,1)
-    g:rect(pos, 0, stepSize, self.h)
+    g:rect(x + pos, 0, stepSize, self.h)
 
 end
 

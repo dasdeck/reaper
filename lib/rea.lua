@@ -14,13 +14,6 @@ local function getFxByName(track, name, recFX)
     end
 end
 
-local function getParamByName(track, fx, name)
-    for index = reaper.TrackFX_GetNumParams(track, fx)-1, 0, -1 do
-      local success, paramName = reaper.TrackFX_GetParamName(track, fx, index, 1)
-      if string.match(paramName, name) then return index end
-    end
-end
-
 local function log(msg, deep)
     if 'table' == type(msg) then
         msg = dump(msg, deep)
@@ -35,6 +28,26 @@ end
 local logCounts = {}
 local logPins = {}
 local error = nil
+
+local function getParamByName(track, fx, name, exact)
+    exact = exact or false
+    for index = reaper.TrackFX_GetNumParams(track, fx)-1, 0, -1 do
+      local success, paramName = reaper.TrackFX_GetParamName(track, fx, index, 1)
+    --   log(index .. ' ' .. paramName)
+
+
+    if exact then
+
+        if name == paramName then
+            return index
+        end
+      else
+        if string.match(paramName, name) then
+            return index
+        end
+      end
+    end
+end
 
 local function showLogs()
     reaper.ClearConsole()

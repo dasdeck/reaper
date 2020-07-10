@@ -6,7 +6,7 @@ local ButtonList = require 'ButtonList'
 local JSON = require 'json'
 local rea = require 'rea'
 
-local sets = JSON.decode(readFile(__dirname(debug.getinfo(1,'S'))..'/'..'monitors.json'))
+local sets = JSON.parse(readFile(__dirname(debug.getinfo(1,'S'))..'/'..'monitors.json'))
 
 local Speakers = class(ButtonList)
 

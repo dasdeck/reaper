@@ -43,6 +43,11 @@ function FXlistAddButton:create(track, name, index)
             menu:addItem('show channel', function()
                 self.track:setOpen()
             end)
+            if not track:getTrackTool() then
+                menu:addItem('add tool', function()
+                    self.track:getTrackTool(true)
+                end, 'add tool')
+            end
             menu:addItem('move all to track',
 
                 Track.getMenu(function(targetTrack)

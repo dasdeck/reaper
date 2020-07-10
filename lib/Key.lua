@@ -2,6 +2,7 @@ local Component = require 'Component'
 local _ = require '_'
 local rea = require 'rea'
 local paths = require 'paths'
+local Menu = require 'Menu'
 
 local Key = class(Component)
 
@@ -42,6 +43,16 @@ function Key:getZones()
             return keyRange and keyRange:getParam(0) <= self.key and keyRange:getParam(1) >= self.key
         end
     end)
+end
+
+function Key:onClick(mouse)
+
+    if mouse:wasRightClick() then
+        local menu = Menu:create()
+
+        menu:show()
+    end
+
 end
 
 function Key:onDrop()

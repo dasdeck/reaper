@@ -24,7 +24,7 @@ function RandomSound:create(text)
         self:randomize()
     end
 
-    self.rescentFilter = json.decode(State.global.get('randomsound_history', '')) or {}
+    self.rescentFilter = json.parse(State.global.get('randomsound_history', '')) or {}
 
     self.filter = self:addChildComponent(Label:create(State.global.get('randomsound_filter', '(all)')))
     self.filter.onClick = function(s, mouse)

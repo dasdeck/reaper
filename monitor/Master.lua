@@ -13,7 +13,6 @@ local Mem = require 'Mem'
 local rea = require 'rea'
 local _ = require '_'
 
-rea.log(Scales)
 
 local Master = class(Component)
 function Master:create()
@@ -78,7 +77,7 @@ function Master:update()
 
     self.monitor = self:addChildComponent(MonitorPresets:create())
 
-    self.fx = self:addChildComponent(MasterUI:create(Track.master))
+    -- self.fx = self:addChildComponent(MasterUI:create(Track.master))
     self:resized()
 end
 
@@ -90,7 +89,7 @@ function Master:resized()
 
     self.monitor:setBounds(0,self.transpose:getBottom(),self.w)
 
-    self.fx:setBounds(0,self.monitor:getBottom(), self.w)
+    -- self.fx:setBounds(0,self.monitor:getBottom(), self.w)
 end
 
 return Master

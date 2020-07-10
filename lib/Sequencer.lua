@@ -61,11 +61,25 @@ function Sequencer:create()
     end
 
     self.watchers:watch(Project.watch.project, function()
-        -- local all = MediaItem.getSelectedItems()
-        -- local item = _.first(all)
-        -- if item then
-        --     self:setMediaItem(item)
-        -- else
+            -- local all = MediaItem.getSelectedItems()
+            -- local item = _.first(all)
+            -- if item then
+
+            --     local a = item:getPos()
+            --     local b = a + item:getLength()
+
+            --     local s, e = reaper.GetSet_LoopTimeRange(false, false, 0 , 0, false)
+            --     -- rea.log({
+            --     --     startItem = a,
+            --     --     endItem = b,
+            --     --     startLoop = s,
+            --     --     endLoop = e,
+            --     --     startMatch = a - s,
+            --     --     endMatch = b - e
+            --     -- })
+            -- end
+
+
         self.item = nil
         self.buttons:updateList()
         local lanes = {}

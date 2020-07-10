@@ -8,7 +8,7 @@ function Collection:create(data)
 
     if type(data) == 'string' then
         if not pcall(function()
-            data = json.decode(data) or {}
+            data = json.parse(data) or {}
         end) then
             rea.logPin('datamiss', data)
         end
