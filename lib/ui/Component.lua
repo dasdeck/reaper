@@ -192,7 +192,7 @@ end
 -- end
 
 function Component:isMouseOver()
-    local window
+    -- local window
     return self.mouse.x >= 0 and self.mouse.y >= 0 and self.mouse.x <= self.w and self.mouse.y <= self.h
     -- return
     --     gfx.mouse_x <= self:getAbsoluteRight() and

@@ -126,7 +126,7 @@ function App:start(options)
 
     if options.debug then
         reaper.atexit(function()
-            rea.log('exited')
+            -- rea.log('exited')
         end)
 
     end

@@ -17,6 +17,7 @@ function Instrument.createInstrument(instrName)
         local template = paths.imageDir:findFile(instrName .. '.RTrackTemplate')
 
         if template then
+            rea.log('template')
             local state = require 'TrackState'
             reaper.OnPauseButton()
             track = _.first(state.fromTemplate(readFile(template)))
@@ -36,16 +37,19 @@ function Instrument.createInstrument(instrName)
         track:setName(instrName)
         Instrument.init(track)
 
+        track:setVisibility(true, false)
+        track:setValue('toParent', false)
+
         track:getTrackTool(true):setPreset(instrName)
         local res = instrument:getOutputs()
         if _.size(res) > 0 then
+            -- rea.log(res[1].name)
             res[1]:createConnection()
             if res[1]:getTrack() then
                 -- rea.log('open first')
                 res[1]:getTrack():setMeta('expanded', true)
             end
-            track:setVisibility(true, false)
-            track:setValue('toParent', false)
+
         end
     end
 

@@ -18,6 +18,7 @@ local _ = require '_'
 local JSON = require 'json'
 
 local isoneRooms = JSON.parse(readFile(__dirname(debug.getinfo(1,'S'))..'/'..'isoneRooms.json'))
+local perspectives = JSON.parse(readFile(__dirname(debug.getinfo(1,'S'))..'/'..'perspectives.json'))
 
 local MonitorPresets = class(Component)
 
@@ -94,6 +95,8 @@ function MonitorPresets:create(...)
     },
   };
   local isone = Track.master:getFx('Isone', false, true)
+  local bandlimit = Track.master:getFx('BandLimit', false, true)
+  local perpective = Track.master:getFx('Perspective',false, true)
 
   function setRoom(name)
     local val = rooms[name]
@@ -148,12 +151,64 @@ function MonitorPresets:create(...)
     --   ms = 0,
     -- },
     {
+      enabled = false,
       preset = 'bypass',
       name = 'flat',
       room = 'mid',
       size = 2.8,
       ms = 0,
     },
+    {
+      enabled = false,
+      preset = 'bypass',
+      name = 'flat-',
+      bandlimit = true,
+      room = 'mid',
+      size = 2.8,
+      ms = 0,
+    },
+    {
+      enabled = true,
+      preset = 'A7',
+      room = 'mid',
+      size = 2.8,
+      ms = 0,
+    },
+    {
+      enabled = true,
+      preset = 'V8',
+      room = 'mid',
+      size = 2.8,
+      ms = 0,
+    },
+    {
+      enabled = true,
+      preset = '8040',
+      room = 'mid',
+      size = 2.8,
+      ms = 0,
+    },
+    {
+      enabled = true,
+      preset = 'ATC',
+      room = 'mid',
+      size = 2.8,
+      ms = 0,
+    },
+    {
+      enabled = true,
+      preset = 'Twin',
+      room = 'mid',
+      size = 2.8,
+      ms = 0,
+    },
+    -- {
+    --   enabled = true,
+    --   preset = 'Reveal',
+    --   room = 'mid',
+    --   size = 2.8,
+    --   ms = 0,
+    -- },
     -- {
     --   preset = 'bypass',
     --   name = 'soft',
@@ -162,12 +217,14 @@ function MonitorPresets:create(...)
     --   ms = 0,
     -- },
     {
+      enabled = true,
       preset = 'NS10',
       room = 'near',
       size = 2.5,
       ms = 0,
     },
     {
+      enabled = true,
       preset = 'Auratone',
       room = 'near',
       size = 10,
@@ -175,18 +232,35 @@ function MonitorPresets:create(...)
     }
   }
 
+  -- local names = {}
+  -- -- perpective:getParamSteps('Speaker A Choice')
+  -- for i=0, 22 do
+  --   local v = i / 22
+  --   perpective:setParam('Speaker A Choice', v)
+  --   names[perpective:getParamString('Speaker A Choice')] = perpective:getParam('Speaker A Choice')
+  -- end
+  -- rea.log(names)
+
   self.response = self:addChildComponent(ButtonList:create(_.map(speakers, function(val)
-    local fir = Track.master:getFx('FIR',false, true)
+
+
     local name = val.name or val.preset
     local size = (val.size - 1) / 9
+    local bl = val.bandlimit or false
+    local spkChoice = perspectives[val.preset] or 0
     return {
       args = name,
       getToggleState = function()
-        return (fir:getPreset() == val.preset) and fequal(isone:getParam('Spk size'), size, 2)
+        return bl == bandlimit:getEnabled() and fequal(perpective:getParam('Speaker A Choice'), spkChoice, 2) and fequal(isone:getParam('Spk size'), size, 2)
       end,
       onClick = function()
         rea.transaction('toggle fir', function()
-          fir:setPreset(val.preset)
+          -- perpective:setPreset(val.preset)
+          perpective:setEnabled(val.enabled)
+          perpective:setParam('Room Compensation', 1)
+          perpective:setParam('Speaker A Choice', spkChoice)
+          bandlimit:setEnabled(bl)
+
           isone:setParam('Spk size', size)
           local mouse = Mouse.capture();
           if mouse:isCommandKeyDown() then
@@ -281,8 +355,8 @@ function MonitorPresets:resized()
   --   y = self.isoneOnly:getBottom()
   -- end
 
-  self.room:setBounds(0, y, self.w, h)
-  y = self.room:getBottom()
+  -- self.room:setBounds(0, y, self.w, h)
+  -- y = self.room:getBottom()
 
   self.h = y
 

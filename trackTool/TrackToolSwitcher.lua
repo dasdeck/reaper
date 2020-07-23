@@ -18,17 +18,10 @@ function TrackToolSwitcher:create(...)
 
     self.indexInHistory = 1
 
-    self.history = {track = Track.getSelectedTrack()}
+    self.history = { track = Track.getSelectedTrack() }
     self.watchers:watch(Track.watch.selectedTrack,
     function(track)
-
-        if track then
-            if self.history.track ~= track then
-                self.history.next = {prev = self.history, track = track}
-                self.history = self.history.next
-            end
-        end
-
+        self:pushHistory(track or Track.master)
     end)
     self.watchers:watch(Project.watch.project, function()
         if not Mouse.capture():isButtonDown()then
@@ -41,8 +34,15 @@ function TrackToolSwitcher:create(...)
     return self
 end
 
+function TrackToolSwitcher:pushHistory(track)
+    if self.history.track ~= track then
+        self.history.next = { prev = self.history, track = track }
+        self.history = self.history.next
+    end
+end
+
 function TrackToolSwitcher:getTrack()
-    return self.history.track
+    return self.history.track and self.history.track:exists() and self.history.track or Track.master
 end
 
 function TrackToolSwitcher:onFilesDrop(files)
@@ -136,12 +136,10 @@ function TrackToolSwitcher:update()
     -- end
 
 
-    if self:getTrack() and self:getTrack():exists() then
-        self.currentTrack = self:getTrack()
-        local comp = self:getTrack():createUI()-- or TrackTool:create(self:getTrack())
-        if comp then
-            self.trackTool = self:addChildComponent(comp)
-        end
+    self.currentTrack = self:getTrack()
+    local comp = self:getTrack():createUI()-- or TrackTool:create(self:getTrack())
+    if comp then
+        self.trackTool = self:addChildComponent(comp)
     end
 
     self:resized()

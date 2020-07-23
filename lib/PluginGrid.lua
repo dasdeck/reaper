@@ -29,6 +29,8 @@ function PluginGrid:setDir(dir)
         self.title = self:addChildComponent(TextButton:create(_.last(dir.dir:split('/'))))
 
         local subdirectories = dir:getDirectories()
+        table.sort(subdirectories)
+        -- rea.log(subfxlisdirectories)
         if _.size(subdirectories) > 0 then
 
             self.subgrids = self:addChildComponent(ButtonList:create(_.map(subdirectories, function(subdir)

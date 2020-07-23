@@ -63,17 +63,36 @@ function Plugin:create(track, index, rec)
     return Plugin.plugins[guid]
 end
 
-function Plugin:initSettings()
-
+function Plugin:getJSONsettings()
     local instrName = self.track:getName()
     local settings = paths.imageDir:findFile(instrName .. '.json')
     if settings then
-        settings = JSON.parse(readFile(settings))
+        self._settings = JSON.parse(readFile(settings))
     end
-    -- rea.log(settings)
+    return self._settings
+end
 
-    local res = self:getOutputs()
+function Plugin:getParamSteps(param)
+    local index = self:resolveParamIndex(param)
+    local retval,  step,  smallstep,  largestep,  istoggle = reaper.TrackFX_GetParameterStepSizes(self.track.track, self.index, index)
+    -- rea.log(step)
+    return step
+end
+
+function Plugin:getParamString(param)
+    local index = self:resolveParamIndex(param)
+    local retval, name = reaper.TrackFX_GetFormattedParamValue(self.track.track, self.index, index, '')
+    -- rea.log(name)
+    return name
+end
+
+function Plugin:initSettings()
+
+
+    local settings = self:getJSONsettings()
+
     if settings then
+        local res = self:getOutputs()
         if settings.outs then
             if settings.outs == 'all' then
                 _.forEach(res, function(out)
@@ -183,7 +202,7 @@ function Plugin:getCleanName()
 end
 
 function Plugin:getImage()
-    local pattern = self:getCleanName():escaped()
+    local pattern = self:getCleanName():escaped():gsub('ZL', '')
     return paths.imageDir:findFile(function(file) return file:lower() == pattern:lower() .. '.png' end) or paths.imageDir:findFile(pattern)
 end
 
@@ -201,6 +220,7 @@ end
 
 function Plugin:getOutputs()
     local succ, i, o = reaper.TrackFX_GetIOSize(self.track.track, self.index)
+    -- rea.log(i ..'o'..o)
     local res = {}
     if succ then
 
@@ -240,9 +260,11 @@ function Plugin:getOutputs()
             end
             current.createConnection = function()
 
-                -- if i == 1 then
-                --     return
-                -- end
+                if current.getConnection() then
+                    -- local out = current.getConnection():getTargetTrack()
+                    -- if not out:getName() then out:setName(current.name) end
+                    return
+                end
 
                 local outputTrack = self.track.insert()
 
@@ -294,7 +316,9 @@ function Plugin:getOutputs()
         end
 
         if _.size(res) == 1 then
-            res[1].name = self.track:getSafeName()
+            local succ, name = reaper.TrackFX_GetNamedConfigParm(self.track.track, self.index, 'out_pin_' .. tostring(0))
+            -- rea.log(tostring(succ) .. 'n:' .. name)
+            res[1].name = succ and name or self.track:getSafeName()
         end
 
     end

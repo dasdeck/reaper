@@ -49,10 +49,10 @@ end
 function FXListItem:create(plugin, plain)
 
     local file = not plain and plugin:getImage()
-    local comp = file and Image:create(file, 'cover', 1) or Label:create(plugin:getCleanName(), 0,0,200,40)
+    local comp = file and Image:create(file, 'cover', 1) or Label:create(plugin:getCleanName(), 0,0,150,40)
 
     comp.padding = 0
-    local self = Component:create(0,0, 1618, 1000)
+    local self = Component:create(0,0, 1618, 700)
     setmetatable(self, FXListItem)
 
     self.repaintOnMouseEnterOrLeave = true
@@ -74,6 +74,29 @@ function FXListItem:onClick(mouse)
             self.fx:setOffline(true)
             self.fx:setOffline(false)
         end)
+
+        local fxName = self.fx:getName()
+        if fxName:endsWith(' (Acqua)') then
+            menu:addItem('flip ZL', function()
+                local state = self.fx.track:getState(true).text
+
+                local pattern = '<VST "'.. fxName:escaped() ..'" (.-).vst(.-)\n'
+                local name, rest = state:match(pattern)
+
+                if name:endsWith('ZL') then
+                    name = name:gsub('ZL','')
+                    fxName = fxName:gsub('(.-)ZL'..tostring(' (Acqua)'):escaped(), '%1 (Acqua)')
+                else
+                    name = name .. 'ZL'
+                    fxName = fxName:gsub('(.-)'..tostring(' (Acqua)'):escaped(), '%1ZL (Acqua)')
+                end
+
+                local replace = '<VST "'.. fxName ..'" '..name..'.vst'..rest..'\n'
+
+                -- rea.log(state:gsub(pattern, replace))
+                self.fx.track:setState(state:gsub(pattern, replace))
+            end, 'flip LA')
+        end
 
         if self.fx.track:getInstrument() ~= self.fx then
             menu:addItem('wrap in la', function()
