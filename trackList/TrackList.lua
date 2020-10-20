@@ -99,6 +99,15 @@ function TrackList:onClick(mouse)
                 track:setColor(colors[track:getType()] or colors.default)
             end)
         end, 'autocolor')
+        menu:addItem('cleanup mixer', function()
+            _.forEach(Track.getAllTracks(), function(track)
+                local tcp, mcp = track:getVisibility()
+                if not tcp then
+                    local pk = track:getPeakHoldInfo()
+                    track:setVisibility(tcp, pk > -1.5)
+                end
+            end)
+        end, 'cleanup mixer')
         menu:show()
     else
         Track.setSelectedTracks({})

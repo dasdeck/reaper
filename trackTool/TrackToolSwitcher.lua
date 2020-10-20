@@ -137,6 +137,40 @@ function TrackToolSwitcher:update()
 
 
     self.currentTrack = self:getTrack()
+
+    local inputs = {
+        {
+            name = 'all',
+            value = 5088
+        },
+        {
+            name = 'MPD',
+            value = 4160
+        },
+        {
+            name = '88',
+            value = 4096
+        },
+        {
+            name = 'KORG',
+            value = 4288
+        }
+    }
+
+    self.midiIn = self:addChildComponent(ButtonList:create(_.map(inputs, function(val)
+        return {
+            args = val.name,
+            getToggleState = function()
+                return tostring(val.value) == self.currentTrack:getMidiIn()
+            end,
+            onClick = function()
+                rea.transaction('set midi in', function()
+                    self.currentTrack:setMidiIn(tostring(val.value))
+                end)
+            end
+        }
+    end), true))
+
     local comp = self:getTrack():createUI()-- or TrackTool:create(self:getTrack())
     if comp then
         self.trackTool = self:addChildComponent(comp)
@@ -154,6 +188,8 @@ function TrackToolSwitcher:resized()
 
     -- self.debug:setBounds(0,y,self.w, h)
     -- y = self.debug:getBottom()
+    self.midiIn:setBounds(0, y, self.w, h)
+    y = y + h
 
     if self.trackTool then
         self.trackTool:setBounds(0,y, self.w, self.h - y)

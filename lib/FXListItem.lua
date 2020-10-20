@@ -69,33 +69,58 @@ function FXListItem:onClick(mouse)
 
     if mouse:wasRightButtonDown() then
         local menu = Menu:create()
+        local type, name, ending = self.fx:getPluginName();
+        -- menu:addItem(type .. name .. ending, function()
+        -- end);
 
         menu:addItem('panic', function()
             self.fx:setOffline(true)
             self.fx:setOffline(false)
         end)
 
-        local fxName = self.fx:getName()
-        if fxName:endsWith(' (Acqua)') then
-            menu:addItem('flip ZL', function()
-                local state = self.fx.track:getState(true).text
+        menu:addItem('debug', function()
+            -- self.fx:setOffline(true)
+            -- self.fx:setOffline(false)
+            rea.log(self.fx.track:getState())
+            -- rea.log(self.fx.track:getMidiIn())
+        end)
 
-                local pattern = '<VST "'.. fxName:escaped() ..'" (.-).vst(.-)\n'
-                local name, rest = state:match(pattern)
+        local name, type, rest  = self.fx:getPluginName()
+        if type == 'VST' then
+            local isZL = name:match('ZL.vst')
 
-                if name:endsWith('ZL') then
-                    name = name:gsub('ZL','')
-                    fxName = fxName:gsub('(.-)ZL'..tostring(' (Acqua)'):escaped(), '%1 (Acqua)')
-                else
-                    name = name .. 'ZL'
-                    fxName = fxName:gsub('(.-)'..tostring(' (Acqua)'):escaped(), '%1ZL (Acqua)')
-                end
+            local nonZLName = name:gsub('.vst', ''):gsub('ZL', '')
+            local zlName = nonZLName .. 'ZL'
+            nonZLName = nonZLName .. '.vst'
+            zlName = zlName .. '.vst'
+            local lookupA = paths.vstDir:__tostring() .. '/' .. zlName
+            local lookupB = paths.vstDir:__tostring() .. '/' .. nonZLName
+            -- local dirA = paths.vstDir:indexOfDirectory(loocup)
+            -- local dirs = paths.vstDir:getDirectories();
+            -- rea.log({dirs, loocup, dirA, name, nonZLName, zlName, file})
 
-                local replace = '<VST "'.. fxName ..'" '..name..'.vst'..rest..'\n'
+            if paths.vstDir:indexOfDirectory(lookupA) and paths.vstDir:indexOfDirectory(lookupB) then
+                menu:addItem('flip ZL', function()
+                    local fxName = self.fx:getName()
+                    local state = self.fx.track:getState(true).text
 
-                -- rea.log(state:gsub(pattern, replace))
-                self.fx.track:setState(state:gsub(pattern, replace))
-            end, 'flip LA')
+                    local pattern = '<VST "'.. fxName:escaped() ..'" (.-).vst(.-)\n'
+                    local name, rest = state:match(pattern)
+
+                    if isZL then
+                        name = name:gsub('ZL','')
+                        fxName = fxName:gsub('ZL', '')
+                    else
+                        name = name .. 'ZL'
+                        fxName = fxName .. 'ZL'
+                    end
+
+                    local replace = '<VST "'.. fxName ..'" '..name..'.vst'..rest..'\n'
+
+                    -- rea.log(state:gsub(pattern, replace))
+                    self.fx.track:setState(state:gsub(pattern, replace))
+                end, 'flip LA')
+            end
         end
 
         if self.fx.track:getInstrument() ~= self.fx then

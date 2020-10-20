@@ -197,6 +197,26 @@ function Plugin:getName()
     return success and name
 end
 
+function Plugin:getPluginName()
+    local state = self.track:getState(true).text
+    local title = self:getName():escaped()
+    -- rea.log(state)
+    -- rea.log(title)
+
+    local type = state:match('\n<([AUVST3]-) "')
+    local pattern
+    if type == 'VST' then
+        pattern = '\n<VST "'.. title ..'" (.-%..-) (.-)\n'
+    elseif type == 'AU' then
+        pattern = '\n<AU "'.. title ..'" "(.-)" (.-)\n'
+    end
+
+
+    local name, rest = state:match(pattern)
+    -- rea.log({type, name, ending, rest})
+    return name, type, rest
+end
+
 function Plugin:getCleanName()
     return self:getName():gsub('%(.-%)', ''):gsub('.-: ', ''):trim()
 end

@@ -568,11 +568,33 @@ function Track:getState(live)
     return self.state
 end
 
+function Track:getMidiIn()
+    local state = self:getState():__tostring()
+    local pattern = 'REC (.-)\n'
+    local values = state:match(pattern)
+
+    return values:split(' ')[2]
+end
+
+function Track:setMidiIn(value)
+    local state = self:getState():__tostring()
+    local pattern = 'REC (.-)\n'
+    local values = state:match(pattern)
+
+    local valuesArr = values:split(' ')
+    valuesArr[2] = value
+    local newState = state:gsub(values, _.join(valuesArr, ' '))
+    -- rea.log(newState)
+    self:setState(newState)
+
+end
+
 function Track:__tostring()
     return self:getSafeName() .. ' :: ' .. tostring(self.track) .. '::' .. (self:getType() or '')
 end
 
 function Track:setState(state)
+    if type(state) == 'string' then state = TrackState.create(state) end
     self.state = state
     reaper.SetTrackStateChunk(self.track, tostring(state), false)
     return self
@@ -1021,6 +1043,10 @@ function Track:setVisibility(tcp, mcp)
     reaper.SetMediaTrackInfo_Value(self.track, 'B_SHOWINMIXER', mcp and 1 or 0)
     rea.refreshUI()
     return self
+end
+
+function Track:getVisibility()
+    return self:getValue('tcp') == 1, self:getValue('mcp') == 1
 end
 
 function Track:findChild(needle)

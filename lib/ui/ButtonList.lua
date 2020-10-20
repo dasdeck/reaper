@@ -30,7 +30,7 @@ function ButtonList:updateList()
         local proto = value.proto or self.proto
 
         local args = value.args or tostring(i)
-        local comp = type(proto) == 'function' and proto() or proto:create(args)
+        local comp = value.component  or type(proto) == 'function' and proto() or proto:create(args)
 
         comp.color = value.color or comp.color
 

@@ -63,6 +63,12 @@ function Directory:indexOf(needle)
     end)
 end
 
+function Directory:indexOfDirectory(needle)
+    return _.some(self:getDirectories(), function(file, index)
+        return file:lower() == needle:lower() or file:lower():match(needle:lower()) and (index+1)
+    end)
+end
+
 function Directory:getFiles()
     return rea.getFiles(self.dir, self.filter)
 end
